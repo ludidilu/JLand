@@ -475,7 +475,7 @@ public class BattlePublic {
 		return result;
 	}
 	
-	public static boolean checkSkillCondition(BattleHero _hero, int _condition, int _arg){
+	private static boolean checkSkillCondition(BattleHero _hero, int _condition, int _arg){
 		
 		switch(_condition){
 		
@@ -509,7 +509,7 @@ public class BattlePublic {
 		}
 	}
 	
-	public static void getSkillTargetArr(int _skillTarget, HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap, BattleHero _hero, ArrayList<BattleHero> _resultArr){
+	private static void getSkillTargetArr(int _skillTarget, HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap, BattleHero _hero, ArrayList<BattleHero> _resultArr){
 		
 		switch(_skillTarget){
 		
@@ -593,7 +593,7 @@ public class BattlePublic {
 		return resultArr;
 	}
 		
-	public static int castSkillEffect(BattleHero _hero, BattleHero _targetHero, int _effect, int[] _effectArg){
+	private static int castSkillEffect(BattleHero _hero, BattleHero _targetHero, int _effect, int[] _effectArg){
 		
 		switch(_effect){
 		
@@ -647,6 +647,12 @@ public class BattlePublic {
 					
 					return _effectArg[1];
 				}
+				
+			case 7:
+				
+				_hero.atkFix = _hero.atkFix + _targetHero.csv.atk;
+				
+				return _targetHero.csv.atk;
 				
 			default:
 				

@@ -53,11 +53,6 @@ public class BattleAI {
 						_summonData.put(uid, pos);
 						
 						_userMoney = _userMoney - hero.star;
-						
-						if(hero.type == 3){
-							
-							canMoveHeroMap.put(pos, hero);
-						}
 					}
 				}
 			}

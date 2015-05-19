@@ -16,7 +16,7 @@ int,str,str[],int,str
 10,getBattleDataOK,boo$int$int$int$int[]$int[][]$int$int$int$int[][]$int[]$boo$int[][]$int[][],1,获取战斗数据成功
 11,sendBattleAction,int[][]$int[][],0,发送战斗动作
 12,sendBattleActionOK,boo,1,发送战斗动作成功
-13,playBattle,int[][]$int[][]$int[][]$int[][][]$int[][][]$int$int$int[],2,播放战斗动画
+13,playBattle,int[][]$int[][]$int[][]$int[][][]$int[][][]$int$int$int$int[],2,播放战斗动画
 14,fightAi,,0,发起AI战斗
 15,fightAiOK,boo,1,发起AI战斗成功
 16,quitAi,,0,退出AI战斗

@@ -569,10 +569,7 @@ public class Battle extends SuperService{
 				
 				hero.power = heroCsv.maxPower;
 				
-				if(hero.csv.type != 3){
-					
-					hero.isJustSummon = true;
-				}
+				hero.isJustSummon = true;
 				
 				heroMap.put(pos, hero);
 				
@@ -664,10 +661,7 @@ public class Battle extends SuperService{
 				
 				hero.power = heroCsv.maxPower;
 				
-				if(hero.csv.type != 3){
-					
-					hero.isJustSummon = true;
-				}
+				hero.isJustSummon = true;
 				
 				heroMap.put(pos, hero);
 				
@@ -1372,6 +1366,18 @@ public class Battle extends SuperService{
 				
 				hero.moved = false;
 				
+				if(hero.csv.type == 3){
+					
+					if(hero.isHost){
+						
+						moveHero1.add(hero);
+						
+					}else{
+						
+						moveHero2.add(hero);
+					}
+				}
+				
 			}else{
 				
 				if(hero.isHost){
@@ -1465,10 +1471,10 @@ public class Battle extends SuperService{
 			
 			cardID1 = userAllCards1.remove(0);
 			
-			cardUid1 = getUid();
-			
 			if(userCards1.size() < MAX_CARDS_NUM){
-			
+
+				cardUid1 = getUid();
+				
 				userCards1.put(cardUid1, cardID1);
 			}
 		}
@@ -1480,20 +1486,20 @@ public class Battle extends SuperService{
 			
 			cardID2 = userAllCards2.remove(0);
 			
-			cardUid2 = getUid();
-			
 			if(userCards2.size() < MAX_CARDS_NUM){
-			
+
+				cardUid2 = getUid();
+				
 				userCards2.put(cardUid2, cardID2);
 			}
 		}
 		//--------
 		
-		service1.process("playBattle", summonResult1, summonResult2, moveResult, skillResult, attackResult, cardUid1, cardID1, canMoveData);
+		service1.process("playBattle", summonResult1, summonResult2, moveResult, skillResult, attackResult, cardUid1, cardID1, cardUid2 == -1 ? cardID2 : -1, canMoveData);
 		
 		if(service2 != null){
 		
-			service2.process("playBattle", summonResult1, summonResult2, moveResult, skillResult, attackResult, cardUid2, cardID2, canMoveData);
+			service2.process("playBattle", summonResult1, summonResult2, moveResult, skillResult, attackResult, cardUid2, cardID2, cardUid1 == -1 ? cardID1 : -1, canMoveData);
 		}
 	}
 	

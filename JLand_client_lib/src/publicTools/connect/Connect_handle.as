@@ -69,9 +69,9 @@ package publicTools.connect
 			Game.sendBattleActionOK(_result);
 		}
 		
-		internal static function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+		internal static function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
 			
-			Game.playBattle(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+			Game.playBattle(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 		}
 		
 		

@@ -21,7 +21,7 @@ public class UserService extends Server_thread_service{
 		
 		Server_thread_service.methodMap.put("getBattleDataOK", UserService.class.getDeclaredMethod("getBattleDataOK", boolean.class,int.class,int.class,int.class,int[].class,int[][].class,int.class,int.class,int.class,int[][].class,int[].class,boolean.class,int[][].class,int[][].class));
 		Server_thread_service.methodMap.put("sendBattleActionOK", UserService.class.getDeclaredMethod("sendBattleActionOK", boolean.class));
-		Server_thread_service.methodMap.put("playBattle", UserService.class.getDeclaredMethod("playBattle", int[][].class,int[][].class,int[][].class,int[][][].class,int[][][].class,int.class,int.class,int[].class));
+		Server_thread_service.methodMap.put("playBattle", UserService.class.getDeclaredMethod("playBattle", int[][].class,int[][].class,int[][].class,int[][][].class,int[][][].class,int.class,int.class,int.class,int[].class));
 		Server_thread_service.methodMap.put("fightAiOK", UserService.class.getDeclaredMethod("fightAiOK", boolean.class));
 		Server_thread_service.methodMap.put("quitGameAiOK",UserService.class.getDeclaredMethod("quitGameAiOK",boolean.class));
 		Server_thread_service.methodMap.put("quitGameAiWhenDisconnectOK",UserService.class.getDeclaredMethod("quitGameAiWhenDisconnectOK",boolean.class));
@@ -183,9 +183,9 @@ public class UserService extends Server_thread_service{
 		sendData(12, _result);
 	}
 	
-	public void playBattle(int[][] _summonData1,int[][] _summonData2,int[][] _moveData,int[][][] _skillData, int[][][] _attackData,int _cardUid,int _cardID,int[] _canMoveData) throws Exception{
+	public void playBattle(int[][] _summonData1,int[][] _summonData2,int[][] _moveData,int[][][] _skillData, int[][][] _attackData,int _cardUid,int _cardID,int _oppCardID,int[] _canMoveData) throws Exception{
 		
-		sendData(13, _summonData1, _summonData2, _moveData, _skillData, _attackData,_cardUid,_cardID,_canMoveData);
+		sendData(13, _summonData1, _summonData2, _moveData, _skillData, _attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 	}
 	
 	public void fightAi() throws Exception{
