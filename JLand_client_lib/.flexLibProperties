@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="game.gameQueue.GameQueuePanel"/>
+    <classEntry path="game.battle.Battle"/>
+    <classEntry path="data.map.Map"/>
+    <classEntry path="data.csv.Csv_map"/>
+    <classEntry path="data.map.MapUnit"/>
+    <classEntry path="data.csv.Csv_hero"/>
+    <classEntry path="data.csv.CsvUnit"/>
+    <classEntry path="game.battle.BattleHero"/>
+    <classEntry path="game.battle.BattleMap"/>
+    <classEntry path="game.battle.BattleMapUnit"/>
+    <classEntry path="game.battle.BattlePublic"/>
+    <classEntry path="game.battle.BattleCard"/>
+    <classEntry path="publicTools.tools.UpdateFrameUtil"/>
+    <classEntry path="game.battle.BattleHeroDetailPanel"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

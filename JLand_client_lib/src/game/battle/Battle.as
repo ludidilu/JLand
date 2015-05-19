@@ -1,0 +1,2019 @@
+package game.battle
+{
+	import com.greensock.TweenLite;
+	import com.greensock.easing.ElasticIn;
+	import com.greensock.easing.Linear;
+	import com.greensock.easing.Quad;
+	
+	import flash.utils.Dictionary;
+	
+	import data.csv.Csv;
+	import data.csv.CsvUnit;
+	import data.map.Map;
+	import data.map.MapUnit;
+	import data.resource.ResourceFont;
+	import data.resource.ResourcePublic;
+	
+	import publicTools.connect.Connect_handle;
+	
+	import starling.core.Starling;
+	import starling.display.Button;
+	import starling.display.Image;
+	import starling.display.Sprite;
+	import starling.events.Event;
+	import starling.text.TextField;
+	import starling.textures.Texture;
+	import starling.utils.HAlign;
+
+	public class Battle extends Sprite
+	{
+		public static const MAX_CARDS_NUM:int = 5;
+		public static const MONEY_NUM:int = 5;
+		public static const POWER_CAN_MOVE:int = 1;
+		
+		private static const CARD_WIDTH:int = 64;
+		private static const CARD_HEIGHT:int = 80;
+		private static const CARD_GAP:int = 5;
+		
+		private var gameScale:Number = 1;
+		
+		private var heroCsvUnit:CsvUnit;
+		
+		private var gameContainer:Sprite;
+		private var battleMap:BattleMap;
+		private var heroContainer:Sprite;
+		private var arrowContainer:Sprite;
+		private var effectContainer:Sprite;
+		private var cardContainer:Sprite;
+		private var uiContainer:Sprite;
+		private var moneyContainer:Sprite;
+		private var heroDetailContainer:Sprite;
+		private var btContainer:Sprite;
+		
+		private var isHost:Boolean;
+		private var mapUnit:MapUnit;
+		internal var mapData:Dictionary;
+		
+		private var money:int;
+		
+		internal var summonDic:Dictionary;
+		internal var nowSummonCard:BattleCard;
+		
+		internal var moveDic:Dictionary;
+		internal var moveResultDic:Dictionary;
+
+		private var myAllCardsNum:int;
+		private var oppAllCardsNum:int;
+		private var oppCardsNum:int;
+		
+		private var myScore:int;
+		private var oppScore:int;
+		
+		private var nowRound:int;
+		private var maxRound:int;
+		
+		internal var canMoveData:Vector.<int>;
+		private var myCards:Vector.<BattleCard>;
+		
+		internal var heroData:Dictionary;
+		
+		private var isActioned:Boolean;
+		
+		private var actionBt:Button;
+		
+		private var roundTf:TextField;
+		private var scoreTf:TextField;
+		private var myMoneyTf:TextField;
+		private var oppCardsNumTf:TextField;
+		private var myAllCardsNumTf:TextField;
+		private var oppAllCardsNumTf:TextField;
+		
+		private var heroDetailPanel:BattleHeroDetailPanel;
+		
+		private var moneyIsTrembling:Boolean;
+		
+		public static var instance:Battle;
+		
+		public function Battle()
+		{
+			super();
+			
+			instance = this;
+			
+			heroCsvUnit = Csv.getCsvUnit("hero");
+			
+			gameContainer = new Sprite;
+			
+			gameContainer.scaleX = gameContainer.scaleY = gameScale;
+			
+			addChild(gameContainer);
+			
+			battleMap = new BattleMap;
+			
+			gameContainer.addChild(battleMap);
+			
+			heroContainer = new Sprite;
+			
+			heroContainer.touchable = false;
+			
+			gameContainer.addChild(heroContainer);
+			
+			arrowContainer = new Sprite;
+			
+			arrowContainer.touchable = false;
+			
+			gameContainer.addChild(arrowContainer);
+			
+			effectContainer = new Sprite;
+			
+			effectContainer.touchable = false;
+			
+			gameContainer.addChild(effectContainer);
+			
+			cardContainer = new Sprite;
+			
+			addChild(cardContainer);
+			
+			uiContainer = new Sprite;
+			
+			uiContainer.touchable = false;
+			
+			addChild(uiContainer);
+			
+			oppCardsNumTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			oppCardsNumTf.hAlign = HAlign.LEFT;
+			oppCardsNumTf.x = Starling.current.backBufferWidth - 30 - oppCardsNumTf.width;
+			oppCardsNumTf.y = Starling.current.backBufferHeight - 150 - oppCardsNumTf.height;
+			
+			uiContainer.addChild(oppCardsNumTf);
+			
+			myAllCardsNumTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			myAllCardsNumTf.hAlign = HAlign.LEFT;
+			myAllCardsNumTf.x = Starling.current.backBufferWidth - 30 - myAllCardsNumTf.width;
+			myAllCardsNumTf.y = Starling.current.backBufferHeight - 110 - myAllCardsNumTf.height;
+			
+			uiContainer.addChild(myAllCardsNumTf);
+			
+			oppAllCardsNumTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			oppAllCardsNumTf.hAlign = HAlign.LEFT;
+			oppAllCardsNumTf.x = Starling.current.backBufferWidth - 30 - oppAllCardsNumTf.width;
+			oppAllCardsNumTf.y = Starling.current.backBufferHeight - 70 - oppAllCardsNumTf.height;
+			
+			uiContainer.addChild(oppAllCardsNumTf);
+			
+			scoreTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			scoreTf.hAlign = HAlign.LEFT;
+			scoreTf.x = Starling.current.backBufferWidth - 30 - scoreTf.width;
+			scoreTf.y = Starling.current.backBufferHeight - 190 - scoreTf.height;
+			
+			uiContainer.addChild(scoreTf);
+			
+			roundTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			roundTf.hAlign = HAlign.LEFT;
+			roundTf.x = Starling.current.backBufferWidth - 30 - roundTf.width;
+			roundTf.y = Starling.current.backBufferHeight - 230 - roundTf.height;
+			
+			uiContainer.addChild(roundTf);
+			
+			
+			moneyContainer = new Sprite;
+			
+			moneyContainer.touchable = false;
+			
+			addChild(moneyContainer);
+			
+			myMoneyTf = new TextField(150,30,"",ResourceFont.fontName,16);
+			myMoneyTf.hAlign = HAlign.LEFT;
+			myMoneyTf.x = Starling.current.backBufferWidth - 30 - myMoneyTf.width;
+			myMoneyTf.y = Starling.current.backBufferHeight - 270 - myMoneyTf.height;
+			
+			moneyContainer.addChild(myMoneyTf);
+			
+			
+			
+			heroDetailContainer = new Sprite;
+			
+			heroDetailPanel = new BattleHeroDetailPanel;
+			
+			heroDetailPanel.visible = false;
+			
+			heroDetailContainer.addChild(heroDetailPanel);
+			
+			addChild(heroDetailContainer);
+			
+			btContainer = new Sprite;
+			
+			addChild(btContainer);
+			
+			actionBt = new Button(Texture.fromColor(150,30,0xFFFF0000));
+			
+			actionBt.x = Starling.current.backBufferWidth - 30 - actionBt.width;
+			actionBt.y = Starling.current.backBufferHeight - 30 - actionBt.height;
+			
+			actionBt.addEventListener(Event.TRIGGERED,btClick);
+			
+			btContainer.addChild(actionBt);
+		}
+		
+		public function start(_isHost:Boolean,_nowRound:int,_maxRound:int,_mapID:int,_mapData:Vector.<int>,_myCards:Vector.<Vector.<int>>,_oppCardsNum:int,_userAllCardsNum1:int,_userAllCardsNum2:int,_heroData:Vector.<Vector.<int>>,_canMoveData:Vector.<int>,_isActioned:Boolean,_actionHeroData:Vector.<Vector.<int>>,_actionSummonData:Vector.<Vector.<int>>):void{
+			
+			isHost = _isHost;
+			mapUnit = Map.getMap(_mapID);
+			
+			nowRound = _nowRound;
+			maxRound = _maxRound;
+			
+			canMoveData = _canMoveData;
+			
+			if(!isHost && canMoveData != null){
+				
+				for(var i:int = 0 ; i < canMoveData.length ; i++){
+					
+					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
+				}
+			}
+			
+			mapData = new Dictionary;
+			
+			summonDic = new Dictionary;
+			
+			moveDic = new Dictionary;
+			
+			for(var str:String in mapUnit.dic){
+				
+				var pos:int = int(str);
+				
+				if(isHost){
+					
+					if(_mapData.indexOf(pos) != -1){
+						
+						myScore++;
+						
+						mapData[pos] = 1;
+						
+					}else{
+						
+						oppScore++;
+						
+						mapData[pos] = 2;
+					}
+					
+				}else{
+					
+					if(_mapData.indexOf(pos) != -1){
+						
+						oppScore++;
+						
+						mapData[mapUnit.size - 1 - pos] = 2;
+						
+					}else{
+						
+						myScore++;
+						
+						mapData[mapUnit.size - 1 - pos] = 1;
+					}
+				}
+			}
+			
+			battleMap.start(mapUnit.mapWidth,mapUnit.mapHeight,mapUnit.size,mapData);
+			
+			if(_isHost){
+
+				myAllCardsNum =_userAllCardsNum1;
+				oppAllCardsNum = _userAllCardsNum2;
+				
+			}else{
+
+				myAllCardsNum =_userAllCardsNum2;
+				oppAllCardsNum = _userAllCardsNum1;
+			}
+			
+			oppCardsNum = _oppCardsNum;
+			
+			refreshUIContainer();
+			
+			money = MONEY_NUM;
+			
+			refreshMoneyTf();
+			
+			if(_myCards != null){
+			
+				myCards = new Vector.<BattleCard>(_myCards.length);
+				
+				for(i = 0 ; i < _myCards.length ; i++){
+					
+					var battleCard:BattleCard = new BattleCard;
+					
+					battleCard.uid = _myCards[i][0];
+					
+					battleCard.csv = heroCsvUnit.dic[_myCards[i][1]];
+					
+					battleCard.refresh();
+					
+					cardContainer.addChild(battleCard);
+					
+					myCards[i] = battleCard;
+				}
+				
+				refreshCards();
+				
+			}else{
+				
+				myCards = new Vector.<BattleCard>();
+			}
+			
+			heroData = new Dictionary;
+			
+			if(_heroData != null){
+			
+				for(i = 0 ; i < _heroData.length ; i++){
+					
+					var hero:BattleHero = new BattleHero;
+					
+					var vec:Vector.<int> = _heroData[i];
+					
+					hero.pos = isHost ? vec[0] : mapUnit.size - 1 - vec[0];
+					
+					hero.isMine = (isHost && vec[1] == 1) || (!isHost && vec[1] == 0);
+					
+					hero.csv = heroCsvUnit.dic[vec[2]];
+					
+					hero.hp = vec[3];
+					
+					hero.power = vec[4];
+					
+					hero.refresh(true);
+					
+					heroData[hero.pos] = hero;
+					
+					heroContainer.addChild(hero);
+					
+					var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[hero.pos];
+					
+					hero.x = tmpBattleMapUnit.x;
+					hero.y = tmpBattleMapUnit.y;
+				}
+			}
+			
+			isActioned = _isActioned;
+			
+			if(isActioned){
+				
+				if(_actionHeroData != null){
+				
+					for(i = 0 ; i < _actionHeroData.length ; i++){
+						
+						pos = isHost ? _actionHeroData[i][0] : mapUnit.size - 1 - _actionHeroData[i][0];
+						var target:int = isHost ? _actionHeroData[i][1] : mapUnit.size - 1 - _actionHeroData[i][1];
+						
+						moveDic[pos] = target;
+					}
+					
+					money = money - _actionHeroData.length;
+					
+					refreshMoneyTf();
+				}
+				
+				if(_actionSummonData != null){
+					
+					for(i = 0 ; i < _actionSummonData.length ; i++){
+						
+						var uid:int = _actionSummonData[i][0];
+						target = isHost ? _actionSummonData[i][1] : mapUnit.size - 1 - _actionSummonData[i][1];
+						
+						for(var m:int = 0 ; m < myCards.length ; m++){
+							
+							if(myCards[m].uid == uid){
+								
+								nowSummonCard = myCards[m];
+								
+								break;
+							}
+						}
+						
+						summon(target);
+					}
+					
+					nowSummonCard = null;
+				}
+				
+				refreshMove();
+				
+				actionBt.enabled = false;
+			}
+		}
+		
+		private function refreshCards():void{
+			
+			cardContainer.unflatten();
+
+			var startX:Number = (Starling.current.backBufferWidth - myCards.length * CARD_WIDTH - (myCards.length - 1) * CARD_GAP) * 0.5;
+			
+			for(var i:int = 0 ; i < myCards.length ; i++){
+			
+				var card:BattleCard = myCards[i];
+				
+				card.y = Starling.current.backBufferHeight - CARD_HEIGHT * 0.5;
+				
+				card.x = startX + i * (CARD_WIDTH + CARD_GAP) + CARD_WIDTH * 0.5;
+			}
+			
+			cardContainer.flatten();
+		}
+		
+		public function get gameContainerX():Number{
+			
+			return gameContainer.x;
+		}
+		
+		public function set gameContainerX(value:Number):void{
+			
+			gameContainer.x = value;
+		}
+		
+		public function get gameContainerY():Number{
+			
+			return gameContainer.y;
+		}
+		
+		public function set gameContainerY(value:Number):void{
+			
+			gameContainer.y = value;
+		}
+		
+		public function cardTouch(_card:BattleCard,_x:Number,_y:Number):void{
+			
+			if(isActioned){
+				
+				return;
+			}
+			
+			if(nowSummonCard == _card){
+				
+				cardContainer.unflatten();
+				
+				_card.y = _card.y + 20;
+				
+				cardContainer.flatten();
+				
+				nowSummonCard = null;
+				
+				hideHeroDetail();
+				
+			}else{
+				
+				if(nowSummonCard == null){
+					
+					battleMap.clearSelectedUnit();
+					
+				}else{
+					
+					clearNowSummonCard();
+				}
+				
+				if(_card.csv.star <= money){
+					
+					cardContainer.unflatten();
+				
+					_card.y = _card.y - 20;
+					
+					cardContainer.flatten();
+					
+					nowSummonCard = _card;
+					
+				}else{
+					
+					moneyTremble();
+				}
+				
+				showHeroDetail(_x,_y,_card.csv.id);
+			}
+		}
+		
+		public function clearNowSummonCard():void{
+			
+			cardContainer.unflatten();
+			
+			nowSummonCard.y = nowSummonCard.y + 20;
+			
+			cardContainer.flatten();
+			
+			nowSummonCard = null;
+		}
+		
+		public function summon(_pos:int):void{
+			
+			money = money - nowSummonCard.csv.star;
+			
+			refreshMoneyTf();
+			
+			myCards.splice(myCards.indexOf(nowSummonCard),1);
+			
+			cardContainer.removeChild(nowSummonCard);
+			
+			refreshCards();
+			
+			summonDic[_pos] = nowSummonCard;
+
+			heroContainer.addChild(nowSummonCard);
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
+			
+			nowSummonCard.x = tmpBattleMapUnit.x;
+			nowSummonCard.y = tmpBattleMapUnit.y;
+			
+			nowSummonCard = null;
+			
+			refreshMove();
+			
+			hideHeroDetail();
+		}
+		
+		public function unSummon(_pos:int):void{
+			
+			if(isActioned){
+				
+				return;
+			}
+			
+			var card:BattleCard = summonDic[_pos];
+			
+			delete summonDic[_pos];
+			
+			if(moveDic[_pos] != null){
+				
+				delete moveDic[_pos];
+				
+				money = money + 1;
+			}
+			
+			money = money + card.csv.star;
+			
+			refreshMoneyTf();
+			
+			myCards.push(card);
+			
+			heroContainer.removeChild(card);
+			
+			cardContainer.addChild(card);
+			
+			refreshCards();
+			
+			battleMap.clearSelectedUnit();
+			
+			refreshMove();
+			
+			hideHeroDetail();
+		}
+		
+		public function heroMove(_pos:int,_target:int):void{
+			
+			if(isActioned){
+				
+				return;
+			}
+			
+			var hero:BattleHero = heroData[_pos];
+			
+			if(hero != null){
+			
+				if(!hero.isMine || hero.power < POWER_CAN_MOVE || canMoveData == null || canMoveData.indexOf(hero.pos) == -1){
+					
+					return;
+				}
+				
+			}else{
+				
+				var card:BattleCard = summonDic[_pos];
+				
+				if(card.csv.type != 3){
+					
+					return;
+				}
+			}
+			
+			if(moveDic[_pos] == null){
+				
+				if(money > 0){
+					
+					money = money - 1;
+					
+					refreshMoneyTf();
+					
+				}else{
+					
+					moneyTremble();
+					
+					return;
+				}
+				
+				moveDic[_pos] = _target;
+				
+			}else{
+				
+				if(moveDic[_pos] == _target){
+					
+					delete moveDic[_pos];
+					
+					money = money + 1;
+					
+					refreshMoneyTf();
+					
+				}else{
+					
+					moveDic[_pos] = _target;
+				}
+			}
+			
+			refreshMove();
+		}
+		
+		private function refreshMove():void{
+			
+			arrowContainer.unflatten();
+			
+			arrowContainer.removeChildren();
+			
+			checkMove();
+			
+			for(var str:String in moveDic){
+				
+				var pos:int = int(str);
+				
+				var target:int = moveDic[str];
+				
+				var sp:Sprite = new Sprite;
+				
+				if(moveResultDic[str] == 0){
+					
+					var picName:String = "greenArrow";
+					
+				}else if(moveResultDic[str] == 1){
+					
+					picName = "yellowArrow";
+					
+				}else{
+					
+					picName = "redArrow";
+				}
+				
+				var img:Image = new Image(ResourcePublic.getTexture(picName));
+				
+				img.x = -0.5 * img.width + 15;
+				img.y = -0.5 * img.height;
+				
+				sp.addChild(img);
+				
+				arrowContainer.addChild(sp);
+				
+				var tmpBattleMapUnit0:BattleMapUnit = battleMap.dic[pos];
+				
+				var tmpBattleMapUnit1:BattleMapUnit = battleMap.dic[target];
+				
+				sp.x = (tmpBattleMapUnit0.x + tmpBattleMapUnit1.x) * 0.5;
+				sp.y = (tmpBattleMapUnit0.y + tmpBattleMapUnit1.y) * 0.5;
+				
+				var dis:int = target - pos;
+				
+				switch(dis){
+					
+					case -1:
+						
+						sp.rotation = - Math.PI;
+						
+						break;
+					
+					case 1:
+						
+						break;
+					
+					case -mapUnit.mapWidth:
+						
+						sp.rotation = -Math.PI * 2 / 3;
+						
+						break;
+					
+					case -mapUnit.mapWidth + 1:
+						
+						sp.rotation = -Math.PI / 3;
+						
+						break;
+					
+					case mapUnit.mapWidth:
+					
+						sp.rotation = Math.PI / 3;
+						
+						break;
+					
+					default:
+						
+						sp.rotation = Math.PI * 2 / 3;
+						
+						break;
+				}
+			}
+			
+			for each(var hero:BattleHero in heroData){
+				
+				if(hero.isMine){
+					
+					hero.refresh(true);
+				}
+			}
+			
+			arrowContainer.flatten();
+		}
+		
+		private function checkMove():void{
+			
+			moveResultDic = new Dictionary;
+			
+			var targetDic:Dictionary = new Dictionary;
+			
+			for each(var target:int in moveDic){
+				
+				if(targetDic[target] == null){
+					
+					targetDic[target] = 1;
+					
+				}else{
+					
+					targetDic[target] = 2;
+				}
+			}
+			
+			for(var str:String in moveDic){
+				
+				target = moveDic[str];
+				
+				if(targetDic[target] == 2){
+					
+					moveResultDic[str] = 2;
+					
+				}else if(summonDic[target] != null){
+					
+					if(moveDic[target] == null){
+						
+						moveResultDic[str] = 2;
+					}
+					
+				}else if(mapData[target] == 2){
+					
+					var hero:BattleHero = heroData[target];
+					
+					if(hero != null && (hero.power < POWER_CAN_MOVE || canMoveData == null || canMoveData.indexOf(hero.pos) == -1)){
+						
+						moveResultDic[str] = 2;
+						
+					}else{
+					
+						moveResultDic[str] = 1;
+					}
+					
+				}else if(heroData[target] == null){
+					
+					moveResultDic[str] = 0;
+					
+				}else{
+					
+					if(moveDic[target] == null){
+						
+						moveResultDic[str] = 2;
+					}
+				}
+			}
+			
+			for(str in moveDic){
+				
+				if(moveResultDic[str] == null){
+					
+					var pos:int = int(str);
+					
+					var vec:Vector.<int> = new Vector.<int>;
+					
+					vec.push(pos);
+					
+					var result:int;
+					
+					while(true){
+						
+						target = moveDic[pos];
+						
+						if(moveResultDic[target] != null){
+							
+							result = moveResultDic[target];
+							
+							break;
+							
+						}else if(vec.indexOf(target) != -1){
+							
+							result = 0
+							
+							break;
+							
+						}else{
+							
+							vec.push(target);
+							
+							pos = target;
+						}
+					}
+					
+					for each(pos in vec){
+						
+						moveResultDic[pos] = result;
+					}
+				}
+			}
+		}
+		
+		private function btClick(e:Event):void{
+			
+			for each(var result:int in moveResultDic){
+				
+				if(result == 2){
+					
+					return;
+				}
+			}
+			
+			if(nowSummonCard != null){
+				
+				cardContainer.unflatten();
+				
+				nowSummonCard.y = nowSummonCard.y + 20;
+				
+				nowSummonCard = null;
+				
+				cardContainer.flatten();
+			}
+			
+			isActioned = true;
+			
+			var moveData:Vector.<Vector.<int>>;
+			
+			for(var str:String in moveDic){
+				
+				if(moveData == null){
+					
+					moveData = new Vector.<Vector.<int>>;
+				}
+				
+				var pos:int = int(str);
+				
+				var target:int = moveDic[str];
+				
+				moveData.push(Vector.<int>([isHost ? pos : mapUnit.size - 1 - pos, BattlePublic.getDirect(isHost,mapUnit.mapWidth,pos,target)]));
+			}
+			
+			var summonData:Vector.<Vector.<int>>;
+			
+			for(str in summonDic){
+				
+				if(summonData == null){
+					
+					summonData = new Vector.<Vector.<int>>;
+				}
+				
+				pos = int(str);
+				
+				var card:BattleCard = summonDic[str];
+				
+				summonData.push(Vector.<int>([card.uid, isHost ? pos : mapUnit.size - 1 - pos]));
+			}
+			
+			Connect_handle.sendData(11,moveData,summonData);
+		}
+		
+		public function sendBattleActionOK(_result:Boolean):void{
+			
+			if(_result){
+				
+				actionBt.enabled = false;
+			}
+		}
+		
+		public function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			battleMap.clearSelectedUnit();
+			
+			for each(var hero:BattleHero in heroData){
+				
+				hero.refresh(false);
+			}
+			
+			hideHeroDetail();
+			
+			Starling.current.touchable = false;
+			
+			for each(var card:BattleCard in summonDic){
+				
+				heroContainer.removeChild(card);
+			}
+			
+			summonDic = new Dictionary;
+			
+			moveDic = new Dictionary;
+			
+			moveResultDic = new Dictionary;
+			
+			arrowContainer.unflatten();
+			
+			arrowContainer.removeChildren();
+			
+			arrowContainer.flatten();
+			
+			startSummon(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+		}
+		
+		private function startSummon(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			if(isHost){
+				
+				if(_summonData1 != null && _summonData1.length > 0){
+					
+					var pos:int = _summonData1[0][2];
+					
+					var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+					
+					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+					
+				}else if(_summonData2 != null && _summonData2.length > 0){
+					
+					pos = _summonData2[0][2];
+					
+					tmpBattleMapUnit = battleMap.dic[pos];
+					
+					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+					
+				}else{
+					
+					startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+				}
+				
+			}else{
+				
+				if(_summonData2 != null && _summonData2.length > 0){
+					
+					pos = mapUnit.size - 1 - _summonData2[0][2];
+					
+					tmpBattleMapUnit = battleMap.dic[pos];
+					
+					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+					
+				}else if(_summonData1 != null && _summonData1.length > 0){
+					
+					pos = mapUnit.size - 1 - _summonData1[0][2];
+					
+					tmpBattleMapUnit = battleMap.dic[pos];
+					
+					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+					
+				}else{
+					
+					startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+				}
+			}
+		}
+		
+		private function startSummonReal(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			if(isHost){
+				
+				if(_summonData1 != null && _summonData1.length > 0){
+					
+					var vec:Vector.<int> = _summonData1.shift();
+					
+					var hero:BattleHero = new BattleHero;
+					
+					hero.isMine = true;
+					
+				}else{
+					
+					vec = _summonData2.shift();
+					
+					hero = new BattleHero;
+					
+					hero.isMine = false;
+					
+					oppCardsNum--;
+					
+					refreshUIContainer();
+				}
+				
+				hero.pos = vec[2];
+				
+			}else{
+				
+				if(_summonData2 != null && _summonData2.length > 0){
+					
+					vec = _summonData2.shift();
+					
+					hero = new BattleHero;
+					
+					hero.isMine = true;
+					
+				}else{
+					
+					vec = _summonData1.shift();
+					
+					hero = new BattleHero;
+					
+					hero.isMine = false;
+					
+					oppCardsNum--;
+					
+					refreshUIContainer();
+				}
+				
+				hero.pos = mapUnit.size - 1 - vec[2];
+			}
+			
+			hero.csv = heroCsvUnit.dic[vec[1]];
+			
+			hero.hp = hero.csv.maxHp;
+			
+			hero.power = hero.csv.maxPower;
+			
+			hero.refresh(false);
+			
+			heroData[hero.pos] = hero;
+			
+			heroContainer.addChild(hero);
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[hero.pos];
+			
+			hero.x = tmpBattleMapUnit.x;
+			hero.y = tmpBattleMapUnit.y;
+			
+			hero.scaleX = hero.scaleY = 5;
+			
+//			TweenLite.to(hero,0.5,{scaleX:1,scaleY:1,ease:Quad.easeIn,onComplete:startSummon,onCompleteParams:[_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData]});
+			
+			TweenLite.to(hero,0.5,{scaleX:1,scaleY:1,ease:Quad.easeIn,onComplete:delayCall,onCompleteParams:[0.5,startSummon,[_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData]]});
+		}
+		
+		private function startMove(_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+				
+			if(_moveData == null || _moveData.length == 0){
+				
+				startSkill(_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+				
+			}else{
+				
+				var vec:Vector.<int> = _moveData.shift();
+				
+				var pos:int = vec[0];
+				var target:int = vec[1];
+				
+				var dic:Dictionary = new Dictionary;
+				
+				dic[pos] = target;
+				
+				var dic2:Dictionary = new Dictionary;
+				
+				dic2[target] = pos;
+				
+				while(true){
+					
+					var hasMoveUnit:Boolean = false;
+					
+					for(var i:int = 0 ; i < _moveData.length ; i++){
+						
+						vec = _moveData[i];
+						
+						pos = vec[0];
+						target = vec[1];
+						
+						if(dic[target] != null || dic2[pos] != null){
+							
+							_moveData.splice(i,1);
+							
+							dic[pos] = target;
+							dic2[target] = pos;
+							
+							hasMoveUnit = true;
+							
+							break;
+						}
+					}
+					
+					if(!hasMoveUnit){
+						
+						break;
+					}
+				}
+				
+				var heroVec:Vector.<BattleHero> = new Vector.<BattleHero>;
+				
+				var _x:Number = 0;
+				var _y:Number = 0;
+				
+				for(var str:String in dic){
+					
+					pos = isHost ? int(str) : mapUnit.size - 1 - int(str);
+					target = isHost ? dic[str] : mapUnit.size - 1 - dic[str];
+					
+					var hero:BattleHero = heroData[pos];
+					
+					canMoveData.splice(canMoveData.indexOf(pos),1);
+					
+					delete heroData[pos];
+					
+					hero.pos = target;
+					
+					heroVec.push(hero);
+					
+					var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+					
+					_x = _x + tmpBattleMapUnit.x;
+					_y = _y + tmpBattleMapUnit.y;
+				}
+				
+				_x = _x / heroVec.length;
+				_y = _y / heroVec.length;
+				
+				moveGameContainerToCenter(_x,_y,startMoveReal,_moveData,_skillData,_attackData,_cardUid,_cardID,heroVec,_canMoveData);
+			}
+		}
+		
+		private function startMoveReal(_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_heroVec:Vector.<BattleHero>,_canMoveData:Vector.<int>):void{
+			
+			var hasAddCallBack:Boolean = false;
+			
+			for each(var hero:BattleHero in _heroVec){
+				
+				var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[hero.pos];
+				
+				if(!hasAddCallBack){
+					
+					hasAddCallBack = true;
+					
+					TweenLite.to(hero,0.5,{ease:Linear.easeNone,x:tmpBattleMapUnit.x,y:tmpBattleMapUnit.y,onComplete:moveComplete,onCompleteParams:[_moveData,_skillData,_attackData,_cardUid,_cardID,_heroVec,_canMoveData]});
+					
+				}else{
+					
+					TweenLite.to(hero,0.5,{ease:Linear.easeNone,x:tmpBattleMapUnit.x,y:tmpBattleMapUnit.y});
+				}
+			}
+		}
+		
+		private function moveComplete(_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_heroVec:Vector.<BattleHero>,_canMoveData:Vector.<int>):void{
+			
+			for each(var hero:BattleHero in _heroVec){
+				
+				heroData[hero.pos] = hero;
+				
+				if(mapData[hero.pos] == 1 && !hero.isMine){
+					
+					mapData[hero.pos] = 2;
+					
+					myScore--;
+					
+					oppScore++;
+					
+					refreshUIContainer();
+					
+				}else if(mapData[hero.pos] == 2 && hero.isMine){
+					
+					mapData[hero.pos] = 1;
+					
+					myScore++;
+					
+					oppScore--;
+					
+					refreshUIContainer();
+				}
+			}
+			
+			battleMap.refresh(mapData);
+			
+			TweenLite.delayedCall(0.5,startMove,[_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData]);
+			
+//			startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+		}
+		
+		private function startSkill(_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			effectContainer.removeChildren();
+			
+			if(_skillData == null || _skillData.length == 0){
+				
+				castSkillOver(_attackData,_cardUid,_cardID,_canMoveData);
+				
+				return;
+			}
+			
+			var vec:Vector.<Vector.<int>> = _skillData[0];
+			
+			var pos:int = vec[0][0];
+			
+			pos = isHost ? pos : mapUnit.size - 1 - pos;
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+			
+			moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSkillReal,_skillData,_attackData,_cardUid,_cardID,_canMoveData);
+		}	
+			
+		private function startSkillReal(_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+		
+			var vec:Vector.<Vector.<int>> = _skillData.shift();
+			
+			var pos:int = vec.shift()[0];
+			
+			pos = isHost ? pos : mapUnit.size - 1 - pos;
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+			
+			var hasAddCallBack:Boolean = false;
+			
+			for each(var vec2:Vector.<int> in vec){
+				
+				var targetPos:int = vec2.shift();
+				
+				targetPos = isHost ? targetPos : mapUnit.size - 1 - targetPos;
+				
+				if(mapData[pos] == mapData[targetPos]){
+					
+					var textureName:String = "greenArrow";
+					
+				}else{
+					
+					textureName = "redArrow";
+				}
+				
+				var sp:Sprite = new Sprite;
+				
+				var img:Image = new Image(ResourcePublic.getTexture(textureName));
+				
+				img.x = -0.5 * img.width;
+				img.y = -0.5 * img.height;
+				
+				sp.addChild(img);
+				
+				sp.flatten();
+				
+				sp.x = tmpBattleMapUnit.x;
+				sp.y = tmpBattleMapUnit.y;
+				
+				var targetBattleMapUnit:BattleMapUnit = battleMap.dic[targetPos];
+				
+				sp.rotation = Math.atan2(targetBattleMapUnit.y - sp.y, targetBattleMapUnit.x - sp.x);
+				
+				effectContainer.addChild(sp);
+				
+				if(!hasAddCallBack){
+					
+					hasAddCallBack = true;
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[targetPos,vec2,_skillData,_attackData,_cardUid,_cardID,_canMoveData]});
+					
+				}else{
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[targetPos,vec2]});
+				}
+			}
+		}
+		
+		private function skillShootTarget(_pos:int,_vec:Vector.<int>,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_canMoveData:Vector.<int> = null):void{
+			
+			var sp:Sprite = new Sprite;
+			
+			effectContainer.addChild(sp);
+			
+			for(var i:int = 0 ; i < _vec.length ; i = i + 2){
+				
+				var type:int = _vec[i];
+				var data:int = _vec[i + 1];
+				
+				switch(type){
+					
+					case 1:
+						
+						if(data == 1){
+							
+							var str:String = "沉默";
+							var color:uint = 0xFF0000;
+							
+						}else{
+							
+							continue;
+						}
+						
+						break;
+						
+					case 2:
+					case 5:
+					case 6:
+						
+						var hero:BattleHero = heroData[_pos];
+						
+						hero.hp = hero.hp + data;
+
+						hero.refresh(false);
+						
+						if(data < 0){
+							
+							str = "HP" + data;
+							
+							color = 0xFF0000;
+							
+						}else if(data == 0){
+							
+							str = "HP-" + data;
+							
+							color = 0xFF0000;
+							
+						}else{
+							
+							str = "HP+" + data;
+							
+							color = 0x00FF00;
+						}
+						
+						break;
+					
+					case 3:
+						
+						hero = heroData[_pos];
+						
+						hero.atkFix = hero.atkFix + data;
+						
+						hero.refresh(false);
+						
+						if(data < 0){
+							
+							str = "ATK" + data;
+							
+							color = 0xFF0000;
+							
+						}else{
+							
+							str = "ATK+" + data;
+							
+							color = 0x00FF00;
+						}
+						
+						break;
+					
+					case 4:
+						
+						hero = heroData[_pos];
+						
+						hero.maxHpFix = hero.maxHpFix + data;
+						
+						hero.hp = hero.hp + data;
+						
+						hero.refresh(false);
+						
+						str = "MAXHP+" + data;
+							
+						color = 0x00FF00;
+						
+						break;
+				}
+				
+				var tf:TextField = new TextField(100,24,str,ResourceFont.fontName,24,color);
+				tf.hAlign = HAlign.CENTER;
+				
+				tf.x = -0.5 * tf.width;
+				tf.y = -0.5 * tf.height - 16 - 24 * i * 0.5;
+				
+				sp.addChild(tf);
+			}
+			
+			sp.flatten();
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
+			
+			sp.x = tmpBattleMapUnit.x;
+			sp.y = tmpBattleMapUnit.y;
+			
+			if(_skillData != null){
+				
+				TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone,onComplete:delayCall,onCompleteParams:[0.5,startSkill,[_skillData,_attackData,_cardUid,_cardID,_canMoveData]]});
+				
+			}else{
+			
+				TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone});
+			}
+		}
+		
+		private function castSkillOver(_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			var hasAddCallBack:Boolean = false;
+			
+			for(var str:String in heroData){
+				
+				var pos:int = int(str);
+				
+				var hero:BattleHero = heroData[str];
+				
+				if(hero.hp < 1){
+					
+					if(!hasAddCallBack){
+						
+						hasAddCallBack = true;
+						
+						TweenLite.delayedCall(1,startAttack,[_attackData,_cardUid,_cardID,_canMoveData]);
+					}
+					
+					TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:heroDieOver,onCompleteParams:[hero]});
+					
+					delete heroData[str];
+					
+					continue;
+					
+				}else if(hero.hp > hero.csv.maxHp + hero.maxHpFix){
+					
+					hero.hp = hero.csv.maxHp + hero.maxHpFix;
+				}
+			}
+			
+			if(!hasAddCallBack){
+				
+				TweenLite.delayedCall(0.5,startAttack,[_attackData,_cardUid,_cardID,_canMoveData]);
+			}
+			
+//			startAttack(_attackData,_cardUid,_cardID,_canMoveData);
+		}
+		
+		private function heroDieOver(_hero:BattleHero):void{
+			
+			heroContainer.removeChild(_hero);
+		}
+		
+		private function startAttack(_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+//			for each(var sss:Vector.<Vector.<int>> in _attackData){
+//				
+//				var gg:String = " ";
+//				
+//				for(var ss:int = 1 ; ss < sss.length ; ss++){
+//					
+//					for(var s:int = 0 ; s < sss[ss].length ; s++){
+//						
+//						gg = gg + sss[ss][s] + ",";
+//					}
+//				}
+//				
+//				trace("---:",sss[0][0],sss[0][1],gg);
+//			}
+			
+			var attackDic:Dictionary = new Dictionary;
+			
+			var beAttackDic:Dictionary = new Dictionary;
+			
+			var beHitDic:Dictionary = new Dictionary;
+			
+			for each(var vec:Vector.<Vector.<int>> in _attackData){
+				
+				var vec1:Vector.<int> = vec[0];
+				
+				var pos:int = vec1[0];
+				
+				if(!isHost){
+					
+					pos = mapUnit.size - 1 - pos;
+				}
+				
+				var hero:BattleHero = heroData[pos];
+				
+				var beHitObj:Object = null;
+				
+				var beHitNum:int = vec1[1];
+				
+				if(beHitNum > 0){
+					
+					beHitDic[pos] = true;
+					
+					beHitObj = new Object;
+					
+					beAttackDic[hero.pos] = beHitObj;
+					
+					beHitObj.num = beHitNum;
+					
+					beHitObj.attackerDic = new Vector.<int>(vec.length - 1,true);
+				}
+				
+				for(var i:int = 1 ; i < vec.length ; i++){
+					
+					vec1 = vec[i];
+					
+					var attackHeroPos:int = vec1[0];
+					
+					attackHeroPos = isHost ? attackHeroPos : mapUnit.size - 1 - attackHeroPos;
+					
+					var attackHero:BattleHero = heroData[attackHeroPos];
+					
+					var damage:int = vec1[1];
+					
+					var tmpDic:Object = attackDic[attackHeroPos];
+					
+					if(tmpDic == null){
+						
+						tmpDic = new Object;
+						
+						attackDic[attackHero.pos] = tmpDic;
+						
+						tmpDic.num = 1;
+						
+						tmpDic.targetDic = new Dictionary;
+						
+					}else{
+						
+						tmpDic.num++;
+					}
+						
+					tmpDic.targetDic[hero.pos] = damage;
+					
+					if(beHitObj != null){
+						
+						beHitObj.attackerDic[i - 1] = attackHeroPos;
+					}
+				}
+			}
+			
+			startAttack1(attackDic,beAttackDic,beHitDic,_cardUid,_cardID,_canMoveData);
+		}
+		
+		private function startAttack1(_attackDic:Dictionary,_beAttackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			var hasBeAttack:Boolean = false;
+			
+			for(var str:String in _beAttackDic){
+				
+				hasBeAttack = true;
+				
+				var pos:int = int(str);
+				
+				var obj:Object = _beAttackDic[str];
+				
+				delete _beAttackDic[str];
+				
+				var targetBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+				
+				moveGameContainerToCenter(targetBattleMapUnit.x,targetBattleMapUnit.y,startAttack1Real,_attackDic,_beAttackDic,_beHitDic,_cardUid,_cardID,pos,obj,_canMoveData);
+				
+				break;
+			}
+			
+			if(!hasBeAttack){
+			
+				startAttack2(_attackDic,_beHitDic,_cardUid,_cardID,_canMoveData);
+			}
+		}
+		
+		private function startAttack1Real(_attackDic:Dictionary,_beAttackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_pos:int,_obj:Object,_canMoveData:Vector.<int>):void{
+			
+			var targetBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
+			
+			var hitNum:int = _obj.num;
+			
+			var attackerVec:Vector.<int> = _obj.attackerDic;
+			
+			if(hitNum == 1){
+				
+				for each(var attackPos:int in attackerVec){
+					
+					if(_attackDic[attackPos].num == 1){
+						
+						var vec:Vector.<int> = Vector.<int>([attackPos]);
+						
+						break;
+					}
+				}
+				
+			}else{
+				
+				vec = BattlePublic.getAttackerPos(mapUnit.mapWidth,_pos,hitNum,attackerVec);
+			}
+			
+			var damage:int = 0;
+			
+			for(var i:int = 0 ; i < vec.length ; i++){
+				
+				var attackerPos:int = vec[i];
+				
+				damage = damage + _attackDic[attackerPos].targetDic[_pos];
+				
+				delete _attackDic[attackerPos].targetDic[_pos];
+				
+				var remain:Boolean = false;
+				
+				for each(var tmp:int in _attackDic[attackerPos].targetDic){
+					
+					remain = true;
+					
+					break;
+				}
+				
+				if(!remain){
+					
+					delete _attackDic[attackerPos];
+				}
+				
+				var sp:Sprite = new Sprite;
+				
+				var img:Image = new Image(ResourcePublic.getTexture("redArrow"));
+				
+				img.x = -0.5 * img.width;
+				img.y = -0.5 * img.height;
+				
+				sp.addChild(img);
+				
+				sp.flatten();
+				
+				var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[attackerPos];
+				
+				sp.x = tmpBattleMapUnit.x;
+				sp.y = tmpBattleMapUnit.y;
+				
+				sp.rotation = Math.atan2(targetBattleMapUnit.y - sp.y, targetBattleMapUnit.x - sp.x);
+				
+				effectContainer.addChild(sp);
+				
+				if(i == vec.length - 1){
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[_pos,damage,hitNum,startAttack1,_attackDic,_beAttackDic,_beHitDic,_cardUid,_cardID,_canMoveData]});
+					
+				}else{
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease});
+				}
+			}
+		}
+		
+		private function shoowTarget(_pos:int,_damage:int,_hitNum:int,_callBack:Function = null,...arg):void{
+			
+			var hero:BattleHero = heroData[_pos];
+			
+			hero.hp = hero.hp - _damage;
+			
+			var sp:Sprite = new Sprite;
+			
+			effectContainer.addChild(sp);
+			
+			var tf:TextField = new TextField(100,24,"兵数-" + _damage,ResourceFont.fontName,24,0xFF0000);
+			tf.hAlign = HAlign.CENTER;
+			
+			tf.x = -0.5 * tf.width;
+			tf.y = -0.5 * tf.height - 40;
+			
+			sp.addChild(tf);
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
+			
+			sp.x = tmpBattleMapUnit.x;
+			sp.y = tmpBattleMapUnit.y;
+			
+			TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone});
+			
+			if(_hitNum > 0){
+			
+				hero.power = hero.power - _hitNum;
+				
+				if(hero.power < 0){
+					
+					hero.power = 0;
+				}
+				
+				tf = new TextField(100,24,"士气-" + _hitNum,ResourceFont.fontName,24,0xFF0000);
+				tf.hAlign = HAlign.CENTER;
+				
+				tf.x = -0.5 * tf.width;
+				tf.y = -0.5 * tf.height - 16;
+				
+				sp.addChild(tf);
+			}
+			
+			sp.flatten();
+			
+			hero.refresh(false);
+			
+			hero.tremble(trembleOver,_callBack,arg);
+		}
+		
+		private function trembleOver(_callBack:Function,_arg:Array):void{
+			
+			effectContainer.removeChildren();
+			
+			if(_callBack != null){
+			
+				TweenLite.delayedCall(1.5,_callBack,_arg);
+			}
+		}
+		
+		private function startAttack2(_attackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			var hasAttack:Boolean = false;
+			
+			for(var str:String in _attackDic){
+				
+				hasAttack = true;
+				
+				var pos:int = int(str);
+				
+				var obj:Object = _attackDic[str];
+				
+				delete _attackDic[str];
+				
+				var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+				
+				moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startAttack2Real,_attackDic,_beHitDic,_cardUid,_cardID,pos,obj,_canMoveData);
+				
+				break;
+			}
+			
+			if(!hasAttack){
+				
+				attackOver(_beHitDic,_cardUid,_cardID,_canMoveData);
+			}
+		}
+		
+		private function startAttack2Real(_attackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_pos:int,_obj:Object,_canMoveData:Vector.<int>):void{
+			
+			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
+			
+			var hasAddCallBack:Boolean = false;
+			
+			for(var str2:String in _obj.targetDic){
+				
+				var targetPos:int = int(str2);
+				
+				var damage:int = _obj.targetDic[str2];
+				
+				var sp:Sprite = new Sprite;
+				
+				var img:Image = new Image(ResourcePublic.getTexture("yellowArrow"));
+				
+				img.x = -0.5 * img.width;
+				img.y = -0.5 * img.height;
+				
+				sp.addChild(img);
+				
+				sp.flatten();
+				
+				sp.x = tmpBattleMapUnit.x;
+				sp.y = tmpBattleMapUnit.y;
+				
+				var targetBattleMapUnit:BattleMapUnit = battleMap.dic[targetPos];
+				
+				sp.rotation = Math.atan2(targetBattleMapUnit.y - sp.y, targetBattleMapUnit.x - sp.x);
+				
+				effectContainer.addChild(sp);
+				
+				if(!hasAddCallBack){
+					
+					hasAddCallBack = true;
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[targetPos,damage,0,startAttack2,_attackDic,_beHitDic,_cardUid,_cardID,_canMoveData]});
+					
+				}else{
+					
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[targetPos,damage,0]});
+				}
+			}
+		}
+		
+		private function attackOver(_beHitDic:Dictionary,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			var hasAddCallBack:Boolean = false;
+			
+			for(var str:String in heroData){
+				
+				var pos:int = int(str);
+				
+				var hero:BattleHero = heroData[str];
+				
+				if(hero.hp < 1){
+					
+					if(!hasAddCallBack){
+						
+						hasAddCallBack = true;
+						
+						TweenLite.delayedCall(1,resetData,[_beHitDic,_cardUid,_cardID,_canMoveData]);
+					}
+					
+					TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:heroDieOver,onCompleteParams:[hero]});
+					
+//					heroContainer.removeChild(hero);
+					
+					delete heroData[str];
+					
+					continue;
+				}
+			}
+			
+			if(!hasAddCallBack){
+				
+				TweenLite.delayedCall(0.5,resetData,[_beHitDic,_cardUid,_cardID,_canMoveData]);
+			}
+		}
+		
+		private function resetData(_beHitDic:Dictionary,_cardUid:int,_cardID:int,_canMoveData:Vector.<int>):void{
+			
+			canMoveData = _canMoveData;
+			
+			if(!isHost && canMoveData != null){
+				
+				for(var i:int = 0 ; i < canMoveData.length ; i++){
+					
+					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
+				}
+			}
+			
+			for(var str:String in heroData){
+				
+				var pos:int = int(str);
+				
+				var hero:BattleHero = heroData[str];
+
+				if(hero.maxHpFix > 0){
+					
+					hero.hp = hero.hp - hero.maxHpFix;
+					
+					hero.maxHpFix = 0;
+					
+					if(hero.hp < 1){
+						
+						hero.hp = 1;
+					}
+				}
+				
+				if(hero.hp < hero.csv.maxHp && hero.power > 0){
+					
+					hero.hp = hero.hp + hero.power;
+					
+					if(hero.hp > hero.csv.maxHp){
+						
+						hero.hp = hero.csv.maxHp;
+					}
+				}
+				
+				if(hero.atkFix != 0){
+					
+					hero.atkFix = 0;
+				}
+				
+				if(hero.power < hero.csv.maxPower){
+					
+					if(_beHitDic[pos] == null){
+						
+						hero.power = hero.power + 1;
+					}
+				}
+				
+				hero.refresh(true);
+			}
+			
+			if(_cardUid != -1){
+				
+				myAllCardsNum--;
+				
+				if(myCards.length < MAX_CARDS_NUM){
+			
+					var card:BattleCard = new BattleCard;
+					
+					card.uid = _cardUid;
+					card.csv = heroCsvUnit.dic[_cardID];
+					
+					card.refresh();
+					
+					myCards.push(card);
+					
+					cardContainer.addChild(card);
+					
+					refreshCards();
+				}
+			}
+			
+			if(oppAllCardsNum > 0){
+				
+				oppAllCardsNum--;
+				
+				if(oppCardsNum < MAX_CARDS_NUM){
+					
+					oppCardsNum++;
+				}
+			}
+			
+			nowRound++;
+			
+			refreshUIContainer();
+			
+			money = MONEY_NUM;
+			
+			refreshMoneyTf();
+			
+			playBattleOver();
+		}
+		
+		private function playBattleOver():void{
+			
+			isActioned = false;
+			
+			Starling.current.touchable = true;
+			
+			actionBt.enabled = true;
+		}
+		
+		private function refreshUIContainer():void{
+			
+			uiContainer.unflatten();
+			
+			oppCardsNumTf.text = "OppCardsNum:" + oppCardsNum;
+			myAllCardsNumTf.text = "MyAllCardsNum:" + myAllCardsNum;
+			oppAllCardsNumTf.text = "OppAllCardsNum:" + oppAllCardsNum;
+			
+			roundTf.text = nowRound + "/" + maxRound;
+			
+			scoreTf.text = myScore + ":" + oppScore;
+			
+			uiContainer.flatten();
+		}
+		
+		private function refreshMoneyTf():void{
+			
+			myMoneyTf.text = "MyMoney:" + money;
+		}
+		
+		public function showHeroDetail(_x:Number,_y:Number,_heroID:int):void{
+			
+			if(_x <= Starling.current.backBufferWidth * 0.5 && _y <= Starling.current.backBufferHeight * 0.5){
+				
+				heroDetailPanel.x = Starling.current.backBufferWidth * 0.5 + (Starling.current.backBufferWidth * 0.5 - heroDetailPanel.width) * 0.5;
+				heroDetailPanel.y = Starling.current.backBufferHeight * 0.5 + (Starling.current.backBufferHeight * 0.5 - heroDetailPanel.height) * 0.5;
+				
+			}else if(_x > Starling.current.backBufferWidth * 0.5 && _y <= Starling.current.backBufferHeight * 0.5){
+				
+				heroDetailPanel.x = (Starling.current.backBufferWidth * 0.5 - heroDetailPanel.width) * 0.5;
+				heroDetailPanel.y = Starling.current.backBufferHeight * 0.5 + (Starling.current.backBufferHeight * 0.5 - heroDetailPanel.height) * 0.5;
+				
+			}else if(_x <= Starling.current.backBufferWidth * 0.5 && _y > Starling.current.backBufferHeight * 0.5){
+				
+				heroDetailPanel.x = Starling.current.backBufferWidth * 0.5 + (Starling.current.backBufferWidth * 0.5 - heroDetailPanel.width) * 0.5;
+				heroDetailPanel.y = (Starling.current.backBufferHeight * 0.5 - heroDetailPanel.height) * 0.5;
+				
+			}else{
+				
+				heroDetailPanel.x = (Starling.current.backBufferWidth * 0.5 - heroDetailPanel.width) * 0.5;
+				heroDetailPanel.y = (Starling.current.backBufferHeight * 0.5 - heroDetailPanel.height) * 0.5;
+			}
+			
+			heroDetailPanel.visible = true;
+			
+			heroDetailPanel.setData(_heroID);
+		}
+		
+		public function hideHeroDetail():void{
+			
+			heroDetailPanel.visible = false;
+		}
+		
+		public function moneyTremble():void{
+			
+			if(moneyIsTrembling){
+				
+				return;
+			}
+			
+			moneyIsTrembling = true;
+			
+			startMoneyTremble(myMoneyTf.x,8);
+		}
+		
+		private function startMoneyTremble(_opos:Number,_posFix:Number):void{
+			
+			if(Math.abs(_posFix) < 1){
+				
+				myMoneyTf.x = _opos;
+				
+				moneyIsTrembling = false;
+				
+				return;
+			}
+			
+			if(_posFix < 0){
+				
+				var posFix:Number = -_posFix - 0.5;
+				
+			}else{
+				
+				posFix = -_posFix + 0.5;
+			}
+			
+			TweenLite.to(myMoneyTf,0.05,{x:_opos + _posFix,ease:Linear.easeNone,onComplete:startMoneyTremble,onCompleteParams:[_opos,posFix]});
+		}
+		
+		private function moveGameContainerToCenter(_x:Number,_y:Number,_callBack:Function = null,...arg):void{
+			
+			TweenLite.to(gameContainer,0.5,{x:Starling.current.backBufferWidth * 0.5 - _x * gameScale,y:Starling.current.backBufferHeight * 0.5 - _y * gameScale,ease:Quad.easeOut,onComplete:delayCall,onCompleteParams:[0.3,_callBack,arg]});
+		}
+		
+		private function delayCall(_time:Number,_callBack:Function,_arg:Array):void{
+			
+			TweenLite.delayedCall(_time,_callBack,_arg);
+		}
+	}
+}
