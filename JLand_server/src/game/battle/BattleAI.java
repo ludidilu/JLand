@@ -5,12 +5,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import userService.UserService;
 import data.dataCsv.hero.Csv_hero;
 import data.dataMap.MapUnit;
 
 public class BattleAI {
 	
-	public static void start(MapUnit _mapUnit, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Integer> _userCards, ArrayList<Integer> _canMoveHeroUidArr, int _userMoney, HashMap<Integer, Integer> _summonData, HashMap<Integer, Integer> _moveData){
+	private static UserService service;
+	
+	public static void start(UserService _service, MapUnit _mapUnit, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Integer> _userCards, ArrayList<Integer> _canMoveHeroUidArr, int _userMoney, HashMap<Integer, Integer> _summonData, HashMap<Integer, Integer> _moveData){
+		
+		service = _service;
 		
 		HashMap<Integer, Csv_hero> canMoveHeroMap = new HashMap<>();
 		
@@ -161,6 +166,8 @@ public class BattleAI {
 		
 		int[] tmpArrX = new int[12];
 		
+		String str = "";
+		
 		ArrayList<Integer> posArr = new ArrayList<>();
 		
 		ArrayList<Integer> scoreArr = new ArrayList<>();
@@ -180,6 +187,8 @@ public class BattleAI {
 			if(type == 2 && _heroMap.get(pos) == null && !_summonData.containsKey(pos)){
 				
 				posArr.add(pos);
+				
+				str = str + "pos:" + pos;
 				
 				int tmpScore = 0;
 				
@@ -203,30 +212,21 @@ public class BattleAI {
 						BattleHero targetHero = _heroMap.get(pos2);
 						
 						if(targetHero != null){//如果有敌人
-							
-							if(_hero.type == 3){//自己是骑兵  加3分
+
+							if(targetHero.csv.type == 1){//如果敌人是弓兵
 								
-								tmpScore = tmpScore + 3;
-								
-								allScore = allScore + 3;
-								
-							}else{
-							
-								if(targetHero.csv.type == 1){//如果敌人是弓兵
+								if(_hero.type == 0 || _hero.type == 2 || _hero.type == 3){//如果自己是步兵、枪兵或者骑兵  加3分
 									
-									if(_hero.type == 0 || _hero.type == 2){//如果自己是步兵或者枪兵  加3分
-										
-										tmpScore = tmpScore + 3;
-										
-										allScore = allScore + 3;
-									}
+									tmpScore = tmpScore + 3;
 									
-								}else{//如果敌人不是弓兵  减2分
-									
-									tmpScore = tmpScore - 2;
-									
-									allScore = allScore - 2;
+									allScore = allScore + 3;
 								}
+								
+							}else{//如果敌人不是弓兵  减2分
+								
+								tmpScore = tmpScore - 2;
+								
+								allScore = allScore - 2;
 							}
 						}
 					}
@@ -282,7 +282,7 @@ public class BattleAI {
 									}
 								}
 								
-							}else if(_hero.type == 0){//如果自己是步兵
+							}else{//如果自己是步兵或者骑兵
 								
 								if(targetHero.csv.type == 1 || targetHero.csv.type == 2){//如果敌人是弓兵或者枪兵
 									
@@ -310,9 +310,13 @@ public class BattleAI {
 					}
 				}
 				
+				str = str + " score:" + tmpScore + "\n";
+				
 				scoreArr.add(tmpScore);
 			}
 		}
+		
+		service.process("sendMsg", str);
 		
 		if(allScore > 0){
 			

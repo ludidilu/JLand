@@ -403,7 +403,7 @@ public class Battle extends SuperService{
 		
 		if(service2 == null){
 
-			BattleAI.start(mapUnit,map,heroMap,userCards2,canMoveHeroUidArr,aiMoney,summonData2,moveData2);
+			BattleAI.start(service1,mapUnit,map,heroMap,userCards2,canMoveHeroUidArr,aiMoney,summonData2,moveData2);
 			
 			isActioned2 = true;
 		}
@@ -1318,7 +1318,7 @@ public class Battle extends SuperService{
 				
 				if(hero.hp < 1){
 					
-					service1.process("sendMsg", hero.pos + "die!!!");
+//					service1.process("sendMsg", hero.pos + "die!!!");
 					
 					iter.remove();
 					
@@ -1350,7 +1350,7 @@ public class Battle extends SuperService{
 				}
 			}
 			
-			service1.process("sendMsg", hero.pos + ":" + hero.hp);
+//			service1.process("sendMsg", hero.pos + ":" + hero.hp);
 			
 			if(hero.isSilent){
 				

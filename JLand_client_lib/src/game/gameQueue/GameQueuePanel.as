@@ -1,6 +1,5 @@
 package game.gameQueue
 {
-	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;

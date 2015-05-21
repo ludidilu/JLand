@@ -4,6 +4,7 @@ package publicTools.connect
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.Socket;
+	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
 	
@@ -15,6 +16,8 @@ package publicTools.connect
 
 	public class Connect
 	{
+		private static const REGEX:String = "$%^";
+		
 		private static var sk:Socket;
 		private static const url:String = "127.0.0.1";
 		private static var port:int;
@@ -23,8 +26,7 @@ package publicTools.connect
 		private static var i:int,m:int,n:int;
 		private static var str:String;
 		private static var length:int = -1;
-		private static var debugSendStr:String;
-		
+
 		private static var arr:Array;
 		private static var arr2:Array;
 		private static var method:Function;
@@ -86,11 +88,11 @@ package publicTools.connect
 		
 		private static function getData(e:ProgressEvent):void{
 			
-			while((sk.bytesAvailable > 3 && length == -1) || (sk.bytesAvailable == length)){
+			while((sk.bytesAvailable > 1 && length == -1) || (sk.bytesAvailable == length)){
 				
 				if(length == -1){
 				
-					length = sk.readInt();
+					length = sk.readShort();
 				}
 
 				if(length <= sk.bytesAvailable){
@@ -108,7 +110,7 @@ package publicTools.connect
 			
 //			trace("getData:",_str);
 			
-			arr = _str.split("\n");
+			arr = _str.split(REGEX);
 			
 			var unit:Csv_connect = csvUnit.dic[arr.shift()];
 			
@@ -151,30 +153,40 @@ package publicTools.connect
 			
 			Starling.current.touchable = false;
 			
-			debugSendStr = _id + "\n";
-			
-			sk.writeUTFBytes(_id + "\n");
-			
 			var unit:Csv_connect = csvUnit.dic[_id];
 			
-			for(i = 0 ; i < unit.arg.length ; i++){
+			if(unit.arg.length > 0){
+			
+				var sendStr:String = _id + REGEX;
 				
-				strLength = unit.arg[i].length;
-
-				times = (strLength - 3) * 0.5;
+				for(i = 0 ; i < unit.arg.length ; i++){
+					
+					strLength = unit.arg[i].length;
+					
+					times = (strLength - 3) * 0.5;
+					
+					if(i == unit.arg.length - 1){
+					
+						sendStr = sendStr + concat(arg[i],times);
+						
+					}else{
+						
+						sendStr = sendStr + concat(arg[i],times) + REGEX;
+					}
+				}
 				
-				sk.writeUTFBytes(concat(arg[i],times) + "\n");
+			}else{
 				
-				debugSendStr = debugSendStr + concat(arg[i],times) + "\n";
+				sendStr = String(_id);
 			}
 			
-			sk.writeUTFBytes("end\n");
+			sk.writeShort(sendStr.length);
 			
-			debugSendStr = debugSendStr + "end\n";
-			
-//			trace("发包:****",debugSendStr,"******");
+			sk.writeUTFBytes(sendStr);
 			
 			sk.flush();
+			
+//			trace("发包:****",sendStr,"******");
 		}
 		
 		public static function disconnect():void{
