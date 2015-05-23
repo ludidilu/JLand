@@ -16,19 +16,17 @@ package publicTools.connect
 
 	public class Connect
 	{
-		private static const REGEX:String = "$%^";
-		
 		private static var sk:Socket;
 		private static const url:String = "127.0.0.1";
 		private static var port:int;
 		private static var callBack:Function;
 		
 		private static var i:int,m:int,n:int;
-		private static var str:String;
 		private static var length:int = -1;
+		
+		private static var getByteArray:ByteArray;
+		private static var sendByteArray:ByteArray;
 
-		private static var arr:Array;
-		private static var arr2:Array;
 		private static var method:Function;
 		private static var strLength:int;
 		private static var times:int;
@@ -47,6 +45,9 @@ package publicTools.connect
 		public static function init(_port:int,_callBack:Function = null):void{
 			
 			clsDic = new Dictionary;
+			
+			getByteArray = new ByteArray;
+			sendByteArray = new ByteArray;
 			
 			clsDic["str"] = "String";
 			clsDic["int"] = "int";
@@ -97,22 +98,22 @@ package publicTools.connect
 
 				if(length <= sk.bytesAvailable){
 					
-					str = sk.readMultiByte(length,"UTF-8");
+					sk.readBytes(getByteArray,0,length);
 					
-					handleData(str);
+					handleData(getByteArray);
 					
 					length = -1;
 				}
 			}
 		}
 		
-		private static function handleData(_str:String):void{
+		private static function handleData(_byteArray:ByteArray):void{
 			
 //			trace("getData:",_str);
 			
-			arr = _str.split(REGEX);
+			var id:int = _byteArray.readShort();
 			
-			var unit:Csv_connect = csvUnit.dic[arr.shift()];
+			var unit:Csv_connect = csvUnit.dic[id];
 			
 			trace("收到服务器的包:",unit.methodName);
 			
@@ -121,18 +122,28 @@ package publicTools.connect
 				Starling.current.touchable = true;
 			}
 			
+			var arr:Array = new Array;
+			
+			var length:int = _byteArray.readShort();
+			
 			method = Connect_handle[unit.methodName];
 			
-			for(i = 0 ; i < unit.arg.length ; i++){
+			for(i = 0 ; i < length ; i++){
 				
 				strLength = unit.arg[i].length;
 				
-				str = unit.arg[i].slice(0,3);
+				var str:String = unit.arg[i].slice(0,3);
 				
 				times = (strLength - 3) * 0.5;
 				
-				arr[i] = split(arr[i],times,str);
+				var dataLength:int = _byteArray.readShort();
+				
+				var data:String = _byteArray.readUTFBytes(dataLength);
+				
+				arr.push(split(data,times,str));
 			}
+			
+			_byteArray.clear();
 			
 			method.apply(null,arr);
 		}
@@ -155,9 +166,13 @@ package publicTools.connect
 			
 			var unit:Csv_connect = csvUnit.dic[_id];
 			
-			if(unit.arg.length > 0){
+			sendByteArray.writeShort(0);
 			
-				var sendStr:String = _id + REGEX;
+			sendByteArray.writeShort(_id);
+			
+			sendByteArray.writeShort(unit.arg.length);
+			
+			if(unit.arg.length > 0){
 				
 				for(i = 0 ; i < unit.arg.length ; i++){
 					
@@ -165,24 +180,23 @@ package publicTools.connect
 					
 					times = (strLength - 3) * 0.5;
 					
-					if(i == unit.arg.length - 1){
+					var str:String = concat(arg[i],times);
 					
-						sendStr = sendStr + concat(arg[i],times);
-						
-					}else{
-						
-						sendStr = sendStr + concat(arg[i],times) + REGEX;
-					}
+					sendByteArray.writeShort(str.length);
+					
+					sendByteArray.writeUTFBytes(str);
 				}
-				
-			}else{
-				
-				sendStr = String(_id);
 			}
 			
-			sk.writeShort(sendStr.length);
+			sendByteArray.position = 0;
 			
-			sk.writeUTFBytes(sendStr);
+			sendByteArray.writeShort(sendByteArray.length - 2);
+			
+			sk.writeBytes(sendByteArray);
+			
+			sendByteArray.clear();
+			
+//			sk.writeUTFBytes(sendStr);
 			
 			sk.flush();
 			
