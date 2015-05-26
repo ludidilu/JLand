@@ -1,13 +1,13 @@
 package game.battle
 {
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
 	import data.resource.ResourcePublic;
 	
-	import publicTools.tools.UpdateFrameUtil;
-	
 	import starling.core.Starling;
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Touch;
@@ -18,6 +18,7 @@ package game.battle
 	{
 		private var bgContainer:Sprite;
 		private var mapContainer:Sprite;
+		private var selectedFrameContaienr:Sprite;
 		
 		private var unitWidth:Number;
 		
@@ -28,18 +29,22 @@ package game.battle
 		
 		public var dic:Dictionary;
 		
+		private var selectedFrame:Sprite;
+		
 		private var point1:Point = new Point;
 		private var point2:Point = new Point;
 		
-		private var touchBeginUnit:BattleMapUnit;
 		private var selectedUnit:BattleMapUnit;
 		
-		private var isMoving:Boolean;
+		public var moveFun:Function;
+
 		private var movePoint2:Point = new Point;
 		private var movePoint1:Point = new Point;
 		
 		private var tmpPoint:Point = new Point;
 		private var tmpPoint2:Point = new Point;
+		
+		private var tmpRect:Rectangle = new Rectangle;
 		
 		public function BattleMap()
 		{
@@ -67,9 +72,31 @@ package game.battle
 			
 			mapContainer = new Sprite;
 			
+			mapContainer.touchable = false;
+			
 			addChild(mapContainer);
 			
 			bgContainer.addEventListener(TouchEvent.TOUCH,bgBeTouch);
+			
+			selectedFrameContaienr = new Sprite;
+			
+			selectedFrameContaienr.touchable = false;
+			
+			selectedFrame = new Sprite;
+			
+			var img:Image = new Image(ResourcePublic.getTexture("blackFrame"));
+			
+			img.x = -0.5 * img.width;
+			img.y = -0.5 * img.height;
+			
+			selectedFrame.addChild(img);
+			selectedFrame.flatten();
+			
+			selectedFrame.visible = false;
+			
+			selectedFrameContaienr.addChild(selectedFrame);
+			
+			addChild(selectedFrameContaienr);
 		}
 		
 		
@@ -133,211 +160,167 @@ package game.battle
 			mapContainer.flatten();
 		}
 
-		public function touchBegin(_unit:BattleMapUnit,_x:Number,_y:Number):void{
+		public function touchBegin(_unit:BattleMapUnit,_globalX:Number,_globalY:Number):void{
 			
-			point1.x = _x;
-			point1.y = _y;
+			var hero:BattleHero = Battle.instance.heroData[_unit.id];
 			
-			this.globalToLocal(point1,point2);
+			if(hero != null){
 			
-			point1.x = _unit.x;
-			point1.y = _unit.y;
-			
-			var dis:Number = Point.distance(point2,point1);
-			
-			var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,_unit.id);
-			
-			for each(var i:int in vec){
+				Battle.instance.showHeroDetail(_globalX,_globalY,hero.csv.id);
 				
-				var unit:BattleMapUnit = dic[i];
+				setSelectedUnit(_unit);
 				
-				point1.x = unit.x;
-				point1.y = unit.y;
-				
-				if(Point.distance(point2,point1) < dis){
+				if(!Battle.instance.isActioned && hero.isMine && Battle.instance.canMoveData != null && Battle.instance.canMoveData.indexOf(hero.pos) != -1){
 					
-					_unit = unit;
+					moveFun = readyToHeroMove;
 					
-					break;
+				}else{
+					
+					moveFun = readyToContainerMove;
+					
 				}
-			}
-			
-			if(Battle.instance.heroData[_unit.id] != null || Battle.instance.summonDic[_unit.id] != null){
-				
-				touchBeginUnit = _unit;
 				
 				return;
+			}
+			
+			var card:BattleCard = Battle.instance.summonDic[_unit.id];
+			
+			if(card != null){
 				
-			}else if(Battle.instance.nowSummonCard != null && Battle.instance.mapData[_unit.id] == 1){
-				
-				touchBeginUnit = _unit;
+				Battle.instance.cardTouchBegin(card,_globalX,_globalY);
 				
 				return;
 			}
 			
 			clearSelectedUnit();
 			
-			if(Battle.instance.nowSummonCard == null){
+			Battle.instance.hideHeroDetail();
 			
-				Battle.instance.hideHeroDetail();
-			}
-			
-//			trace("touch mapContainer and start move!");
-			
-			movePoint2.x = _x;
-			movePoint2.y = _y;
+			movePoint2.x = _globalX;
+			movePoint2.y = _globalY;
 			
 			movePoint1.x = Battle.instance.gameContainerX;
 			movePoint1.y = Battle.instance.gameContainerY;
 			
-			isMoving = true;
-			
-			UpdateFrameUtil.addUpdateFrame(move);
+			moveFun = move;
 		}
 		
-		private function move():void{
+		private function readyToContainerMove(_globalX:Number,_globalY:Number):void{
 			
-			Battle.instance.gameContainerX = movePoint1.x + Starling.current.nativeStage.mouseX - movePoint2.x;
-			Battle.instance.gameContainerY = movePoint1.y + Starling.current.nativeStage.mouseY - movePoint2.y;
+			tmpPoint.x = selectedUnit.x;
+			tmpPoint.y = selectedUnit.y;
+			
+			localToGlobal(tmpPoint,tmpPoint2);
+			
+			tmpPoint.x = _globalX;
+			tmpPoint.y = _globalY;
+			
+			if(Point.distance(tmpPoint,tmpPoint2) > unitWidth * Battle.instance.gameContainerScale){
+				
+				clearSelectedUnit();
+				
+				Battle.instance.hideHeroDetail();
+				
+				movePoint2.x = _globalX;
+				movePoint2.y = _globalY;
+				
+				movePoint1.x = Battle.instance.gameContainerX;
+				movePoint1.y = Battle.instance.gameContainerY;
+				
+				moveFun = move;
+			}
 		}
 		
-		public function touchEnd(_unit:BattleMapUnit,_x:Number,_y:Number):void{
+		private function readyToHeroMove(_globalX:Number,_globalY:Number):void{
 			
-			if(isMoving){
+			tmpPoint.x = selectedUnit.x;
+			tmpPoint.y = selectedUnit.y;
+			
+			localToGlobal(tmpPoint,tmpPoint2);
+			
+			tmpPoint.x = _globalX;
+			tmpPoint.y = _globalY;
+			
+			if(Point.distance(tmpPoint,tmpPoint2) > unitWidth * Battle.instance.gameContainerScale){
 				
-//				trace("touch mapContainer and move end!");
+				if(Battle.instance.money > 0){
+					
+					moveFun = heroMove;
+					
+				}else{
+					
+					Battle.instance.moneyTremble();
+					
+					moveFun = null;
+				}
+			}
+		}
+		
+		private function heroMove(_globalX:Number,_globalY:Number):void{
+			
+			var hero:BattleHero = Battle.instance.heroData[selectedUnit.id];
+			
+			tmpPoint.x = selectedUnit.x;
+			tmpPoint.y = selectedUnit.y;
+			
+			localToGlobal(tmpPoint,tmpPoint2);
+			
+			tmpPoint.x = _globalX;
+			tmpPoint.y = _globalY;
+			
+			if(Point.distance(tmpPoint,tmpPoint2) < unitWidth * Battle.instance.gameContainerScale){
 				
-				isMoving = false;
-				
-				UpdateFrameUtil.delUpdateFrame(move);
+				Battle.instance.heroMove(hero,-1);
 				
 				return;
 			}
 			
-			point1.x = _x;
-			point1.y = _y;
+			var angle:Number = Math.atan2(_globalY - tmpPoint2.y,_globalX - tmpPoint2.x);
 			
-			this.globalToLocal(point1,point2);
-			
-			point1.x = _unit.x;
-			point1.y = _unit.y;
-			
-			var dis:Number = Point.distance(point2,point1);
-			
-			var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,_unit.id);
-			
-			for each(var i:int in vec){
+			if(angle >= -Math.PI / 6 && angle < Math.PI / 6){
 				
-				var unit:BattleMapUnit = dic[i];
+				var target:int = hero.pos + 1;
 				
-				point1.x = unit.x;
-				point1.y = unit.y;
+			}else if(angle >= Math.PI / 6 && angle < Math.PI * 0.5){
 				
-				var tmpDis:Number = Point.distance(point2,point1);
+				target = hero.pos + mapWidth;
 				
-				if(tmpDis < dis){
-					
-					dis = tmpDis;
-					
-					_unit = unit;
-				}
-			}
-			
-			if(dis < unitWidth){
+			}else if(angle >= Math.PI * 0.5 && angle < Math.PI * 5 / 6){
 				
-				if(touchBeginUnit == _unit){
-					
-					if(selectedUnit != _unit){
-						
-//						trace("click hero:",_unit.id);
-						
-						if(Battle.instance.heroData[_unit.id] != null){
-							
-							if(Battle.instance.nowSummonCard != null){
-								
-								Battle.instance.clearNowSummonCard();
-							}
-							
-							tmpPoint.x = _unit.x;
-							tmpPoint.y = _unit.y;
-							
-							localToGlobal(tmpPoint,tmpPoint2);
-							
-							Battle.instance.showHeroDetail(tmpPoint2.x,tmpPoint2.y,Battle.instance.heroData[_unit.id].csv.id);
-						
-//							trace("skill:",Battle.instance.heroData[_unit.id].csv.comment);
-							
-						}else if(Battle.instance.summonDic[_unit.id] != null){
-							
-							if(Battle.instance.nowSummonCard != null){
-								
-								Battle.instance.clearNowSummonCard();
-							}
-							
-							tmpPoint.x = _unit.x;
-							tmpPoint.y = _unit.y;
-							
-							localToGlobal(tmpPoint,tmpPoint2);
-							
-							Battle.instance.showHeroDetail(tmpPoint2.x,tmpPoint2.y,Battle.instance.summonDic[_unit.id].csv.id);
-							
-						}else{
-							
-							if(Battle.instance.nowSummonCard != null){
-								
-								Battle.instance.summon(_unit.id);
-								
-								return;
-							}
-						}
-						
-						mapContainer.unflatten();
-						
-						clearSelectedUnit();
-						
-						_unit.state = 1;
-						
-						_unit.refresh();
-						
-						selectedUnit = _unit;
-						
-						mapContainer.flatten();
-						
-					}else{
-						
-						if(Battle.instance.summonDic[_unit.id] != null){
-							
-							Battle.instance.unSummon(_unit.id);
-							
-						}else{
-							
-//							trace("click same hero!");
-						}
-					}
-					
-				}else{
-					
-					if(selectedUnit == touchBeginUnit){
-						
-						if(selectedUnit != null){
-						
-							Battle.instance.heroMove(selectedUnit.id,_unit.id);
-						}
-						
-//						trace("move hero:",selectedUnit.id,"--->",_unit.id);
-						
-					}else{
-						
-//						trace("click another hero and move out!");
-					}
-				}
+				target = hero.pos + mapWidth - 1;
+				
+			}else if(angle >= -Math.PI * 0.5 && angle < -Math.PI / 6){
+				
+				target = hero.pos - mapWidth + 1;
+				
+			}else if(angle >= -Math.PI * 5 / 6 && angle < -Math.PI * 0.5){
+				
+				target = hero.pos - mapWidth;
 				
 			}else{
 				
-//				trace("click hero and move too far!");
+				target = hero.pos - 1;
 			}
 			
-			touchBeginUnit = null;
+			Battle.instance.heroMove(hero,target);
+		}
+		
+		private function move(_globalX:Number,_globalY:Number):void{
+			
+			Battle.instance.gameContainerX = movePoint1.x + _globalX - movePoint2.x;
+			Battle.instance.gameContainerY = movePoint1.y + _globalY - movePoint2.y;
+		}
+		
+		public function touchEnd(_unit:BattleMapUnit,_globalX:Number,_globalY:Number):void{
+			
+			if(moveFun == Battle.instance.cardMove1){
+				
+				Battle.instance.cardTouchEnd(Battle.instance.nowChooseCard,_globalX,_globalY);
+				
+			}else{
+				
+				moveFun = null;
+			}
 		}
 		
 		private function bgBeTouch(e:TouchEvent):void{
@@ -348,49 +331,169 @@ package game.battle
 				
 				if(touch.phase == TouchPhase.BEGAN){
 					
-//					trace("touch bgContainer and start move!");
+					Battle.instance.clearNowChooseCard();
+
+					var unit:BattleMapUnit = getTouchUnit(touch.globalX,touch.globalY);
 					
-					clearSelectedUnit();
-					
-					movePoint2.x = touch.globalX;
-					movePoint2.y = touch.globalY;
-					
-					movePoint1.x = Battle.instance.gameContainerX;
-					movePoint1.y = Battle.instance.gameContainerY;
-					
-					isMoving = true;
-					
-					UpdateFrameUtil.addUpdateFrame(move);
-					
-					if(Battle.instance.nowSummonCard == null){
+					if(unit != null){
+						
+						touchBegin(unit,touch.globalX,touch.globalY);
+						
+					}else{
+						
+						clearSelectedUnit();
 						
 						Battle.instance.hideHeroDetail();
+						
+						movePoint2.x = touch.globalX;
+						movePoint2.y = touch.globalY;
+						
+						movePoint1.x = Battle.instance.gameContainerX;
+						movePoint1.y = Battle.instance.gameContainerY;
+						
+						moveFun = move;
 					}
 					
 				}else if(touch.phase == TouchPhase.ENDED){
 					
-//					trace("touch bgContainer and move end!");
+					unit = getTouchUnit(touch.globalX,touch.globalY);
 					
-					isMoving = false;
+					touchEnd(unit,touch.globalX,touch.globalY);
+
+				}else if(touch.phase == TouchPhase.MOVED){
 					
-					UpdateFrameUtil.delUpdateFrame(move);
+					if(moveFun != null){
+					
+						moveFun(touch.globalX,touch.globalY);
+					}
 				}
 			}
+		}
+		
+		public function getTouchUnit(_globalX:int,_globalY:int):BattleMapUnit{
+			
+			tmpPoint.x = _globalX;
+			tmpPoint.y = _globalY;
+			
+			this.globalToLocal(tmpPoint,tmpPoint2);
+			
+			var localX:Number = tmpPoint2.x;
+			var localY:Number = tmpPoint2.y;
+			
+			var b:int = Math.floor((localY - unitWidth * 0.5) / unitWidth / 1.5);
+			
+			if(b == mapHeight){
+				
+				b = mapHeight - 1;
+			}
+			
+			if(b >= 0 && b < mapHeight){
+				
+				if(b % 2 == 0){
+					
+					var a:int = Math.floor((localX - unitWidth * 0.5) / unitWidth / Math.sqrt(3));
+					
+					if(a == mapWidth){
+						
+						a = mapWidth - 1;
+					}
+					
+					if(a < 0 || a >= mapWidth){
+						
+						return null;
+					}
+					
+				}else{
+					
+					a = Math.floor((localX - unitWidth * 0.5 - unitWidth * 0.5 * Math.sqrt(3)) / unitWidth / Math.sqrt(3));
+					
+					if(a == -1){
+						
+						a = 0;
+						
+					}else if(a == mapWidth - 1){
+						
+						a = mapWidth - 2;
+					}
+					
+					if(a < 0 || a >= mapWidth - 1){
+						
+						return null;
+					}
+				}
+				
+				var index:int = b * mapWidth - int(b  * 0.5) + a;
+				
+				point1.x = unitWidth * 1.5 + ((b % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + a * unitWidth * Math.sqrt(3);
+				point1.y = unitWidth * 1.5 + b * unitWidth * 1.5;
+				
+				point2.x = localX;
+				point2.y = localY;
+				
+				var dis:Number = Point.distance(point2,point1);
+				
+				var resultUnit:BattleMapUnit = dic[index];
+				
+				var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,index);
+				
+				for each(var i:int in vec){
+					
+					var unit:BattleMapUnit = dic[i];
+					
+					point1.x = unit.x;
+					point1.y = unit.y;
+					
+					if(Point.distance(point2,point1) < dis){
+						
+						resultUnit = unit;
+						
+						break;
+					}
+				}
+				
+				if(resultUnit != null){
+					
+					point1.x = resultUnit.x;
+					point1.y = resultUnit.y;
+					
+					dis = Point.distance(point2,point1);
+					
+					if(dis > unitWidth){
+						
+						return null;
+					}
+				}
+				
+				return resultUnit;
+				
+			}else{
+				
+				return null;
+			}
+		}
+		
+		public function getSelectedUnit():BattleMapUnit{
+			
+			return selectedUnit;
+		}
+		
+		public function setSelectedUnit(_unit:BattleMapUnit):void{
+			
+			selectedUnit = _unit;
+			
+			selectedFrame.visible = true;
+			
+			selectedFrame.x = selectedUnit.x;
+			selectedFrame.y = selectedUnit.y;
 		}
 		
 		public function clearSelectedUnit():void{
 			
 			if(selectedUnit != null){
 				
-				mapContainer.unflatten();
-				
-				selectedUnit.state = 0;
-				
-				selectedUnit.refresh();
+				selectedFrame.visible = false;
 				
 				selectedUnit = null;
-				
-				mapContainer.flatten();
 			}
 		}
 	}

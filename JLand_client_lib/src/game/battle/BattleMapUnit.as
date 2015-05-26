@@ -5,9 +5,6 @@ package game.battle
 	
 	import starling.display.Image;
 	import starling.display.Sprite;
-	import starling.events.Touch;
-	import starling.events.TouchEvent;
-	import starling.events.TouchPhase;
 	import starling.text.TextField;
 
 	public class BattleMapUnit extends Sprite
@@ -18,11 +15,9 @@ package game.battle
 		
 		public var id:int;
 		public var isMine:Boolean;
-		public var state:int;
-		
+
 		private var bg:Image;
-		private var frame:Image;
-		
+
 		private var tf:TextField;
 		
 		public function BattleMapUnit(_map:BattleMap,_id:int)
@@ -30,8 +25,6 @@ package game.battle
 			map = _map;
 			
 			id = _id;
-			
-			addEventListener(TouchEvent.TOUCH,beTouch);
 		}
 		
 		public function refresh():void{
@@ -45,13 +38,6 @@ package game.battle
 				
 				addChild(bg);
 				
-				frame = new Image(ResourcePublic.getTexture("blackFrame"));
-				
-				frame.x = -0.5 * frame.width;
-				frame.y = -0.5 * frame.height;
-				
-				addChild(frame);
-				
 				tf = new TextField(30,30,String(id),ResourceFont.fontName,14,0x0);
 				
 				addChild(tf);
@@ -61,32 +47,6 @@ package game.battle
 			}else{
 				
 				bg.texture = ResourcePublic.getTexture(isMine ? "greenBg" : "redBg");
-			}
-			
-			if(state == 0){
-				
-				frame.visible = false;
-				
-			}else{
-				
-				frame.visible = true;
-			}
-		}
-		
-		private function beTouch(e:TouchEvent):void{
-			
-			var touch:Touch = e.getTouch(this);
-			
-			if(touch != null){
-				
-				if(touch.phase == TouchPhase.BEGAN){
-					
-					map.touchBegin(this,touch.globalX,touch.globalY);
-					
-				}else if(touch.phase == TouchPhase.ENDED){
-				
-					map.touchEnd(this,touch.globalX,touch.globalY);
-				}
 			}
 		}
 	}

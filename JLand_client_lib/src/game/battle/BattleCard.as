@@ -98,11 +98,22 @@ package game.battle
 		
 		private function beTouch(e:TouchEvent):void{
 			
-			var touch:Touch = e.getTouch(this,TouchPhase.ENDED);
+			var touch:Touch = e.getTouch(this);
 			
 			if(touch != null){
 				
-				Battle.instance.cardTouch(this,x,y);
+				if(touch.phase == TouchPhase.BEGAN){
+				
+					Battle.instance.cardTouchBegin(this,touch.globalX,touch.globalY);
+					
+				}else if(touch.phase == TouchPhase.MOVED){
+					
+					Battle.instance.cardTouchMove(this,touch.globalX,touch.globalY);
+					
+				}else if(touch.phase == TouchPhase.ENDED){
+					
+					Battle.instance.cardTouchEnd(this,touch.globalX,touch.globalY);
+				}
 			}
 		}
 	}

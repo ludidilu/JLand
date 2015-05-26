@@ -349,7 +349,9 @@ public class BattlePublic {
 			
 		}else if(length == 2){
 			
-			if(Math.abs(_data.get(0) - _data.get(1)) == 3){
+			int r = Math.abs(_data.get(0) - _data.get(1));
+			
+			if(r != 1 && r != 5){
 				
 				return 2;
 				

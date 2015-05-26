@@ -5,6 +5,7 @@ package game.battle
 	import com.greensock.easing.Linear;
 	import com.greensock.easing.Quad;
 	
+	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
 	import data.csv.Csv;
@@ -35,7 +36,7 @@ package game.battle
 		private static const CARD_HEIGHT:int = 80;
 		private static const CARD_GAP:int = 5;
 		
-		private var gameScale:Number = 1;
+		public var gameContainerScale:Number = 0.9;
 		
 		private var heroCsvUnit:CsvUnit;
 		
@@ -54,10 +55,10 @@ package game.battle
 		private var mapUnit:MapUnit;
 		internal var mapData:Dictionary;
 		
-		private var money:int;
+		internal var money:int;
 		
 		internal var summonDic:Dictionary;
-		internal var nowSummonCard:BattleCard;
+		internal var nowChooseCard:BattleCard;
 		
 		internal var moveDic:Dictionary;
 		internal var moveResultDic:Dictionary;
@@ -77,7 +78,7 @@ package game.battle
 		
 		internal var heroData:Dictionary;
 		
-		private var isActioned:Boolean;
+		internal var isActioned:Boolean;
 		
 		private var actionBt:Button;
 		
@@ -92,7 +93,11 @@ package game.battle
 		
 		private var moneyIsTrembling:Boolean;
 		
+		private var cardTouchMoveFun:Function;
+		
 		public static var instance:Battle;
+		
+		private var tmpRect:Rectangle = new Rectangle;
 		
 		public function Battle()
 		{
@@ -104,7 +109,7 @@ package game.battle
 			
 			gameContainer = new Sprite;
 			
-			gameContainer.scaleX = gameContainer.scaleY = gameScale;
+			gameContainer.scaleX = gameContainer.scaleY = gameContainerScale;
 			
 			addChild(gameContainer);
 			
@@ -385,7 +390,7 @@ package game.battle
 							
 							if(myCards[m].uid == uid){
 								
-								nowSummonCard = myCards[m];
+								nowChooseCard = myCards[m];
 								
 								break;
 							}
@@ -394,7 +399,7 @@ package game.battle
 						summon(target);
 					}
 					
-					nowSummonCard = null;
+					nowChooseCard = null;
 				}
 				
 				refreshMove();
@@ -405,7 +410,7 @@ package game.battle
 		
 		private function refreshCards():void{
 			
-			cardContainer.unflatten();
+//			cardContainer.unflatten();
 
 			var startX:Number = (Starling.current.backBufferWidth - myCards.length * CARD_WIDTH - (myCards.length - 1) * CARD_GAP) * 0.5;
 			
@@ -418,7 +423,7 @@ package game.battle
 				card.x = startX + i * (CARD_WIDTH + CARD_GAP) + CARD_WIDTH * 0.5;
 			}
 			
-			cardContainer.flatten();
+//			cardContainer.flatten();
 		}
 		
 		public function get gameContainerX():Number{
@@ -441,186 +446,286 @@ package game.battle
 			gameContainer.y = value;
 		}
 		
-		public function cardTouch(_card:BattleCard,_x:Number,_y:Number):void{
+		public function cardTouchBegin(_card:BattleCard,_globalX:Number,_globalY:Number):void{
 			
-			if(isActioned){
-				
-				return;
-			}
+			showHeroDetail(_globalX,_globalY,_card.csv.id);
 			
-			if(nowSummonCard == _card){
+			clearNowChooseCard();
+			
+			if(myCards.indexOf(_card) != -1){
+		
+				_card.y = _card.y - 20;
 				
-				cardContainer.unflatten();
+				battleMap.clearSelectedUnit();
 				
-				_card.y = _card.y + 20;
-				
-				cardContainer.flatten();
-				
-				nowSummonCard = null;
-				
-				hideHeroDetail();
+				if(!isActioned){
+					
+					cardTouchMoveFun = cardMove0;
+				}
 				
 			}else{
 				
-				if(nowSummonCard == null){
+				for(var str:String in summonDic){
+					
+					var card:BattleCard = summonDic[str];
+					
+					if(card == _card){
+						
+						battleMap.setSelectedUnit(battleMap.dic[str]);
+						
+						break;
+					}
+				}
+				
+				if(!isActioned){
+					
+					battleMap.moveFun = cardMove0;
+				}
+			}
+			
+			nowChooseCard = _card;
+		}
+		
+		public function cardTouchMove(_card:BattleCard,_globalX:Number,_globalY:Number):void{
+			
+			if(cardTouchMoveFun != null){
+				
+				cardTouchMoveFun(_globalX,_globalY);
+			}
+		}
+		
+		public function cardTouchEnd(_card:BattleCard,_globalX:Number,_globalY:Number):void{
+			
+			if(cardTouchMoveFun == cardMove0){
+				
+				cardTouchMoveFun = null;
+				
+			}else if(cardTouchMoveFun == cardMove1){
+				
+				cardTouchMoveFun = null;
+				
+				var unit:BattleMapUnit = battleMap.getSelectedUnit();
+				
+				if(unit != null){
+					
+					summon(unit.id);
 					
 					battleMap.clearSelectedUnit();
 					
 				}else{
 					
-					clearNowSummonCard();
+					myCards.push(nowChooseCard);
+					
+					refreshCards();
 				}
 				
-				if(_card.csv.star <= money){
-					
-					cardContainer.unflatten();
+				nowChooseCard = null;
 				
-					_card.y = _card.y - 20;
+			}else if(battleMap.moveFun == cardMove0){
+			
+				battleMap.moveFun = null;
+				
+			}else if(battleMap.moveFun == cardMove1){
+				
+				battleMap.moveFun = null;
+				
+				unit = battleMap.getSelectedUnit();
+				
+				if(unit != null){
 					
-					cardContainer.flatten();
+					summon(unit.id);
 					
-					nowSummonCard = _card;
+					battleMap.clearSelectedUnit();
 					
 				}else{
 					
-					moneyTremble();
+					myCards.push(nowChooseCard);
+					
+					refreshCards();
 				}
 				
-				showHeroDetail(_x,_y,_card.csv.id);
+				nowChooseCard = null;
 			}
 		}
 		
-		public function clearNowSummonCard():void{
+		private function cardMove0(_globalX:Number,_globalY:Number):void{
 			
-			cardContainer.unflatten();
+			nowChooseCard.getBounds(this,tmpRect);
 			
-			nowSummonCard.y = nowSummonCard.y + 20;
+			if(_globalX < tmpRect.left || _globalX > tmpRect.right || _globalY > tmpRect.bottom || _globalY < tmpRect.top){
+				
+				if(cardTouchMoveFun == cardMove0){//从手里拉出来的
+					
+					if(money >= nowChooseCard.csv.star){
+						
+						myCards.splice(myCards.indexOf(nowChooseCard),1);
+						
+						refreshCards();
+						
+						cardTouchMoveFun = cardMove1;
+						
+					}else{
+						
+						moneyTremble();
+						
+						cardTouchMoveFun = null;
+					}
+					
+				}else{
+					
+					for(var str:String in summonDic){
+						
+						var card:BattleCard = summonDic[str];
+						
+						if(card == nowChooseCard){
+							
+							delete summonDic[str];
+							
+							break;
+						}
+					}
+					
+					heroContainer.removeChild(nowChooseCard);
+					
+					nowChooseCard.x = _globalX;
+					nowChooseCard.y = _globalY;
+					
+					cardContainer.addChild(nowChooseCard);
+					
+					money = money + nowChooseCard.csv.star;
+					
+					refreshMoneyTf();
+					
+					battleMap.moveFun = cardMove1;
+					
+					refreshMove();
+				}
+			}
+		}
+		
+		public function cardMove1(_globalX:Number,_globalY:Number):void{
 			
-			cardContainer.flatten();
+			hideHeroDetail();
 			
-			nowSummonCard = null;
+			battleMap.clearSelectedUnit();
+			
+			nowChooseCard.x = _globalX;
+			nowChooseCard.y = _globalY;
+			
+			var battleMapUnit:BattleMapUnit = battleMap.getTouchUnit(_globalX,_globalY);
+			
+			if(battleMapUnit != null){
+				
+				if(mapData[battleMapUnit.id] == 1 && heroData[battleMapUnit.id] == null && summonDic[battleMapUnit.id] == null){
+				
+					battleMap.setSelectedUnit(battleMapUnit);
+				}
+			}
+		}
+		
+		public function clearNowChooseCard():void{
+			
+			if(nowChooseCard != null){
+				
+				if(myCards.indexOf(nowChooseCard) != -1){
+			
+					nowChooseCard.y = nowChooseCard.y + 20;
+				}
+			
+				nowChooseCard = null;
+			}
 		}
 		
 		public function summon(_pos:int):void{
 			
-			money = money - nowSummonCard.csv.star;
+			money = money - nowChooseCard.csv.star;
 			
 			refreshMoneyTf();
 			
-			myCards.splice(myCards.indexOf(nowSummonCard),1);
+			var index:int = myCards.indexOf(nowChooseCard);
 			
-			cardContainer.removeChild(nowSummonCard);
+			if(index != -1){
 			
-			refreshCards();
+				myCards.splice(index,1);
+				
+				refreshCards();
+			}
 			
-			summonDic[_pos] = nowSummonCard;
+			cardContainer.removeChild(nowChooseCard);
+			
+			summonDic[_pos] = nowChooseCard;
 
-			heroContainer.addChild(nowSummonCard);
+			heroContainer.addChild(nowChooseCard);
 			
 			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
 			
-			nowSummonCard.x = tmpBattleMapUnit.x;
-			nowSummonCard.y = tmpBattleMapUnit.y;
+			nowChooseCard.x = tmpBattleMapUnit.x;
+			nowChooseCard.y = tmpBattleMapUnit.y;
 			
-			nowSummonCard = null;
-			
-			refreshMove();
-			
-			hideHeroDetail();
-		}
-		
-		public function unSummon(_pos:int):void{
-			
-			if(isActioned){
-				
-				return;
-			}
-			
-			var card:BattleCard = summonDic[_pos];
-			
-			delete summonDic[_pos];
-			
-			if(moveDic[_pos] != null){
-				
-				delete moveDic[_pos];
-				
-				money = money + 1;
-			}
-			
-			money = money + card.csv.star;
-			
-			refreshMoneyTf();
-			
-			myCards.push(card);
-			
-			heroContainer.removeChild(card);
-			
-			cardContainer.addChild(card);
-			
-			refreshCards();
-			
-			battleMap.clearSelectedUnit();
+			nowChooseCard = null;
 			
 			refreshMove();
 			
 			hideHeroDetail();
 		}
 		
-		public function heroMove(_pos:int,_target:int):void{
+		public function heroMove(_hero:BattleHero,_target:int):void{
 			
-			if(isActioned){
+			if(_hero.pos in moveDic){
 				
-				return;
-			}
-			
-			var hero:BattleHero = heroData[_pos];
-			
-			if(hero != null){
-			
-				if(!hero.isMine || hero.power < POWER_CAN_MOVE || canMoveData == null || canMoveData.indexOf(hero.pos) == -1){
+				if(_target == -1){
 					
-					return;
-				}
-				
-			}else{
-				
-				return;
-			}
-			
-			if(moveDic[_pos] == null){
-				
-				if(money > 0){
-					
-					money = money - 1;
-					
-					refreshMoneyTf();
-					
-				}else{
-					
-					moneyTremble();
-					
-					return;
-				}
-				
-				moveDic[_pos] = _target;
-				
-			}else{
-				
-				if(moveDic[_pos] == _target){
-					
-					delete moveDic[_pos];
+					delete moveDic[_hero.pos];
 					
 					money = money + 1;
 					
 					refreshMoneyTf();
 					
+					refreshMove();
+					
 				}else{
 					
-					moveDic[_pos] = _target;
+					var target:int = moveDic[_hero.pos];
+					
+					if(target != _target){
+						
+						var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
+						
+						if(vec.indexOf(_target) != -1){
+							
+							moveDic[_hero.pos] = _target;
+							
+						}else{
+							
+							delete moveDic[_hero.pos];
+							
+							money = money + 1;
+							
+							refreshMoneyTf();
+						}
+						
+						refreshMove();
+					}
+				}
+				
+			}else{
+				
+				if(_target != -1){
+					
+					vec = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
+					
+					if(vec.indexOf(_target) != -1){
+						
+						money = money - 1;
+						
+						refreshMoneyTf();
+						
+						moveDic[_hero.pos] = _target;
+						
+						refreshMove();
+					}
 				}
 			}
-			
-			refreshMove();
 		}
 		
 		private function refreshMove():void{
@@ -832,15 +937,9 @@ package game.battle
 				}
 			}
 			
-			if(nowSummonCard != null){
+			if(nowChooseCard != null){
 				
-				cardContainer.unflatten();
-				
-				nowSummonCard.y = nowSummonCard.y + 20;
-				
-				nowSummonCard = null;
-				
-				cardContainer.flatten();
+				clearNowChooseCard();
 			}
 			
 			isActioned = true;
@@ -1304,7 +1403,9 @@ package game.battle
 						
 						var hero:BattleHero = heroData[_targetPos];
 						
-						hero.hp = hero.hp + data;
+						hero.hpChange = hero.hpChange + data;
+						
+//						hero.hp = hero.hp + data;
 
 						hero.refresh(false);
 						
@@ -1374,7 +1475,7 @@ package game.battle
 						
 						hero.maxHpFix = hero.maxHpFix + data;
 						
-						hero.hp = hero.hp + data;
+						hero.hpChange = hero.hpChange + data;
 						
 						hero.refresh(false);
 						
@@ -1441,28 +1542,51 @@ package game.battle
 			
 			for(var str:String in heroData){
 				
-				var pos:int = int(str);
-				
 				var hero:BattleHero = heroData[str];
 				
-				if(hero.hp < 1){
+				if(hero.hpChange != 0){
+				
+					hero.hp = hero.hp + hero.hpChange;
 					
-					if(!hasAddCallBack){
+					if(hero.hp < 1){
 						
-						hasAddCallBack = true;
+						if(!hasAddCallBack){
+							
+							hasAddCallBack = true;
+							
+							TweenLite.delayedCall(1,startAttack,[_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]);
+						}
 						
-						TweenLite.delayedCall(1,startAttack,[_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]);
+						TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:spriteAlphaOutOver,onCompleteParams:[hero]});
+						
+						delete heroData[str];
+						
+						continue;
 					}
 					
-					TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:spriteAlphaOutOver,onCompleteParams:[hero]});
+					if(hero.maxHpFix > 0){
+						
+						if(hero.hpChange <= 0){
+							
+							hero.maxHpFix = 0;
+							
+						}else if(hero.hpChange < hero.maxHpFix){
+							
+							hero.maxHpFix = hero.hpChange;
+						}
+					}
 					
-					delete heroData[str];
+					if(hero.hp > hero.getMaxHp()){
+						
+						hero.hp = hero.getMaxHp();
+					}
 					
-					continue;
+					hero.hpChange = 0;
 					
-				}else if(hero.hp > hero.csv.maxHp + hero.maxHpFix){
-					
-					hero.hp = hero.csv.maxHp + hero.maxHpFix;
+					if(hero.hp > hero.csv.maxHp + hero.maxHpFix){
+						
+						hero.hp = hero.csv.maxHp + hero.maxHpFix;
+					}
 				}
 			}
 			
@@ -1684,7 +1808,9 @@ package game.battle
 			
 			var hero:BattleHero = heroData[_pos];
 			
-			hero.hp = hero.hp - _damage;
+			hero.hpChange = hero.hpChange - _damage;
+			
+//			hero.hp = hero.hp - _damage;
 			
 			var sp:Sprite = new Sprite;
 			
@@ -1822,59 +1948,44 @@ package game.battle
 				
 				var hero:BattleHero = heroData[str];
 				
-				if(hero.hp < 1){
+				if(hero.hpChange < 0){
+				
+					hero.hp = hero.hp + hero.hpChange;
 					
-					if(!hasAddCallBack){
+					if(hero.hp < 1){
 						
-						hasAddCallBack = true;
+						if(!hasAddCallBack){
+							
+							hasAddCallBack = true;
+							
+							TweenLite.delayedCall(1,resetData,[_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]);
+						}
 						
-						TweenLite.delayedCall(1,resetData,[_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]);
+						TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:spriteAlphaOutOver,onCompleteParams:[hero]});
+						
+						delete heroData[str];
+						
+						continue;
+					}
+				
+					if(hero.maxHpFix > 0){
+						
+						hero.maxHpFix = hero.maxHpFix + hero.hpChange;
+						
+						if(hero.maxHpFix < 0){
+							
+							hero.maxHpFix = 0;
+						}
 					}
 					
-					TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:spriteAlphaOutOver,onCompleteParams:[hero]});
-					
-//					heroContainer.removeChild(hero);
-					
-					delete heroData[str];
-					
-					continue;
+					hero.hpChange = 0;
 				}
-			}
-			
-			if(!hasAddCallBack){
 				
-				TweenLite.delayedCall(0.5,resetData,[_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]);
-			}
-		}
-		
-		private function resetData(_beHitDic:Dictionary,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
-			
-			canMoveData = _canMoveData;
-			
-			if(!isHost && canMoveData != null){
-				
-				for(var i:int = 0 ; i < canMoveData.length ; i++){
-					
-					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
-				}
-			}
-			
-			for(var str:String in heroData){
-				
-				var pos:int = int(str);
-				
-				var hero:BattleHero = heroData[str];
-
 				if(hero.maxHpFix > 0){
 					
 					hero.hp = hero.hp - hero.maxHpFix;
 					
 					hero.maxHpFix = 0;
-					
-					if(hero.hp < 1){
-						
-						hero.hp = 1;
-					}
 				}
 				
 				if(hero.hp < hero.csv.maxHp && hero.power > 0){
@@ -1899,6 +2010,29 @@ package game.battle
 						hero.power = hero.power + 1;
 					}
 				}
+				
+				hero.refresh(false);
+			}
+			
+			if(!hasAddCallBack){
+				
+				TweenLite.delayedCall(0.5,resetData,[_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]);
+			}
+		}
+		
+		private function resetData(_beHitDic:Dictionary,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
+			
+			canMoveData = _canMoveData;
+			
+			if(!isHost && canMoveData != null){
+				
+				for(var i:int = 0 ; i < canMoveData.length ; i++){
+					
+					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
+				}
+			}
+			
+			for each(var hero:BattleHero in heroData){
 				
 				hero.refresh(true);
 			}
@@ -2093,7 +2227,7 @@ package game.battle
 		
 		private function moveGameContainerToCenter(_x:Number,_y:Number,_callBack:Function = null,...arg):void{
 			
-			TweenLite.to(gameContainer,0.5,{x:Starling.current.backBufferWidth * 0.5 - _x * gameScale,y:Starling.current.backBufferHeight * 0.5 - _y * gameScale,ease:Quad.easeOut,onComplete:delayCall,onCompleteParams:[0.3,_callBack,arg]});
+			TweenLite.to(gameContainer,0.5,{x:Starling.current.backBufferWidth * 0.5 - _x * gameContainerScale,y:Starling.current.backBufferHeight * 0.5 - _y * gameContainerScale,ease:Quad.easeOut,onComplete:delayCall,onCompleteParams:[0.3,_callBack,arg]});
 		}
 		
 		private function delayCall(_time:Number,_callBack:Function,_arg:Array):void{

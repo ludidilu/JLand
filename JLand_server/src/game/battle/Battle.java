@@ -1120,8 +1120,21 @@ public class Battle extends SuperService{
 					iter.remove();
 					
 					continue;
+				}
+				
+				if(hero.maxHpFix > 0){
 					
-				}else if(hero.hp > hero.getMaxHp()){
+					if(hero.hpChange <= 0){
+						
+						hero.maxHpFix = 0;
+						
+					}else if(hero.hpChange < hero.maxHpFix){
+						
+						hero.maxHpFix = hero.hpChange;
+					}
+				}
+				
+				if(hero.hp > hero.getMaxHp()){
 					
 					hero.hp = hero.getMaxHp();
 				}
@@ -1325,6 +1338,16 @@ public class Battle extends SuperService{
 					continue;
 				}
 				
+				if(hero.maxHpFix > 0){
+					
+					hero.maxHpFix = hero.maxHpFix + hero.hpChange;
+					
+					if(hero.maxHpFix < 0){
+						
+						hero.maxHpFix = 0;
+					}
+				}
+				
 				hero.hpChange = 0;
 			}
 			
@@ -1333,11 +1356,6 @@ public class Battle extends SuperService{
 				hero.hp = hero.hp - hero.maxHpFix;
 				
 				hero.maxHpFix = 0;
-				
-				if(hero.hp < 1){
-					
-					hero.hp = 1;
-				}
 			}
 			
 			if(hero.hp < hero.csv.maxHp && hero.power > 0){

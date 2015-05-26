@@ -23,6 +23,7 @@ package game.battle
 		public var power:int;
 		public var pos:int;
 		
+		public var hpChange:int;
 		public var atkFix:int;
 		public var maxHpFix:int;
 		
@@ -42,15 +43,17 @@ package game.battle
 		
 		public function refresh(_refreshSkillAndMove:Boolean):void{
 			
-			if(hp < 0){
+			var resultHp:int = hp + hpChange;
+			
+			if(resultHp < 0){
 				
 				var tmpHp:int = 0;
 				
 				var hpColor:uint = 0xFFFF0000;
 				
-			}else if(hp < csv.maxHp + maxHpFix){
+			}else if(resultHp < csv.maxHp + maxHpFix){
 				
-				tmpHp = hp;
+				tmpHp = resultHp;
 				
 				hpColor = 0xFFFF0000;
 				
@@ -377,6 +380,11 @@ package game.battle
 			}
 			
 			TweenLite.to(this,0.05,{x:_opos + _posFix,ease:Linear.easeNone,onComplete:startTremble,onCompleteParams:[_opos,posFix,_callBack,_arg]});
+		}
+		
+		public function getMaxHp():int{
+			
+			return csv.maxHp + maxHpFix;
 		}
 	}
 }

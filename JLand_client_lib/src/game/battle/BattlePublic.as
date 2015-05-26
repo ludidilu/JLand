@@ -170,7 +170,9 @@ package game.battle
 						
 						var dir2:int = getDirection(_mapWidth,_pos,_attackerVec[m]);
 						
-						if(Math.abs(dir1 - dir2) == 3){
+						var result:int = Math.abs(dir1 - dir2);
+						
+						if(result != 1 && result != 5){
 							
 							vec[0] = _attackerVec[i];
 							vec[1] = _attackerVec[m];
@@ -204,7 +206,7 @@ package game.battle
 							
 							var dir3:int = getDirection(_mapWidth,_pos,_attackerVec[n]);
 							
-							var result:int = Math.pow(2,dir1) + Math.pow(2,dir2) + Math.pow(2,dir3);
+							result = Math.pow(2,dir1) + Math.pow(2,dir2) + Math.pow(2,dir3);
 							
 							if(result == 21 || result == 42){
 								
