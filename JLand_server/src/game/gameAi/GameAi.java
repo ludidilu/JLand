@@ -5,8 +5,11 @@ import game.battle.Battle;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import publicTools.PublicTools;
+import data.dataCsv.battle.Csv_battle;
 import superService.SuperService;
 import userService.UserService;
 
@@ -66,7 +69,7 @@ public class GameAi  extends SuperService{
 			
 			Battle battle = battleList.remove(0);
 			
-			battle.process("init", _userServie, null, 1);
+			battle.process("init", getBattleID(), _userServie, null, 1);
 			
 		}else{
 			
@@ -108,11 +111,22 @@ public class GameAi  extends SuperService{
 			
 			UserService userService = waittingList.remove(0);
 			
-			_battle.process("init", userService, null, 1);
+			_battle.process("init", getBattleID(), userService, null, 1);
 			
 		}else{
 			
 			battleList.add(_battle);
 		}
+	}
+	
+	private int getBattleID(){
+		
+		HashMap<Integer, Csv_battle> tmpMap = PublicTools.getSomeOfMap(Csv_battle.dic, 1);
+		
+		Iterator<Integer> iter = tmpMap.keySet().iterator();
+		
+		int battleID = iter.next();
+		
+		return battleID;
 	}
 }

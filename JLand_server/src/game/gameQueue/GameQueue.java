@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import publicTools.PublicTools;
+import data.dataCsv.battle.Csv_battle;
 import superService.SuperService;
 import timer.TimerService;
 import userService.UserService;
@@ -126,7 +128,7 @@ public class GameQueue extends SuperService{
 					
 					Battle battle = battleList.remove(0);
 					
-					battle.process("init", service1, service2, -1);
+					battle.process("init", getBattleID(), service1, service2, -1);
 				}
 			}
 		}
@@ -137,4 +139,14 @@ public class GameQueue extends SuperService{
 		battleList.add(_battle);
 	}
 	
+	private int getBattleID(){
+		
+		HashMap<Integer, Csv_battle> tmpMap = PublicTools.getSomeOfMap(Csv_battle.dic, 1);
+		
+		Iterator<Integer> iter = tmpMap.keySet().iterator();
+		
+		int battleID = iter.next();
+		
+		return battleID;
+	}
 }

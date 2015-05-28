@@ -656,6 +656,14 @@ public class BattlePublic {
 				
 				return _targetHero.csv.atk;
 				
+			case 8:
+				
+				int data = _targetHero.csv.atk - _hero.csv.atk;
+				
+				_hero.atkFix = _hero.atkFix + data;
+				
+				return data;
+				
 			default:
 				
 				return 0;

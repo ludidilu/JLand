@@ -14,6 +14,7 @@ import publicTools.PublicTools;
 import superService.SuperService;
 import userService.UserService;
 import data.dataCsv.ai.Csv_ai;
+import data.dataCsv.battle.Csv_battle;
 import data.dataCsv.hero.Csv_hero;
 import data.dataMap.Map;
 import data.dataMap.MapUnit;
@@ -26,7 +27,7 @@ public class Battle extends SuperService{
 		
 		methodMap = new HashMap<>();
 		
-		methodMap.put("init",Battle.class.getDeclaredMethod("init",UserService.class,UserService.class,int.class));
+		methodMap.put("init",Battle.class.getDeclaredMethod("init",int.class,UserService.class,UserService.class,int.class));
 		
 		methodMap.put("getBattleData", Battle.class.getDeclaredMethod("getBattleData", UserService.class));
 		
@@ -88,7 +89,7 @@ public class Battle extends SuperService{
 		userCards2 = new HashMap<>();
 	}
 	
-	public void init(UserService _service1, UserService _service2, int _aiID){
+	public void init(int _battleID,UserService _service1, UserService _service2, int _aiID){
 		
 		service1 = _service1;
 		
@@ -97,7 +98,7 @@ public class Battle extends SuperService{
 			service2 = _service2;
 		}
 		
-		initBattle(_aiID);
+		initBattle(_battleID,_aiID);
 		
 		service1.process("enterBattle",this);
 		
@@ -107,11 +108,13 @@ public class Battle extends SuperService{
 		}
 	}
 	
-	private void initBattle(int _aiID){
+	private void initBattle(int _battleID,int _aiID){
 		
-		mapID = 2;
+		Csv_battle csv_battle = Csv_battle.dic.get(_battleID);
 		
-		maxRound = 20;
+		mapID = csv_battle.mapID;
+		
+		maxRound = csv_battle.roundNum;
 		
 		nowRound = 1;
 		
@@ -123,11 +126,11 @@ public class Battle extends SuperService{
 		
 		score2 = mapUnit.score2;
 		
-		userAllCards1 = PublicTools.shuffleArrayList(service1.userData.heros);
+		userAllCards1 = PublicTools.getSomeOfArr(service1.userData.heros,csv_battle.cardsNum);
 		
 		if(service2 != null){
 		
-			userAllCards2 = PublicTools.shuffleArrayList(service2.userData.heros);
+			userAllCards2 = PublicTools.getSomeOfArr(service2.userData.heros,csv_battle.cardsNum);
 			
 		}else{
 			
@@ -142,7 +145,7 @@ public class Battle extends SuperService{
 				userAllCards2.add(heroID);
 			}
 			
-			userAllCards2 = PublicTools.shuffleArrayList(userAllCards2);
+			userAllCards2 = PublicTools.getSomeOfArr(userAllCards2,csv_battle.cardsNum);
 			
 			aiMoney = csv_ai.money;
 		}

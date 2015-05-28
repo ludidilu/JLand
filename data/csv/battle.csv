@@ -1,0 +1,6 @@
+//编号,地图编号,回合总数,手牌总数
+id,mapID,roundNum,cardsNum
+int,int,int,int
+1,1,20,20
+2,2,15,15
+3,3,10,10

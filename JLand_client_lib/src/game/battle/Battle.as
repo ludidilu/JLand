@@ -1494,6 +1494,7 @@ package game.battle
 						break;
 					
 					case 7:
+					case 8:
 						
 						hero = heroData[_pos];
 						
@@ -1501,9 +1502,18 @@ package game.battle
 						
 						hero.refresh(false);
 						
-						str = "ATK+" + data;
+						if(data < 0){
 							
-						color = 0x00FF00;
+							str = "ATK" + data;
+							
+							color = 0xFF0000;
+							
+						}else{
+							
+							str = "ATK+" + data;
+							
+							color = 0x00FF00;
+						}
 						
 						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;

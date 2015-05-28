@@ -177,7 +177,6 @@ package game.battle
 				}else{
 					
 					moveFun = readyToContainerMove;
-					
 				}
 				
 				return;
@@ -243,7 +242,9 @@ package game.battle
 			
 			if(Point.distance(tmpPoint,tmpPoint2) > unitWidth * Battle.instance.gameContainerScale){
 				
-				if(Battle.instance.money > 0){
+				var hero:BattleHero = Battle.instance.heroData[selectedUnit.id];
+				
+				if(Battle.instance.money > 0 || hero.pos in Battle.instance.moveDic){
 					
 					moveFun = heroMove;
 					
