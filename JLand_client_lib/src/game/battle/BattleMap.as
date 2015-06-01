@@ -50,8 +50,6 @@ package game.battle
 		{
 			unitWidth = ResourcePublic.getTexture("blackFrame").height * 0.5 + 2;
 			
-			dic = new Dictionary;
-			
 			bgContainer = new Sprite;
 			
 			var quad:Quad = new Quad(10000,10000);
@@ -102,6 +100,12 @@ package game.battle
 		
 		
 		public function start(_mapWidth:int,_mapHeight:int,_size:int,_dic:Dictionary):void{
+			
+			mapContainer.unflatten();
+			
+			mapContainer.removeChildren();
+			
+			dic = new Dictionary;
 			
 			mapWidth = _mapWidth;
 			mapHeight = _mapHeight;

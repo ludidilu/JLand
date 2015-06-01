@@ -25,6 +25,8 @@ public class UserService extends Server_thread_service{
 		Server_thread_service.methodMap.put("fightAiOK", UserService.class.getDeclaredMethod("fightAiOK", boolean.class));
 		Server_thread_service.methodMap.put("quitGameAiOK",UserService.class.getDeclaredMethod("quitGameAiOK",boolean.class));
 		Server_thread_service.methodMap.put("quitGameAiWhenDisconnectOK",UserService.class.getDeclaredMethod("quitGameAiWhenDisconnectOK",boolean.class));
+		Server_thread_service.methodMap.put("quitBattleOK", UserService.class.getDeclaredMethod("quitBattleOK",boolean.class));
+		Server_thread_service.methodMap.put("leaveBattle", UserService.class.getDeclaredMethod("leaveBattle"));
 	}
 	
 	public UserData userData;
@@ -33,7 +35,7 @@ public class UserService extends Server_thread_service{
 	
 	private boolean isInGameQueue;
 	
-	private boolean isInGameAi;
+	private boolean isInGameAiQueue;
 	
 	public UserService(DB_user_unit _user){
 		
@@ -49,7 +51,7 @@ public class UserService extends Server_thread_service{
 			addProcessingNum();
 			quitQueueWhenDisconnect();
 			
-		}else if(isInGameAi){
+		}else if(isInGameAiQueue){
 			
 			addProcessingNum();
 			quitGameAiWhenDisconnect();
@@ -65,7 +67,7 @@ public class UserService extends Server_thread_service{
 			addProcessingNum();
 			quitQueueWhenDisconnect();
 			
-		}else if(isInGameAi){
+		}else if(isInGameAiQueue){
 			
 			addProcessingNum();
 			quitGameAiWhenDisconnect();
@@ -93,7 +95,7 @@ public class UserService extends Server_thread_service{
 	
 	public void enterQueue() throws Exception{
 		
-		if(battle == null && !isInGameQueue && !isInGameAi){
+		if(battle == null && !isInGameQueue && !isInGameAiQueue){
 		
 			GameQueue.getInstance().process("enterQueue", this);
 			
@@ -147,9 +149,9 @@ public class UserService extends Server_thread_service{
 		
 			isInGameQueue = false;
 			
-		}else if(isInGameAi){
+		}else if(isInGameAiQueue){
 			
-			isInGameAi = false;
+			isInGameAiQueue = false;
 		}
 		
 		battle = _battle;
@@ -190,7 +192,7 @@ public class UserService extends Server_thread_service{
 	
 	public void fightAi() throws Exception{
 		
-		if(battle == null && !isInGameQueue && !isInGameAi){
+		if(battle == null && !isInGameQueue && !isInGameAiQueue){
 			
 			GameAi.getInstance().process("fightAi", this);
 			
@@ -207,7 +209,7 @@ public class UserService extends Server_thread_service{
 	
 	public void quitGameAi() throws Exception{
 		
-		if(isInGameAi){
+		if(isInGameAiQueue){
 		
 			GameAi.getInstance().process("quitGameAi", this);
 			
@@ -231,8 +233,32 @@ public class UserService extends Server_thread_service{
 	
 	public void quitGameAiWhenDisconnectOK(boolean _result) throws Exception{
 		
-		isInGameAi = false;
+		isInGameAiQueue = false;
 		
 		delProcessingNum();
+	}
+	
+	public void quitBattle() throws Exception{
+		
+		if(battle != null){
+			
+			battle.process("quitBattle", this);
+			
+		}else{
+			
+			sendData(19, false);
+		}
+	}
+	
+	public void quitBattleOK(boolean _result) throws Exception{
+		
+		sendData(19, _result);
+	}
+	
+	public void leaveBattle() throws Exception{
+		
+		battle = null;
+		
+		sendData(20);
 	}
 }

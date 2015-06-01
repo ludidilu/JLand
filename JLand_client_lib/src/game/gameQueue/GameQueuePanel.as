@@ -155,5 +155,11 @@ package game.gameQueue
 				tf.visible = true;
 			}
 		}
+		
+		public function reset():void{
+			
+			quitQueueOK(true);
+			quitAiOK(true);
+		}
 	}
 }

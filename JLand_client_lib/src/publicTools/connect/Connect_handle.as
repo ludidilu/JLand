@@ -74,6 +74,16 @@ package publicTools.connect
 			Game.playBattle(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 		}
 		
+		internal static function quitBattleOK(_result:Boolean):void{
+			
+			
+		}
+		
+		internal static function leaveBattle():void{
+			
+			Game.leaveBattle();
+		}
+		
 		
 		
 		internal static function pushMsg(_str:String):void{

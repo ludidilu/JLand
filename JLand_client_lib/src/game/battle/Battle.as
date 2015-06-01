@@ -15,6 +15,8 @@ package game.battle
 	import data.resource.ResourceFont;
 	import data.resource.ResourcePublic;
 	
+	import game.Game;
+	
 	import publicTools.connect.Connect_handle;
 	
 	import starling.core.Starling;
@@ -79,8 +81,12 @@ package game.battle
 		internal var heroData:Dictionary;
 		
 		internal var isActioned:Boolean;
+		private var isPlayBattle:Boolean;
+		
+		private var playBattleOverCallBack:Function;
 		
 		private var actionBt:Button;
+		private var quitBt:Button;
 		
 		private var roundTf:TextField;
 		private var scoreTf:TextField;
@@ -218,6 +224,15 @@ package game.battle
 			actionBt.addEventListener(Event.TRIGGERED,btClick);
 			
 			btContainer.addChild(actionBt);
+			
+			quitBt = new Button(Texture.fromColor(150,30,0xFFFF0000));
+			
+			quitBt.x = Starling.current.backBufferWidth - 30 - quitBt.width;
+			quitBt.y = 50;
+			
+			quitBt.addEventListener(Event.TRIGGERED,quitBattle);
+			
+			btContainer.addChild(quitBt);
 		}
 		
 		public function start(_isHost:Boolean,_nowRound:int,_maxRound:int,_mapID:int,_mapData:Vector.<int>,_myCards:Vector.<Vector.<int>>,_oppCardsNum:int,_userAllCardsNum1:int,_userAllCardsNum2:int,_heroData:Vector.<Vector.<int>>,_canMoveData:Vector.<int>,_isActioned:Boolean,_actionHeroData:Vector.<Vector.<int>>,_actionSummonData:Vector.<Vector.<int>>):void{
@@ -243,6 +258,8 @@ package game.battle
 			summonDic = new Dictionary;
 			
 			moveDic = new Dictionary;
+			
+			myScore = oppScore = 0;
 			
 			for(var str:String in mapUnit.dic){
 				
@@ -988,6 +1005,8 @@ package game.battle
 		}
 		
 		public function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
+			
+			isPlayBattle = true;
 			
 			battleMap.clearSelectedUnit();
 			
@@ -2145,6 +2164,15 @@ package game.battle
 			Starling.current.touchable = true;
 			
 			actionBt.enabled = true;
+			
+			isPlayBattle = false;
+			
+			if(playBattleOverCallBack != null){
+				
+				playBattleOverCallBack();
+				
+				playBattleOverCallBack = null;
+			}
 		}
 		
 		private function refreshUIContainer():void{
@@ -2155,9 +2183,9 @@ package game.battle
 			myAllCardsNumTf.text = "MyAllCardsNum:" + myAllCardsNum;
 			oppAllCardsNumTf.text = "OppAllCardsNum:" + oppAllCardsNum;
 			
-			roundTf.text = nowRound + "/" + maxRound;
+			roundTf.text = "Round:" + nowRound + "/" + maxRound;
 			
-			scoreTf.text = myScore + ":" + oppScore;
+			scoreTf.text = "Score:" + myScore + ":" + oppScore;
 			
 			uiContainer.flatten();
 		}
@@ -2243,6 +2271,23 @@ package game.battle
 		private function delayCall(_time:Number,_callBack:Function,_arg:Array):void{
 			
 			TweenLite.delayedCall(_time,_callBack,_arg);
+		}
+		
+		private function quitBattle(e:Event):void{
+			
+			Connect_handle.sendData(18);
+		}
+		
+		public function leaveBattle():void{
+			
+			if(!isPlayBattle){
+				
+				Game.leaveBattleOK();
+				
+			}else{
+				
+				playBattleOverCallBack = Game.leaveBattleOK;
+			}
 		}
 	}
 }

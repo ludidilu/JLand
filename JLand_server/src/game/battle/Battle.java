@@ -28,10 +28,9 @@ public class Battle extends SuperService{
 		methodMap = new HashMap<>();
 		
 		methodMap.put("init",Battle.class.getDeclaredMethod("init",int.class,UserService.class,UserService.class,int.class));
-		
 		methodMap.put("getBattleData", Battle.class.getDeclaredMethod("getBattleData", UserService.class));
-		
 		methodMap.put("sendBattleAction", Battle.class.getDeclaredMethod("sendBattleAction", UserService.class, int[][].class, int[][].class));
+		methodMap.put("quitBattle", Battle.class.getDeclaredMethod("quitBattle", UserService.class));
 	}
 	
 	protected HashMap<String, Method> getMethodMap(){
@@ -1549,6 +1548,27 @@ public class Battle extends SuperService{
 		}else{
 			
 			GameAi.getInstance().process("battleOver", this);
+		}
+	}
+	
+	public void quitBattle(UserService _service){
+		
+		if(service1 == _service || service2 == _service){
+			
+			_service.process("quitBattleOK", true);
+			
+			service1.process("leaveBattle");
+			
+			if(service2 != null){
+				
+				service2.process("leaveBattle");
+			}
+			
+			battleOver();
+			
+		}else{
+			
+			_service.process("quitBattleOK", false);
 		}
 	}
 }

@@ -85,6 +85,8 @@ package game
 			
 			if(gameQueuePanel.parent != null){
 				
+				gameQueuePanel.reset();
+				
 				stage.removeChild(gameQueuePanel);
 			}
 			
@@ -106,6 +108,18 @@ package game
 		public static function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
 			
 			battle.playBattle(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
+		}
+		
+		public static function leaveBattle():void{
+			
+			battle.leaveBattle();
+		}
+		
+		public static function leaveBattleOK():void{
+			
+			Starling.current.stage.removeChild(battle);
+			
+			stage.addChild(gameQueuePanel);
 		}
 	}
 }
