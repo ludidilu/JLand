@@ -76,12 +76,15 @@ package publicTools.connect
 		
 		internal static function quitBattleOK(_result:Boolean):void{
 			
-			
+			if(_result){
+				
+				Game.leaveBattle(-1);
+			}
 		}
 		
-		internal static function leaveBattle():void{
+		internal static function leaveBattle(_result:int):void{
 			
-			Game.leaveBattle();
+			Game.leaveBattle(_result);
 		}
 		
 		

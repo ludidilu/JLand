@@ -53,9 +53,9 @@ package game.battle
 		private var heroDetailContainer:Sprite;
 		private var btContainer:Sprite;
 		
-		private var isHost:Boolean;
+		internal var isHost:Boolean;
 		private var mapUnit:MapUnit;
-		internal var mapData:Dictionary;
+		private var mapData:Dictionary;
 		
 		internal var money:int;
 		
@@ -84,6 +84,7 @@ package game.battle
 		private var isPlayBattle:Boolean;
 		
 		private var playBattleOverCallBack:Function;
+		private var playBattleOverCallBackArg:Array;
 		
 		private var actionBt:Button;
 		private var quitBt:Button;
@@ -297,7 +298,7 @@ package game.battle
 				}
 			}
 			
-			battleMap.start(mapUnit.mapWidth,mapUnit.mapHeight,mapUnit.size,mapData);
+			battleMap.start(mapUnit,mapData);
 			
 			if(_isHost){
 
@@ -706,7 +707,9 @@ package game.battle
 					
 					if(target != _target){
 						
-						var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
+//						var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
+						
+						var vec:Vector.<int> = mapUnit.neightbourDic[_hero.pos];
 						
 						if(vec.indexOf(_target) != -1){
 							
@@ -729,7 +732,9 @@ package game.battle
 				
 				if(_target != -1){
 					
-					vec = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
+					vec = mapUnit.neightbourDic[_hero.pos];
+					
+//					vec = BattlePublic.getNeighbourPosVec(mapUnit.mapWidth,mapUnit.size,mapUnit.dic,_hero.pos);
 					
 					if(vec.indexOf(_target) != -1){
 						
@@ -2099,7 +2104,7 @@ package game.battle
 					
 					card.x = Starling.current.backBufferWidth * 0.5;
 					
-					card.y = card.height * 2;
+					card.y = Starling.current.backBufferHeight - card.height * 2;
 						
 					heroDetailContainer.addChild(card);
 					
@@ -2130,7 +2135,7 @@ package game.battle
 				
 				card.x = Starling.current.backBufferWidth * 0.5;
 				
-				card.y = Starling.current.backBufferHeight - card.height * 2;
+				card.y = card.height * 2;
 				
 				heroDetailContainer.addChild(card);
 				
@@ -2169,9 +2174,10 @@ package game.battle
 			
 			if(playBattleOverCallBack != null){
 				
-				playBattleOverCallBack();
+				playBattleOverCallBack.apply(null,playBattleOverCallBackArg);
 				
 				playBattleOverCallBack = null;
+				playBattleOverCallBackArg = null;
 			}
 		}
 		
@@ -2196,6 +2202,8 @@ package game.battle
 		}
 		
 		public function showHeroDetail(_x:Number,_y:Number,_heroID:int):void{
+			
+			hideHeroDetail();
 			
 			if(_x <= Starling.current.backBufferWidth * 0.5 && _y <= Starling.current.backBufferHeight * 0.5){
 				
@@ -2226,6 +2234,8 @@ package game.battle
 		public function hideHeroDetail():void{
 			
 			heroDetailPanel.visible = false;
+			
+			battleMap.hideTargetFrame();
 		}
 		
 		public function moneyTremble():void{
@@ -2278,16 +2288,76 @@ package game.battle
 			Connect_handle.sendData(18);
 		}
 		
-		public function leaveBattle():void{
+		public function leaveBattle(_result:int):void{
 			
 			if(!isPlayBattle){
 				
-				Game.leaveBattleOK();
+				leaveBattleReal(_result);
 				
 			}else{
 				
-				playBattleOverCallBack = Game.leaveBattleOK;
+				playBattleOverCallBack = leaveBattleReal;
+				playBattleOverCallBackArg = [_result];
 			}
+		}
+		
+		private function leaveBattleReal(_result:int):void{
+			
+			switch(_result){
+				
+				case -1:
+					
+					trace("你主动退出了游戏!!");
+					
+					break;
+				
+				case 0:
+					
+					trace("对手主动退出了游戏！！");
+					
+					break;
+				
+				case 1:
+					
+					trace("你赢了！！");
+					
+					break;
+				
+				case 2:
+					
+					trace("你输了！！");
+					
+					break;
+				
+				case 3:
+					
+					trace("平局！！");
+					
+					break;
+			}
+			
+			disposeBattle();
+		}
+		
+		private function disposeBattle():void{
+			
+			battleMap.disposeBattleMap();
+			
+			heroContainer.removeChildren();
+			
+			arrowContainer.removeChildren();
+			
+			effectContainer.removeChildren();
+			
+			cardContainer.removeChildren();
+
+			cardTouchMoveFun = null;
+			
+			moneyIsTrembling = false;
+			
+			hideHeroDetail();
+			
+			Game.leaveBattleOK();
 		}
 	}
 }

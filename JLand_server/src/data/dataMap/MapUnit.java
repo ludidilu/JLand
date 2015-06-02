@@ -18,9 +18,9 @@ public class MapUnit {
 	
 	public void init(){
 		
-		neighbourPosMap = new HashMap<>();
-		
 		int size = mapWidth * mapHeight - mapHeight / 2;
+		
+		neighbourPosMap = new HashMap<>();
 		
 		Iterator<Entry<Integer, Integer>> iter = dic.entrySet().iterator();
 		
@@ -41,23 +41,23 @@ public class MapUnit {
 				score2++;
 			}
 			
-			int[] vec = getNeighbourPosVec(mapWidth, size, dic, pos);
+			int[] vec = getNeighbourPosVec(size,pos);
 			
 			neighbourPosMap.put(pos, vec);
 		}
 	}
 	
-	private static int[] getNeighbourPosVec(int _mapWidth,int _size,HashMap<Integer, Integer> _dic,int _pos){
+	private int[] getNeighbourPosVec(int _size, int _pos){
 		
 		int[] vec = new int[6];
 		
-		if(_pos % (_mapWidth * 2 - 1) != 0){
+		if(_pos % (mapWidth * 2 - 1) != 0){
 			
-			if(_pos > _mapWidth - 1){
+			if(_pos > mapWidth - 1){
 			
-				int p = _pos - _mapWidth;
+				int p = _pos - mapWidth;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[5] = p;
 					
@@ -71,11 +71,11 @@ public class MapUnit {
 				vec[5] = -1;
 			}
 			
-			if(_pos < _size - _mapWidth){
+			if(_pos < _size - mapWidth){
 				
-				int p = _pos + _mapWidth - 1;
+				int p = _pos + mapWidth - 1;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[3] = p;
 					
@@ -89,11 +89,11 @@ public class MapUnit {
 				vec[3] = -1;
 			}
 			
-			if(_pos % (_mapWidth * 2 - 1) != _mapWidth){
+			if(_pos % (mapWidth * 2 - 1) != mapWidth){
 				
 				int p = _pos - 1;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[4] = p;
 					
@@ -114,13 +114,13 @@ public class MapUnit {
 			vec[5] = -1;
 		}
 		
-		if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
+		if(_pos % (mapWidth * 2 - 1) != mapWidth - 1){
 			
-			if(_pos > _mapWidth - 1){
+			if(_pos > mapWidth - 1){
 				
-				int p = _pos - _mapWidth + 1;
+				int p = _pos - mapWidth + 1;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[0] = p;
 					
@@ -134,11 +134,11 @@ public class MapUnit {
 				vec[0] = -1;
 			}
 			
-			if(_pos < _size - _mapWidth){
+			if(_pos < _size - mapWidth){
 				
-				int p = _pos + _mapWidth;
+				int p = _pos + mapWidth;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[2] = p;
 					
@@ -152,11 +152,11 @@ public class MapUnit {
 				vec[2] = -1;
 			}
 			
-			if(_pos % (_mapWidth * 2 - 1) != _mapWidth * 2 - 2){
+			if(_pos % (mapWidth * 2 - 1) != mapWidth * 2 - 2){
 				
 				int p = _pos + 1;
 				
-				if(_dic.containsKey(p)){
+				if(dic.containsKey(p)){
 					
 					vec[1] = p;
 					

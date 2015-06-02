@@ -26,7 +26,7 @@ public class UserService extends Server_thread_service{
 		Server_thread_service.methodMap.put("quitGameAiOK",UserService.class.getDeclaredMethod("quitGameAiOK",boolean.class));
 		Server_thread_service.methodMap.put("quitGameAiWhenDisconnectOK",UserService.class.getDeclaredMethod("quitGameAiWhenDisconnectOK",boolean.class));
 		Server_thread_service.methodMap.put("quitBattleOK", UserService.class.getDeclaredMethod("quitBattleOK",boolean.class));
-		Server_thread_service.methodMap.put("leaveBattle", UserService.class.getDeclaredMethod("leaveBattle"));
+		Server_thread_service.methodMap.put("leaveBattle", UserService.class.getDeclaredMethod("leaveBattle",int.class));
 	}
 	
 	public UserData userData;
@@ -252,13 +252,18 @@ public class UserService extends Server_thread_service{
 	
 	public void quitBattleOK(boolean _result) throws Exception{
 		
+		if(_result){
+			
+			battle = null;
+		}
+		
 		sendData(19, _result);
 	}
 	
-	public void leaveBattle() throws Exception{
+	public void leaveBattle(int _result) throws Exception{
 		
 		battle = null;
 		
-		sendData(20);
+		sendData(20, _result);
 	}
 }

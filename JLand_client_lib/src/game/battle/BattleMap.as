@@ -4,6 +4,7 @@ package game.battle
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
+	import data.map.MapUnit;
 	import data.resource.ResourcePublic;
 	
 	import starling.core.Starling;
@@ -22,14 +23,15 @@ package game.battle
 		
 		private var unitWidth:Number;
 		
-		private var mapWidth:int;
-		private var mapHeight:int;
-		
-		private var size:int;
+		private var mapUnit:MapUnit;
 		
 		public var dic:Dictionary;
 		
-		private var selectedFrame:Sprite;
+		private var blackFrame:Sprite;
+		private var redFrameVec:Vector.<Sprite>;
+		private var redFrameIndex:int;
+		private var greenFrameVec:Vector.<Sprite>;
+		private var greenFrameIndex:int;
 		
 		private var point1:Point = new Point;
 		private var point2:Point = new Point;
@@ -80,48 +82,71 @@ package game.battle
 			
 			selectedFrameContaienr.touchable = false;
 			
-			selectedFrame = new Sprite;
+			addChild(selectedFrameContaienr);
+			
+			blackFrame = new Sprite;
 			
 			var img:Image = new Image(ResourcePublic.getTexture("blackFrame"));
 			
 			img.x = -0.5 * img.width;
 			img.y = -0.5 * img.height;
 			
-			selectedFrame.addChild(img);
-			selectedFrame.flatten();
+			blackFrame.addChild(img);
+			blackFrame.flatten();
 			
-			selectedFrame.visible = false;
+			blackFrame.visible = false;
 			
-			selectedFrameContaienr.addChild(selectedFrame);
+			selectedFrameContaienr.addChild(blackFrame);
 			
-			addChild(selectedFrameContaienr);
+			redFrameVec = new Vector.<Sprite>(6,true);
+			greenFrameVec = new Vector.<Sprite>(6,true);
+			
+			for(var i:int = 0 ; i < 6 ; i++){
+				
+				var frame:Sprite = new Sprite;
+				
+				img = new Image(ResourcePublic.getTexture("redFrame"));
+				
+				img.x = -0.5 * img.width;
+				img.y = -0.5 * img.height;
+				
+				frame.addChild(img);
+				frame.flatten();
+				
+				redFrameVec[i] = frame;
+				
+				frame = new Sprite;
+				
+				img = new Image(ResourcePublic.getTexture("greenFrame"));
+				
+				img.x = -0.5 * img.width;
+				img.y = -0.5 * img.height;
+				
+				frame.addChild(img);
+				frame.flatten();
+				
+				greenFrameVec[i] = frame;
+			}
 		}
 		
-		
-		
-		public function start(_mapWidth:int,_mapHeight:int,_size:int,_dic:Dictionary):void{
+		public function start(_mapUnit:MapUnit,_dic:Dictionary):void{
 			
 			mapContainer.unflatten();
 			
-			mapContainer.removeChildren();
-			
 			dic = new Dictionary;
 			
-			mapWidth = _mapWidth;
-			mapHeight = _mapHeight;
+			mapUnit = _mapUnit;
 			
-			size = _size;
-			
-			for(var i:int = 0 ; i < mapWidth ; i++){
+			for(var i:int = 0 ; i < mapUnit.mapWidth ; i++){
 				
-				for(var m:int = 0 ; m < mapWidth ; m++){
+				for(var m:int = 0 ; m < mapUnit.mapWidth ; m++){
 					
-					if(m == mapWidth - 1 && i % 2 == 1){
+					if(m == mapUnit.mapWidth - 1 && i % 2 == 1){
 						
 						break;
 					}
 					
-					var id:int = i * mapWidth - int(i  * 0.5) + m;
+					var id:int = i * mapUnit.mapWidth - int(i  * 0.5) + m;
 					
 					if(_dic[id] != null){
 					
@@ -171,6 +196,11 @@ package game.battle
 			if(hero != null){
 			
 				Battle.instance.showHeroDetail(_globalX,_globalY,hero.csv.id);
+				
+				if(hero.power > 0){
+					
+					showTargetFrame(hero);
+				}
 				
 				setSelectedUnit(_unit);
 				
@@ -288,19 +318,19 @@ package game.battle
 				
 			}else if(angle >= Math.PI / 6 && angle < Math.PI * 0.5){
 				
-				target = hero.pos + mapWidth;
+				target = hero.pos + mapUnit.mapWidth;
 				
 			}else if(angle >= Math.PI * 0.5 && angle < Math.PI * 5 / 6){
 				
-				target = hero.pos + mapWidth - 1;
+				target = hero.pos + mapUnit.mapWidth - 1;
 				
 			}else if(angle >= -Math.PI * 0.5 && angle < -Math.PI / 6){
 				
-				target = hero.pos - mapWidth + 1;
+				target = hero.pos - mapUnit.mapWidth + 1;
 				
 			}else if(angle >= -Math.PI * 5 / 6 && angle < -Math.PI * 0.5){
 				
-				target = hero.pos - mapWidth;
+				target = hero.pos - mapUnit.mapWidth;
 				
 			}else{
 				
@@ -387,23 +417,23 @@ package game.battle
 			
 			var b:int = Math.floor((localY - unitWidth * 0.5) / unitWidth / 1.5);
 			
-			if(b == mapHeight){
+			if(b == mapUnit.mapHeight){
 				
-				b = mapHeight - 1;
+				b = mapUnit.mapHeight - 1;
 			}
 			
-			if(b >= 0 && b < mapHeight){
+			if(b >= 0 && b < mapUnit.mapHeight){
 				
 				if(b % 2 == 0){
 					
 					var a:int = Math.floor((localX - unitWidth * 0.5) / unitWidth / Math.sqrt(3));
 					
-					if(a == mapWidth){
+					if(a == mapUnit.mapWidth){
 						
-						a = mapWidth - 1;
+						a = mapUnit.mapWidth - 1;
 					}
 					
-					if(a < 0 || a >= mapWidth){
+					if(a < 0 || a >= mapUnit.mapWidth){
 						
 						return null;
 					}
@@ -416,18 +446,18 @@ package game.battle
 						
 						a = 0;
 						
-					}else if(a == mapWidth - 1){
+					}else if(a == mapUnit.mapWidth - 1){
 						
-						a = mapWidth - 2;
+						a = mapUnit.mapWidth - 2;
 					}
 					
-					if(a < 0 || a >= mapWidth - 1){
+					if(a < 0 || a >= mapUnit.mapWidth - 1){
 						
 						return null;
 					}
 				}
 				
-				var index:int = b * mapWidth - int(b  * 0.5) + a;
+				var index:int = b * mapUnit.mapWidth - int(b  * 0.5) + a;
 				
 				point1.x = unitWidth * 1.5 + ((b % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + a * unitWidth * Math.sqrt(3);
 				point1.y = unitWidth * 1.5 + b * unitWidth * 1.5;
@@ -439,20 +469,25 @@ package game.battle
 				
 				var resultUnit:BattleMapUnit = dic[index];
 				
-				var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,index);
+//				var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,index);
+				
+				var vec:Vector.<int> = mapUnit.neightbourDic[index];
 				
 				for each(var i:int in vec){
 					
-					var unit:BattleMapUnit = dic[i];
+					if(i != -1){
 					
-					point1.x = unit.x;
-					point1.y = unit.y;
-					
-					if(Point.distance(point2,point1) < dis){
+						var unit:BattleMapUnit = dic[i];
 						
-						resultUnit = unit;
+						point1.x = unit.x;
+						point1.y = unit.y;
 						
-						break;
+						if(Point.distance(point2,point1) < dis){
+							
+							resultUnit = unit;
+							
+							break;
+						}
 					}
 				}
 				
@@ -486,20 +521,175 @@ package game.battle
 			
 			selectedUnit = _unit;
 			
-			selectedFrame.visible = true;
+			blackFrame.visible = true;
 			
-			selectedFrame.x = selectedUnit.x;
-			selectedFrame.y = selectedUnit.y;
+			blackFrame.x = selectedUnit.x;
+			blackFrame.y = selectedUnit.y;
 		}
 		
 		public function clearSelectedUnit():void{
 			
 			if(selectedUnit != null){
 				
-				selectedFrame.visible = false;
+				blackFrame.visible = false;
 				
 				selectedUnit = null;
 			}
+		}
+		
+		private function showTargetFrame(_hero:BattleHero):void{
+			
+			var vec:Vector.<int> = mapUnit.neightbourDic[Battle.instance.isHost ? _hero.pos : mapUnit.size - 1 - _hero.pos];
+			
+			switch(_hero.csv.type){
+				
+				case 0:
+				case 3:
+					
+					for(var i:int = 0 ; i < 6 ; i++){
+						
+						var pos:int = vec[i];
+						
+						if(pos != -1){
+							
+							checkAddFrame(_hero,pos);
+						}
+					}
+					
+					break;
+				
+				case 1:
+					
+					for(i = 0 ; i < 6 ; i++){
+						
+						pos = vec[i];
+						
+						if(pos != -1){
+							
+							pos = mapUnit.neightbourDic[pos][i];
+							
+							if(pos != -1){
+							
+								checkAddFrame(_hero,pos);
+							}
+						}
+					}
+					
+					break;
+				
+				case 2:
+					
+					for(i = 0 ; i < 6 ; i++){
+						
+						pos = vec[i];
+						
+						if(pos != -1){
+							
+							var result:Boolean = checkAddFrame(_hero,pos);
+							
+							if(!result){
+								
+								pos = mapUnit.neightbourDic[pos][i];
+								
+								if(pos != -1){
+									
+									checkAddFrame(_hero,pos);
+								}
+							}
+						}
+					}
+					
+					break;
+			}
+		}
+		
+		public function hideTargetFrame():void{
+			
+			for(var i:int = 0 ; i < redFrameIndex ; i++){
+				
+				selectedFrameContaienr.removeChild(redFrameVec[i]);
+			}
+			
+			redFrameIndex = 0;
+			
+			for(i = 0 ; i < greenFrameIndex ; i++){
+				
+				selectedFrameContaienr.removeChild(greenFrameVec[i]);
+			}
+			
+			greenFrameIndex = 0;
+		}
+		
+		private function checkAddFrame(_hero:BattleHero,_pos:int):Boolean{
+			
+			_pos = Battle.instance.isHost ? _pos : mapUnit.size - 1 - _pos;
+			
+			var hero:BattleHero = Battle.instance.heroData[_pos];
+			
+			if(hero != null){
+				
+				if(hero.isMine == _hero.isMine){
+					
+					var frame:Sprite = greenFrameVec[greenFrameIndex];
+					
+					greenFrameIndex++;
+					
+				}else{
+					
+					frame = redFrameVec[redFrameIndex];
+					
+					redFrameIndex++;
+				}
+				
+				selectedFrameContaienr.addChild(frame);
+				
+				var battleMapUnit:BattleMapUnit = dic[_pos];
+				
+				frame.x = battleMapUnit.x;
+				frame.y = battleMapUnit.y;
+				
+				return true;
+				
+			}else{
+				
+				if(_pos in Battle.instance.summonDic){
+					
+					if(_hero.isMine){
+						
+						frame = greenFrameVec[greenFrameIndex];
+						
+						greenFrameIndex++;
+						
+					}else{
+						
+						frame = redFrameVec[redFrameIndex];
+						
+						redFrameIndex++;
+					}
+					
+					selectedFrameContaienr.addChild(frame);
+					
+					battleMapUnit = dic[_pos];
+					
+					frame.x = battleMapUnit.x;
+					frame.y = battleMapUnit.y;
+					
+					return true;
+					
+				}else{
+					
+					return false;
+				}
+			}
+		}
+		
+		public function disposeBattleMap():void{
+			
+			mapContainer.removeChildren();
+			
+			clearSelectedUnit();
+			
+			moveFun = null;
 		}
 	}
 }

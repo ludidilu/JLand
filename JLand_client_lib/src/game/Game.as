@@ -110,9 +110,9 @@ package game
 			battle.playBattle(_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 		}
 		
-		public static function leaveBattle():void{
+		public static function leaveBattle(_result:int):void{
 			
-			battle.leaveBattle();
+			battle.leaveBattle(_result);
 		}
 		
 		public static function leaveBattleOK():void{

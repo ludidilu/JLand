@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import panel.Panel;
 import publicTools.PublicTools;
 import superService.SuperService;
 import userService.UserService;
@@ -422,67 +421,53 @@ public class Battle extends SuperService{
 				
 				if(score1 > score2){
 					
-					Panel.show(service1.user.name + " win!!!");
+					service1.process("leaveBattle", 1);
+					service2.process("leaveBattle", 2);
 					
 				}else if(score1 < score2){
 					
+					service1.process("leaveBattle", 2);
+					
 					if(service2 != null){
 					
-						Panel.show(service2.user.name + " win!!!");
-						
-					}else{
-						
-						Panel.show("AI win!!!");
+						service1.process("leaveBattle", 1);
 					}
 					
 				}else{
 					
-					Panel.show("Draw game!!!");
+					service1.process("leaveBattle", 3);
+					
+					if(service2 != null){
+					
+						service1.process("leaveBattle", 3);
+					}
 				}
 				
-				if(service2 != null){
-					
-					GameQueue.getInstance().battleOver(this);
-					
-				}else{
-					
-					GameAi.getInstance().battleOver(this);
-				}
+				battleOver();
 				
 			}else{
 				
 				if(score1 == 0){
 					
+					service1.process("leaveBattle", 2);
+					
 					if(service2 != null){
-						
-						Panel.show(service2.user.name + " win!!!");
-						
-					}else{
-						
-						Panel.show("AI win!!!");
+					
+						service1.process("leaveBattle", 1);
 					}
-						
-					if(service2 != null){
-						
-						GameQueue.getInstance().battleOver(this);
-						
-					}else{
-						
-						GameAi.getInstance().battleOver(this);
-					}
+					
+					battleOver();
 					
 				}else if(score2 == 0){
 					
-					Panel.show(service1.user.name + " win!!!");
-						
+					service1.process("leaveBattle", 1);
+					
 					if(service2 != null){
-						
-						GameQueue.getInstance().battleOver(this);
-						
-					}else{
-						
-						GameAi.getInstance().battleOver(this);
+					
+						service1.process("leaveBattle", 2);
 					}
+					
+					battleOver();
 				}
 			}
 		}
@@ -1525,6 +1510,8 @@ public class Battle extends SuperService{
 	
 	public void battleOver(){
 		
+		canMoveHeroUidArr.clear();
+		
 		service1 = null;
 		
 		mapUnit = null;
@@ -1553,16 +1540,22 @@ public class Battle extends SuperService{
 	
 	public void quitBattle(UserService _service){
 		
-		if(service1 == _service || service2 == _service){
+		if(_service == service1){
 			
-			_service.process("quitBattleOK", true);
-			
-			service1.process("leaveBattle");
+			service1.process("quitBattleOK", true);
 			
 			if(service2 != null){
 				
-				service2.process("leaveBattle");
+				service2.process("leaveBattle", 0);
 			}
+			
+			battleOver();
+			
+		}else if(_service == service2){
+			
+			service2.process("quitBattleOK", true);
+			
+			service1.process("leaveBattle", 0);
 			
 			battleOver();
 			

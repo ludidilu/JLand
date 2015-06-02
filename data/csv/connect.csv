@@ -23,4 +23,4 @@ int,str,str[],int,str
 17,quitAiOK,boo,1,离开AI战斗队列成功
 18,quitBattle,,0,申请退出战斗
 19,quitBattleOK,boo,1,申请退出战斗成功
-20,leaveBattle,,2,退出了战斗
+20,leaveBattle,int,2,退出了战斗

@@ -48,8 +48,6 @@ package data.map
 			
 			unit.mapHeight = byteArray.readInt();
 			
-			unit.size = unit.mapWidth * unit.mapHeight - int(unit.mapHeight * 0.5);
-			
 			var length:int = byteArray.readInt();
 			
 			for(var i:int = 0 ; i < length ; i++){
@@ -60,6 +58,8 @@ package data.map
 				
 				unit.dic[pos] = state;
 			}
+			
+			unit.init();
 			
 			dic[_id] = unit;
 			

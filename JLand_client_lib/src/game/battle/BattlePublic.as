@@ -1,82 +1,9 @@
 package game.battle
 {
-	import flash.utils.Dictionary;
+	
 
 	public class BattlePublic
 	{
-		public static function getNeighbourPosVec(_mapWidth:int,_size:int,_dic:Dictionary,_pos:int):Vector.<int>{
-			
-			var vec:Vector.<int> = new Vector.<int>;
-			
-			if(_pos % (_mapWidth * 2 - 1) != 0){
-				
-				if(_pos > _mapWidth - 1){
-				
-					var p:int = _pos - _mapWidth;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-				
-				if(_pos < _size - _mapWidth){
-					
-					p = _pos + _mapWidth - 1;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-				
-				if(_pos % (_mapWidth * 2 - 1) != _mapWidth){
-					
-					p = _pos - 1;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-			}
-			
-			if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
-				
-				if(_pos > _mapWidth - 1){
-					
-					p = _pos - _mapWidth + 1;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-				
-				if(_pos < _size - _mapWidth){
-					
-					p = _pos + _mapWidth;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-				
-				if(_pos % (_mapWidth * 2 - 1) != _mapWidth * 2 - 2){
-					
-					p = _pos + 1;
-					
-					if(_dic[p] != null){
-						
-						vec.push(p);
-					}
-				}
-			}
-			
-			return vec;
-		}
-		
 		public static function getDirect(_isHost:Boolean,_mapWidth:int,_pos:int,_target:int):int{
 			
 			var dis:int = _target - _pos;

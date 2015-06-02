@@ -94,6 +94,8 @@ package publicTools.connect
 				if(length == -1){
 				
 					length = sk.readShort();
+					
+//					trace("准备收包  包长度:",length);
 				}
 
 				if(length <= sk.bytesAvailable){
