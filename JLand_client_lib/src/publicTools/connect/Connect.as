@@ -89,13 +89,15 @@ package publicTools.connect
 		
 		private static function getData(e:ProgressEvent):void{
 			
-			while((sk.bytesAvailable > 1 && length == -1) || (sk.bytesAvailable == length)){
+//			trace("getData!!!!",sk.bytesAvailable,length);
+			
+			while((length == -1 && sk.bytesAvailable > 1) || (length != -1 && sk.bytesAvailable >= length)){
 				
 				if(length == -1){
 				
 					length = sk.readShort();
 					
-					trace("准备收包  包长度:",length);
+//					trace("准备收包  包长度:",length);
 				}
 
 				if(length <= sk.bytesAvailable){
@@ -106,10 +108,11 @@ package publicTools.connect
 					
 					length = -1;
 					
-				}else{
-					
-					trace("收到不完整包  长度:",sk.bytesAvailable);
 				}
+//				else{
+//					
+//					trace("收到不完整包  长度:",sk.bytesAvailable);
+//				}
 			}
 		}
 		
