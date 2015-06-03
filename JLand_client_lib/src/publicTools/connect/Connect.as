@@ -95,7 +95,7 @@ package publicTools.connect
 				
 					length = sk.readShort();
 					
-//					trace("准备收包  包长度:",length);
+					trace("准备收包  包长度:",length);
 				}
 
 				if(length <= sk.bytesAvailable){
@@ -105,6 +105,10 @@ package publicTools.connect
 					handleData(getByteArray);
 					
 					length = -1;
+					
+				}else{
+					
+					trace("收到不完整包  长度:",sk.bytesAvailable);
 				}
 			}
 		}

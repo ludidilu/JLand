@@ -422,7 +422,11 @@ public class Battle extends SuperService{
 				if(score1 > score2){
 					
 					service1.process("leaveBattle", 1);
-					service2.process("leaveBattle", 2);
+					
+					if(service2 != null){
+						
+						service2.process("leaveBattle", 2);
+					}
 					
 				}else if(score1 < score2){
 					
