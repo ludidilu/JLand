@@ -729,16 +729,7 @@ public class Battle extends SuperService{
 					
 					continue;
 				}
-				
-//				if(hero.power < POWER_CAN_MOVE){
-//					
-//					service1.process("sendMsg", "BattleError 8");
-//					
-//					iter.remove();
-//					
-//					continue;
-//				}
-				
+
 				int targetPos = mapUnit.neighbourPosMap.get(pos)[direct];
 				
 				if(targetPos != -1){
@@ -804,16 +795,7 @@ public class Battle extends SuperService{
 					
 					continue;
 				}
-				
-//				if(service2 != null && hero.power < POWER_CAN_MOVE){
-//					
-//					service2.process("sendMsg", "BattleError 8");
-//					
-//					iter.remove();
-//					
-//					continue;
-//				}
-				
+
 				int targetPos = mapUnit.neighbourPosMap.get(pos)[direct];
 				
 				if(targetPos != -1){

@@ -9,6 +9,8 @@ public class MapUnit {
 	public int mapWidth;
 	public int mapHeight;
 	
+	public int size;
+	
 	public int score1;
 	public int score2;
 	
@@ -18,7 +20,7 @@ public class MapUnit {
 	
 	public void init(){
 		
-		int size = mapWidth * mapHeight - mapHeight / 2;
+		size = mapWidth * mapHeight - mapHeight / 2;
 		
 		neighbourPosMap = new HashMap<>();
 		
@@ -41,13 +43,13 @@ public class MapUnit {
 				score2++;
 			}
 			
-			int[] vec = getNeighbourPosVec(size,pos);
+			int[] vec = getNeighbourPosVec(pos);
 			
 			neighbourPosMap.put(pos, vec);
 		}
 	}
 	
-	private int[] getNeighbourPosVec(int _size, int _pos){
+	private int[] getNeighbourPosVec(int _pos){
 		
 		int[] vec = new int[6];
 		
@@ -71,7 +73,7 @@ public class MapUnit {
 				vec[5] = -1;
 			}
 			
-			if(_pos < _size - mapWidth){
+			if(_pos < size - mapWidth){
 				
 				int p = _pos + mapWidth - 1;
 				
@@ -134,7 +136,7 @@ public class MapUnit {
 				vec[0] = -1;
 			}
 			
-			if(_pos < _size - mapWidth){
+			if(_pos < size - mapWidth){
 				
 				int p = _pos + mapWidth;
 				

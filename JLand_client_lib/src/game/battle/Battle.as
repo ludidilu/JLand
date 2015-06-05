@@ -1414,23 +1414,19 @@ package game.battle
 						var tf:TextField = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;
 						
-						tf.x = -0.5 * tf.width;
-						tf.y = -0.5 * tf.height - 16 - 24 * i;
+						var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_targetPos];
 						
-						var showPos:int = _targetPos;
-							
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
+						
 						break;
 						
 					case 2:
-					case 5:
-					case 6:
 						
 						var hero:BattleHero = heroData[_targetPos];
 						
 						hero.hpChange = hero.hpChange + data;
 						
-//						hero.hp = hero.hp + data;
-
 						hero.refresh(false);
 						
 						if(data < 0){
@@ -1455,10 +1451,10 @@ package game.battle
 						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;
 						
-						tf.x = -0.5 * tf.width;
-						tf.y = -0.5 * tf.height - 16 - 24 * i;
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
-						showPos = _targetPos;
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
 						
 						break;
 					
@@ -1486,10 +1482,10 @@ package game.battle
 						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;
 						
-						tf.x = -0.5 * tf.width;
-						tf.y = -0.5 * tf.height - 16 - 24 * i;
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
-						showPos = _targetPos;
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
 						
 						break;
 					
@@ -1510,15 +1506,51 @@ package game.battle
 						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;
 						
-						tf.x = -0.5 * tf.width;
-						tf.y = -0.5 * tf.height - 16 - 24 * i;
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
-						showPos = _targetPos;
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
 						
 						break;
 					
-					case 7:
-					case 8:
+					case 5:
+						
+						hero = heroData[_pos];
+						
+						hero.hpChange = hero.hpChange + data;
+						
+						hero.refresh(false);
+						
+						if(data < 0){
+							
+							str = "HP" + data;
+							
+							color = 0xFF0000;
+							
+						}else if(data == 0){
+							
+							str = "HP-" + data;
+							
+							color = 0xFF0000;
+							
+						}else{
+							
+							str = "HP+" + data;
+							
+							color = 0x00FF00;
+						}
+						
+						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf.hAlign = HAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
+						
+						break;
+					
+					case 6:
 						
 						hero = heroData[_pos];
 						
@@ -1542,10 +1574,34 @@ package game.battle
 						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
 						tf.hAlign = HAlign.CENTER;
 						
-						tf.x = -0.5 * tf.width;
-						tf.y = -0.5 * tf.height - 16 - 24 * _index;
+						tmpBattleMapUnit = battleMap.dic[_pos];
 						
-						showPos = _pos;
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
+						
+						break;
+					
+					case 7:
+						
+						hero = heroData[_pos];
+						
+						hero.maxHpFix = hero.maxHpFix + data;
+						
+						hero.hpChange = hero.hpChange + data;
+						
+						hero.refresh(false);
+						
+						str = "MAXHP+" + data;
+						
+						color = 0x00FF00;
+						
+						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf.hAlign = HAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
 						
 						break;
 				}
@@ -1554,11 +1610,6 @@ package game.battle
 			}
 			
 			sp.flatten();
-			
-			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[showPos];
-			
-			sp.x = tmpBattleMapUnit.x;
-			sp.y = tmpBattleMapUnit.y;
 			
 			if(_skillData != null){
 				

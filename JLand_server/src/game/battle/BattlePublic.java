@@ -8,6 +8,249 @@ import publicTools.PublicTools;
 
 public class BattlePublic {
 
+	//----这2个方法现在不使用  如果地图相邻单元格不缓存就会用到
+	public static ArrayList<Integer> getNeighbourPosVec(int _mapWidth,int _size,HashMap<Integer, Integer> _dic,int _pos){
+		
+		ArrayList<Integer> vec = new ArrayList<>();
+		
+		if(_pos % (_mapWidth * 2 - 1) != 0){
+			
+			if(_pos > _mapWidth - 1){
+			
+				int p = _pos - _mapWidth;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+			
+			if(_pos < _size - _mapWidth){
+				
+				int p = _pos + _mapWidth - 1;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+			
+			if(_pos % (_mapWidth * 2 - 1) != _mapWidth){
+				
+				int p = _pos - 1;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+		}
+		
+		if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
+			
+			if(_pos > _mapWidth - 1){
+				
+				int p = _pos - _mapWidth + 1;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+			
+			if(_pos < _size - _mapWidth){
+				
+				int p = _pos + _mapWidth;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+			
+			if(_pos % (_mapWidth * 2 - 1) != _mapWidth * 2 - 2){
+				
+				int p = _pos + 1;
+				
+				if(_dic.containsKey(p)){
+					
+					vec.add(p);
+				}
+			}
+		}
+		
+		return vec;
+	}
+	
+	public static int getDirectPos(int _mapWidth,int _size,HashMap<Integer, Integer> _dic,int _pos,int _target){
+		
+		switch(_target){
+		
+			case 0:
+				
+				if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
+					
+					if(_pos > _mapWidth - 1){
+						
+						int p = _pos - _mapWidth + 1;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+							
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+				
+			case 1:
+				
+				if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
+					
+					if(_pos % (_mapWidth * 2 - 1) != _mapWidth * 2 - 2){
+						
+						int p = _pos + 1;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+							
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+				
+			case 2:
+				
+				if(_pos % (_mapWidth * 2 - 1) != _mapWidth - 1){
+					
+					if(_pos < _size - _mapWidth){
+						
+						int p = _pos + _mapWidth;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+							
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+				
+			case 3:
+				
+				if(_pos % (_mapWidth * 2 - 1) != 0){
+					
+					if(_pos < _size - _mapWidth){
+						
+						int p = _pos + _mapWidth - 1;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+							
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+				
+			case 4:
+				
+				if(_pos % (_mapWidth * 2 - 1) != 0){
+					
+					if(_pos % (_mapWidth * 2 - 1) != _mapWidth){
+						
+						int p = _pos - 1;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+							
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+				
+			default:
+				
+				if(_pos % (_mapWidth * 2 - 1) != 0){
+					
+					if(_pos > _mapWidth - 1){
+					
+						int p = _pos - _mapWidth;
+						
+						if(_dic.containsKey(p)){
+							
+							return p;
+									
+						}else{
+							
+							return -1;
+						}
+						
+					}else{
+						
+						return -1;
+					}
+					
+				}else{
+					
+					return -1;
+				}
+		}
+	}
+	//---------------
+	
 	public static int getDirection(int _mapWidth, int _pos, int _target){
 		
 		int r = _target - _pos;
@@ -574,17 +817,28 @@ public class BattlePublic {
 					
 					BattleHero targetHero = iter2.next();
 					
-					resultArr[index] = new int[_hero.csv.skillEffect[_index].length * 2 + 1];
+					ArrayList<Integer> tmpArr = new ArrayList<>();
 					
-					resultArr[index][0] = targetHero.pos;
+					tmpArr.add(targetHero.pos);
+					
+//					resultArr[index] = new int[_hero.csv.skillEffect[_index].length * 2 + 1];
+//					
+//					resultArr[index][0] = targetHero.pos;
 					
 					for(int i = 0 ; i < _hero.csv.skillEffect[_index].length ; i++){
 					
-						int castSkillResult = castSkillEffect(_hero, targetHero, _hero.csv.skillEffect[_index][i], _hero.csv.skillEffectArg[_index][i]);
+						castSkillEffect(_hero, targetHero, _hero.csv.skillEffect[_index][i], _hero.csv.skillEffectArg[_index][i],tmpArr);
+					}
+					
+					resultArr[index] = new int[tmpArr.size()];
+					
+					int i = 0;
+					
+					for(int data : tmpArr){
 						
-						resultArr[index][i * 2 + 1] = _hero.csv.skillEffect[_index][i];
+						resultArr[index][i] = data;
 						
-						resultArr[index][i * 2 + 2] = castSkillResult;
+						i++;
 					}
 					
 					index++;
@@ -595,27 +849,36 @@ public class BattlePublic {
 		return resultArr;
 	}
 		
-	private static int castSkillEffect(BattleHero _hero, BattleHero _targetHero, int _effect, int[] _effectArg){
+	private static void castSkillEffect(BattleHero _hero, BattleHero _targetHero, int _effect, int[] _effectArg, ArrayList<Integer> _resultArr){
 		
 		switch(_effect){
 		
 			case 1:
 				
 				_targetHero.isSilent = true;
+				
+				_resultArr.add(1);
+				_resultArr.add(0);
 					
-				return 1;
-					
+				return;
+				
 			case 2:
 
 				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
 				
-				return _effectArg[0];
+				_resultArr.add(2);
+				_resultArr.add(_effectArg[0]);
+				
+				return;
 				
 			case 3:
 
 				_targetHero.atkFix = _targetHero.atkFix + _effectArg[0];
 				
-				return _effectArg[0];
+				_resultArr.add(3);
+				_resultArr.add(_effectArg[0]);
+				
+				return;
 				
 			case 4:
 				
@@ -623,7 +886,10 @@ public class BattlePublic {
 				
 				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
 				
-				return _effectArg[0];
+				_resultArr.add(4);
+				_resultArr.add(_effectArg[0]);
+				
+				return;
 				
 			case 5:
 				
@@ -633,7 +899,10 @@ public class BattlePublic {
 				
 				_targetHero.hpChange = _targetHero.hpChange + damage;
 				
-				return damage;
+				_resultArr.add(2);
+				_resultArr.add(damage);
+				
+				return;
 				
 			case 6:
 				
@@ -641,20 +910,29 @@ public class BattlePublic {
 					
 					_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
 					
-					return _effectArg[0];
+					_resultArr.add(2);
+					_resultArr.add(_effectArg[0]);
+					
+					return ;
 					
 				}else{
 					
 					_targetHero.hpChange = _targetHero.hpChange + _effectArg[1];
 					
-					return _effectArg[1];
+					_resultArr.add(2);
+					_resultArr.add(_effectArg[1]);
+					
+					return;
 				}
 				
 			case 7:
 				
 				_hero.atkFix = _hero.atkFix + _targetHero.csv.atk;
 				
-				return _targetHero.csv.atk;
+				_resultArr.add(6);
+				_resultArr.add(_targetHero.csv.atk);
+				
+				return;
 				
 			case 8:
 				
@@ -662,11 +940,28 @@ public class BattlePublic {
 				
 				_hero.atkFix = _hero.atkFix + data;
 				
-				return data;
+				_resultArr.add(6);
+				_resultArr.add(data);
+				
+				return;
+				
+			case 9:
+				
+				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
+				
+				_resultArr.add(2);
+				_resultArr.add(_effectArg[0]);
+				
+				_hero.hpChange = _hero.hpChange + _effectArg[1];
+				
+				_resultArr.add(5);
+				_resultArr.add(_effectArg[1]);
+				
+				return;
 				
 			default:
 				
-				return 0;
+				return;
 		}
 	}
 }
