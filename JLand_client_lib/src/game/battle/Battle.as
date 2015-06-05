@@ -246,14 +246,6 @@ package game.battle
 			
 			canMoveData = _canMoveData;
 			
-			if(!isHost && canMoveData != null){
-				
-				for(var i:int = 0 ; i < canMoveData.length ; i++){
-					
-					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
-				}
-			}
-			
 			mapData = new Dictionary;
 			
 			summonDic = new Dictionary;
@@ -287,13 +279,13 @@ package game.battle
 						
 						oppScore++;
 						
-						mapData[mapUnit.size - 1 - pos] = 2;
+						mapData[pos] = 2;
 						
 					}else{
 						
 						myScore++;
 						
-						mapData[mapUnit.size - 1 - pos] = 1;
+						mapData[pos] = 1;
 					}
 				}
 			}
@@ -323,7 +315,7 @@ package game.battle
 			
 				myCards = new Vector.<BattleCard>(_myCards.length);
 				
-				for(i = 0 ; i < _myCards.length ; i++){
+				for(var i:int = 0 ; i < _myCards.length ; i++){
 					
 					var battleCard:BattleCard = new BattleCard;
 					
@@ -355,7 +347,7 @@ package game.battle
 					
 					var vec:Vector.<int> = _heroData[i];
 					
-					hero.pos = isHost ? vec[0] : mapUnit.size - 1 - vec[0];
+					hero.pos = vec[0];
 					
 					hero.isMine = (isHost && vec[1] == 1) || (!isHost && vec[1] == 0);
 					
@@ -386,8 +378,8 @@ package game.battle
 				
 					for(i = 0 ; i < _actionHeroData.length ; i++){
 						
-						pos = isHost ? _actionHeroData[i][0] : mapUnit.size - 1 - _actionHeroData[i][0];
-						var target:int = isHost ? _actionHeroData[i][1] : mapUnit.size - 1 - _actionHeroData[i][1];
+						pos = _actionHeroData[i][0];
+						var target:int = _actionHeroData[i][1];
 						
 						moveDic[pos] = target;
 					}
@@ -402,7 +394,7 @@ package game.battle
 					for(i = 0 ; i < _actionSummonData.length ; i++){
 						
 						var uid:int = _actionSummonData[i][0];
-						target = isHost ? _actionSummonData[i][1] : mapUnit.size - 1 - _actionSummonData[i][1];
+						target = _actionSummonData[i][1];
 						
 						for(var m:int = 0 ; m < myCards.length ; m++){
 							
@@ -795,44 +787,7 @@ package game.battle
 				sp.x = (tmpBattleMapUnit0.x + tmpBattleMapUnit1.x) * 0.5;
 				sp.y = (tmpBattleMapUnit0.y + tmpBattleMapUnit1.y) * 0.5;
 				
-				var dis:int = target - pos;
-				
-				switch(dis){
-					
-					case -1:
-						
-						sp.rotation = - Math.PI;
-						
-						break;
-					
-					case 1:
-						
-						break;
-					
-					case -mapUnit.mapWidth:
-						
-						sp.rotation = -Math.PI * 2 / 3;
-						
-						break;
-					
-					case -mapUnit.mapWidth + 1:
-						
-						sp.rotation = -Math.PI / 3;
-						
-						break;
-					
-					case mapUnit.mapWidth:
-					
-						sp.rotation = Math.PI / 3;
-						
-						break;
-					
-					default:
-						
-						sp.rotation = Math.PI * 2 / 3;
-						
-						break;
-				}
+				sp.rotation = Math.atan2(tmpBattleMapUnit1.y - tmpBattleMapUnit0.y,tmpBattleMapUnit1.x - tmpBattleMapUnit0.x);
 			}
 			
 			for each(var hero:BattleHero in heroData){
@@ -979,7 +934,7 @@ package game.battle
 				
 				var target:int = moveDic[str];
 				
-				moveData.push(Vector.<int>([isHost ? pos : mapUnit.size - 1 - pos, BattlePublic.getDirect(isHost,mapUnit.mapWidth,pos,target)]));
+				moveData.push(Vector.<int>([pos, BattlePublic.getDirect(mapUnit.mapWidth,pos,target)]));
 			}
 			
 			var summonData:Vector.<Vector.<int>>;
@@ -995,7 +950,7 @@ package game.battle
 				
 				var card:BattleCard = summonDic[str];
 				
-				summonData.push(Vector.<int>([card.uid, isHost ? pos : mapUnit.size - 1 - pos]));
+				summonData.push(Vector.<int>([card.uid, pos]));
 			}
 			
 			Connect_handle.sendData(11,moveData,summonData);
@@ -1046,51 +1001,25 @@ package game.battle
 		
 		private function startSummon(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
 			
-			if(isHost){
+			if(_summonData1 != null && _summonData1.length > 0){
 				
-				if(_summonData1 != null && _summonData1.length > 0){
-					
-					var pos:int = _summonData1[0][2];
-					
-					var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
-					
-					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-					
-				}else if(_summonData2 != null && _summonData2.length > 0){
-					
-					pos = _summonData2[0][2];
-					
-					tmpBattleMapUnit = battleMap.dic[pos];
-					
-					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-					
-				}else{
-					
-					startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-				}
+				var pos:int = _summonData1[0][2];
+				
+				var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
+				
+				moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
+				
+			}else if(_summonData2 != null && _summonData2.length > 0){
+				
+				pos = _summonData2[0][2];
+				
+				tmpBattleMapUnit = battleMap.dic[pos];
+				
+				moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 				
 			}else{
 				
-				if(_summonData2 != null && _summonData2.length > 0){
-					
-					pos = mapUnit.size - 1 - _summonData2[0][2];
-					
-					tmpBattleMapUnit = battleMap.dic[pos];
-					
-					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-					
-				}else if(_summonData1 != null && _summonData1.length > 0){
-					
-					pos = mapUnit.size - 1 - _summonData1[0][2];
-					
-					tmpBattleMapUnit = battleMap.dic[pos];
-					
-					moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSummonReal,_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-					
-				}else{
-					
-					startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
-				}
+				startMove(_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
 			}
 		}
 		
@@ -1119,8 +1048,6 @@ package game.battle
 					refreshUIContainer();
 				}
 				
-				hero.pos = vec[2];
-				
 			}else{
 				
 				if(_summonData2 != null && _summonData2.length > 0){
@@ -1143,9 +1070,9 @@ package game.battle
 					
 					refreshUIContainer();
 				}
-				
-				hero.pos = mapUnit.size - 1 - vec[2];
 			}
+			
+			hero.pos = vec[2];
 			
 			hero.csv = heroCsvUnit.dic[vec[1]];
 			
@@ -1229,8 +1156,8 @@ package game.battle
 				
 				for(var str:String in dic){
 					
-					pos = isHost ? int(str) : mapUnit.size - 1 - int(str);
-					target = isHost ? dic[str] : mapUnit.size - 1 - dic[str];
+					pos = int(str);
+					target = dic[str];
 					
 					var hero:BattleHero = heroData[pos];
 					
@@ -1326,8 +1253,6 @@ package game.battle
 			
 			var pos:int = vec[0][0];
 			
-			pos = isHost ? pos : mapUnit.size - 1 - pos;
-			
 			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
 			
 			moveGameContainerToCenter(tmpBattleMapUnit.x,tmpBattleMapUnit.y,startSkillReal,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData);
@@ -1339,8 +1264,6 @@ package game.battle
 			
 			var pos:int = vec.shift()[0];
 			
-			pos = isHost ? pos : mapUnit.size - 1 - pos;
-			
 			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[pos];
 			
 			var index:int = 0;
@@ -1348,8 +1271,6 @@ package game.battle
 			for each(var vec2:Vector.<int> in vec){
 				
 				var targetPos:int = vec2.shift();
-				
-				targetPos = isHost ? targetPos : mapUnit.size - 1 - targetPos;
 				
 				if(mapData[pos] == mapData[targetPos]){
 					
@@ -1717,11 +1638,6 @@ package game.battle
 				
 				var pos:int = vec1[0];
 				
-				if(!isHost){
-					
-					pos = mapUnit.size - 1 - pos;
-				}
-				
 				var hero:BattleHero = heroData[pos];
 				
 				var beHitObj:Object = null;
@@ -1746,8 +1662,6 @@ package game.battle
 					vec1 = vec[i];
 					
 					var attackHeroPos:int = vec1[0];
-					
-					attackHeroPos = isHost ? attackHeroPos : mapUnit.size - 1 - attackHeroPos;
 					
 					var attackHero:BattleHero = heroData[attackHeroPos];
 					
@@ -2108,14 +2022,6 @@ package game.battle
 		private function resetData(_beHitDic:Dictionary,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
 			
 			canMoveData = _canMoveData;
-			
-			if(!isHost && canMoveData != null){
-				
-				for(var i:int = 0 ; i < canMoveData.length ; i++){
-					
-					canMoveData[i] = mapUnit.size - 1 - canMoveData[i];
-				}
-			}
 			
 			for each(var hero:BattleHero in heroData){
 				

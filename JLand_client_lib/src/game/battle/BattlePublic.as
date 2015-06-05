@@ -4,7 +4,7 @@ package game.battle
 
 	public class BattlePublic
 	{
-		public static function getDirect(_isHost:Boolean,_mapWidth:int,_pos:int,_target:int):int{
+		public static function getDirect(_mapWidth:int,_pos:int,_target:int):int{
 			
 			var dis:int = _target - _pos;
 			
@@ -12,69 +12,27 @@ package game.battle
 				
 				case 1:
 					
-					if(_isHost){
+					return 1;
 						
-						return 1;
-						
-					}else{
-						
-						return 4;
-					}
-				
 				case -1:
 					
-					if(_isHost){
+					return 4;
 						
-						return 4;
-						
-					}else{
-						
-						return 1;
-					}
-					
 				case _mapWidth:
 					
-					if(_isHost){
+					return 2;
 						
-						return 2;
-						
-					}else{
-						
-						return 5;
-					}
-					
 				case -_mapWidth:
 					
-					if(_isHost){
+					return 5;
 						
-						return 5;
-						
-					}else{
-						
-						return 2;
-					}
-					
 				case _mapWidth - 1:
 					
-					if(_isHost){
+					return 3;
 						
-						return 3;
-						
-					}else{
-						
-						return 0;
-					}
-					
 				default:
 					
-					if(_isHost){
-						
-						return 0;
-						
-					}else{
-						
-						return 3;
-					}
+					return 0;
 			}
 		}
 		

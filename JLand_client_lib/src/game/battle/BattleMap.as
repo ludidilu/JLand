@@ -17,6 +17,8 @@ package game.battle
 
 	public class BattleMap extends Sprite
 	{
+		private static const FLIP_MAP:Boolean = true;
+		
 		private var bgContainer:Sprite;
 		private var mapContainer:Sprite;
 		private var selectedFrameContaienr:Sprite;
@@ -137,7 +139,7 @@ package game.battle
 			
 			mapUnit = _mapUnit;
 			
-			for(var i:int = 0 ; i < mapUnit.mapWidth ; i++){
+			for(var i:int = 0 ; i < mapUnit.mapHeight ; i++){
 				
 				for(var m:int = 0 ; m < mapUnit.mapWidth ; m++){
 					
@@ -146,7 +148,7 @@ package game.battle
 						break;
 					}
 					
-					var id:int = i * mapUnit.mapWidth - int(i  * 0.5) + m;
+					var id:int = i * mapUnit.mapWidth - int(i * 0.5) + m;
 					
 					if(_dic[id] != null){
 					
@@ -156,9 +158,22 @@ package game.battle
 						
 						sp.refresh();
 						
-						sp.x = unitWidth * 1.5 + ((i % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + m * unitWidth * Math.sqrt(3);
+						if(FLIP_MAP && !Battle.instance.isHost){
+							
+							var posI:int = mapUnit.mapHeight - 1 - i;
+							var posM:int = mapUnit.mapWidth - 1 - m;
+							var fix:int = -1;
+							
+						}else{
+							
+							posI = i;
+							posM = m;
+							fix = 1;
+						}
 						
-						sp.y = unitWidth * 1.5 + i * unitWidth * 1.5;
+						sp.x = unitWidth * 1.5 + ((i % 2) == 0 ? 0 : (fix * unitWidth * 0.5 * Math.sqrt(3))) + posM * unitWidth * Math.sqrt(3);
+						
+						sp.y = unitWidth * 1.5 + posI * unitWidth * 1.5;
 						
 						mapContainer.addChild(sp);
 						
@@ -314,27 +329,69 @@ package game.battle
 			
 			if(angle >= -Math.PI / 6 && angle < Math.PI / 6){
 				
-				var target:int = hero.pos + 1;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					var target:int = hero.pos - 1;
+					
+				}else{
+					
+					target = hero.pos + 1;
+				}
 				
 			}else if(angle >= Math.PI / 6 && angle < Math.PI * 0.5){
 				
-				target = hero.pos + mapUnit.mapWidth;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					target = hero.pos - mapUnit.mapWidth;
+					
+				}else{
+					
+					target = hero.pos + mapUnit.mapWidth;
+				}
 				
 			}else if(angle >= Math.PI * 0.5 && angle < Math.PI * 5 / 6){
 				
-				target = hero.pos + mapUnit.mapWidth - 1;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					target = hero.pos - mapUnit.mapWidth + 1;
+					
+				}else{
+					
+					target = hero.pos + mapUnit.mapWidth - 1;
+				}
 				
 			}else if(angle >= -Math.PI * 0.5 && angle < -Math.PI / 6){
 				
-				target = hero.pos - mapUnit.mapWidth + 1;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					target = hero.pos + mapUnit.mapWidth - 1;
+					
+				}else{
+					
+					target = hero.pos - mapUnit.mapWidth + 1;
+				}
 				
 			}else if(angle >= -Math.PI * 5 / 6 && angle < -Math.PI * 0.5){
 				
-				target = hero.pos - mapUnit.mapWidth;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					target = hero.pos + mapUnit.mapWidth;
+					
+				}else{
+					
+					target = hero.pos - mapUnit.mapWidth;
+				}
 				
 			}else{
 				
-				target = hero.pos - 1;
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					target = hero.pos + 1;
+					
+				}else{
+					
+					target = hero.pos - 1;
+				}
 			}
 			
 			Battle.instance.heroMove(hero,target);
@@ -457,7 +514,12 @@ package game.battle
 					}
 				}
 				
-				var index:int = b * mapUnit.mapWidth - int(b  * 0.5) + a;
+				var index:int = b * mapUnit.mapWidth - int(b * 0.5) + a;
+				
+				if(FLIP_MAP && !Battle.instance.isHost){
+					
+					index = mapUnit.size - 1 - index;
+				}
 				
 				point1.x = unitWidth * 1.5 + ((b % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + a * unitWidth * Math.sqrt(3);
 				point1.y = unitWidth * 1.5 + b * unitWidth * 1.5;
@@ -539,7 +601,7 @@ package game.battle
 		
 		private function showTargetFrame(_hero:BattleHero):void{
 			
-			var vec:Vector.<int> = mapUnit.neightbourDic[Battle.instance.isHost ? _hero.pos : mapUnit.size - 1 - _hero.pos];
+			var vec:Vector.<int> = mapUnit.neightbourDic[_hero.pos];
 			
 			switch(_hero.csv.type){
 				
@@ -621,8 +683,6 @@ package game.battle
 		}
 		
 		private function checkAddFrame(_hero:BattleHero,_pos:int):Boolean{
-			
-			_pos = Battle.instance.isHost ? _pos : mapUnit.size - 1 - _pos;
 			
 			var hero:BattleHero = Battle.instance.heroData[_pos];
 			
