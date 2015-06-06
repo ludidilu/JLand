@@ -1,7 +1,5 @@
 package game.battle
 {
-	import data.csv.Csv;
-	import data.csv.CsvUnit;
 	import data.csv.Csv_hero;
 	import data.resource.ResourceFont;
 	import data.resource.ResourceHero;
@@ -32,13 +30,9 @@ package game.battle
 		private var bg:Sprite;
 		private var ui:Sprite;
 		
-		private var csvUnit:CsvUnit;
-		
 		public function BattleHeroDetailPanel()
 		{
 			super();
-			
-			csvUnit = Csv.getCsvUnit("hero");
 			
 			bg = new Sprite;
 			
@@ -67,7 +61,7 @@ package game.battle
 		
 		public function setData(_heroID:int):void{
 			
-			var csv:Csv_hero = csvUnit.dic[_heroID];
+			var csv:Csv_hero = Csv_hero.dic[_heroID];
 			
 			if(img == null){
 				
@@ -88,7 +82,7 @@ package game.battle
 				
 				ui.addChild(nameTf);
 				
-				typeTf = new TextField(60,30,Csv_hero.TYPE_VEC[csv.type],ResourceFont.fontName,24);
+				typeTf = new TextField(60,30,csv.heroType.name,ResourceFont.fontName,24);
 				
 				typeTf.hAlign = HAlign.LEFT;
 				typeTf.vAlign = VAlign.TOP;
@@ -138,26 +132,6 @@ package game.battle
 				
 				ui.addChild(atkTf);
 				
-//				defTf = new TextField(70,30,"def:" + csv.def,ResourceFont.fontName,24);
-//				
-//				defTf.hAlign = HAlign.LEFT;
-//				defTf.vAlign = VAlign.TOP;
-//				
-//				defTf.x = 150;
-//				defTf.y = 70;
-//				
-//				ui.addChild(defTf);
-//				
-//				wisTf = new TextField(70,30,"wis:" + csv.wis,ResourceFont.fontName,24);
-//				
-//				wisTf.hAlign = HAlign.LEFT;
-//				wisTf.vAlign = VAlign.TOP;
-//				
-//				wisTf.x = 220;
-//				wisTf.y = 70;
-//				
-//				ui.addChild(wisTf);
-				
 				commentTf = new TextField(280,100,csv.comment,"Verdana",20);
 				
 				commentTf.hAlign = HAlign.LEFT;
@@ -176,7 +150,7 @@ package game.battle
 				
 				nameTf.text = csv.name;
 				
-				typeTf.text = Csv_hero.TYPE_VEC[csv.type];
+				typeTf.text = csv.heroType.name;
 				
 				starTf.text = String(csv.star);
 				
@@ -185,11 +159,7 @@ package game.battle
 				powerTf.text = "power:" + csv.maxPower;
 				
 				atkTf.text = "atk:" + csv.atk;
-				
-//				defTf.text = "def:" + csv.def;
-//				
-//				wisTf.text = "wis:" + csv.wis;
-				
+
 				commentTf.text = csv.comment;
 			}
 			

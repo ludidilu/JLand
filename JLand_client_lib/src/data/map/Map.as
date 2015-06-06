@@ -6,8 +6,6 @@ package data.map
 	import flash.utils.Dictionary;
 	
 	import data.Data;
-	import data.csv.Csv;
-	import data.csv.CsvUnit;
 	import data.csv.Csv_map;
 	
 	import loader.SuperURLLoader;
@@ -26,13 +24,11 @@ package data.map
 			
 			callBack = _callBack;
 			
-			var csvUnit:CsvUnit = Csv.getCsvUnit("map");
-			
-			loadNum = csvUnit.length;
+			loadNum = Csv_map.length;
 			
 			dic = new Dictionary;
 			
-			for each(var unit:Csv_map in csvUnit.dic){
+			for each(var unit:Csv_map in Csv_map.dic){
 				
 				SuperURLLoader.load(Data.path + path + unit.name,URLLoaderDataFormat.BINARY,loadMapOK,unit.id);
 			}

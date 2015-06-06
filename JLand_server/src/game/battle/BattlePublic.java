@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import publicTools.PublicTools;
-
 public class BattlePublic {
 
 	//----这2个方法现在不使用  如果地图相邻单元格不缓存就会用到
@@ -315,186 +313,81 @@ public class BattlePublic {
 	//type 0所有 1敌方 2友方
 	public static void getHerosAndDirectionInRange(HashMap<Integer, int[]> _neighbourPosMap,HashMap<Integer, BattleHero> _heroDic,BattleHero _hero,int _type,ArrayList<BattleHero> _heroArr, ArrayList<Integer> _directionArr){
 		
-		int[] tmpArr = _neighbourPosMap.get(_hero.pos);
-		
-		for(int i = 0 ; i < 6 ; i++){
-		
-			int pos = tmpArr[i];
+		if(_hero.csv.heroType.attackType == 1){
 			
-			if(pos != -1){
+			loop1:for(int i = 0 ; i < 6 ; i++){
 				
-				if(_hero.csv.type == 0 || _hero.csv.type == 3){
+				int nowPos = _hero.pos;
+				
+				for(int m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
 					
-					BattleHero targetHero = _heroDic.get(pos);
+					int pos = _neighbourPosMap.get(nowPos)[i];
 					
-					if(targetHero != null){
+					if(pos == -1){
 						
-						if(_type == 0){
+						continue loop1;
+						
+					}else{
+						
+						nowPos = pos;
+					}
+				}
+				
+				BattleHero targetHero = _heroDic.get(nowPos);
+				
+				if(targetHero != null){
+					
+					if(_type == 0){
+						
+						_heroArr.add(targetHero);
+						
+						if(_directionArr != null){
+						
+							_directionArr.add(i);
+						}
+						
+					}else if(_type == 1){
+						
+						if(targetHero.isHost != _hero.isHost){
 							
 							_heroArr.add(targetHero);
-							_directionArr.add(i);
 							
-						}else if(_type == 1){
-							
-							if(targetHero.isHost != _hero.isHost){
+							if(_directionArr != null){
 								
-								_heroArr.add(targetHero);
-								_directionArr.add(i);
-							}
-							
-						}else{
-							
-							if(targetHero.isHost == _hero.isHost){
-								
-								_heroArr.add(targetHero);
-								_directionArr.add(i);
-							}
-						}
-					}
-					
-				}else if(_hero.csv.type == 1){
-					
-					pos = _neighbourPosMap.get(pos)[i];
-					
-					if(pos != -1){
-						
-						BattleHero targetHero = _heroDic.get(pos);
-						
-						if(targetHero != null){
-							
-							if(_type == 0){
-								
-								_heroArr.add(targetHero);
-								_directionArr.add(i);
-								
-							}else if(_type == 1){
-								
-								if(targetHero.isHost != _hero.isHost){
-									
-									_heroArr.add(targetHero);
-									_directionArr.add(i);
-								}
-								
-							}else{
-								
-								if(targetHero.isHost == _hero.isHost){
-									
-									_heroArr.add(targetHero);
-									_directionArr.add(i);
-								}
-							}
-						}
-					}
-					
-				}else{
-					
-					BattleHero targetHero = _heroDic.get(pos);
-					
-					if(targetHero != null){
-						
-						if(_type == 0){
-							
-							_heroArr.add(targetHero);
-							_directionArr.add(i);
-							
-						}else if(_type == 1){
-							
-							if(targetHero.isHost != _hero.isHost){
-								
-								_heroArr.add(targetHero);
-								_directionArr.add(i);
-							}
-							
-						}else{
-							
-							if(targetHero.isHost == _hero.isHost){
-								
-								_heroArr.add(targetHero);
 								_directionArr.add(i);
 							}
 						}
 						
 					}else{
 						
-						pos = _neighbourPosMap.get(pos)[i];
-						
-						if(pos != -1){
+						if(targetHero.isHost == _hero.isHost){
 							
-							targetHero = _heroDic.get(pos);
+							_heroArr.add(targetHero);
 							
-							if(targetHero != null){
+							if(_directionArr != null){
 								
-								if(_type == 0){
-									
-									_heroArr.add(targetHero);
-									_directionArr.add(i);
-									
-								}else if(_type == 1){
-									
-									if(targetHero.isHost != _hero.isHost){
-										
-										_heroArr.add(targetHero);
-										_directionArr.add(i);
-									}
-									
-								}else{
-									
-									if(targetHero.isHost == _hero.isHost){
-										
-										_heroArr.add(targetHero);
-										_directionArr.add(i);
-									}
-								}
+								_directionArr.add(i);
 							}
 						}
 					}
 				}
 			}
-		}
-	}
-	
-	//type 0所有 1敌方 2友方
-	private static void getHerosInRangeArr(HashMap<Integer, int[]> _neighbourPosMap,HashMap<Integer, BattleHero> _heroDic,BattleHero _hero,int _type,ArrayList<BattleHero> _resultArr){
 		
-		int[] tmpArr = _neighbourPosMap.get(_hero.pos);
-		
-		for(int i = 0 ; i < 6 ; i++){
-		
-			int pos = tmpArr[i];
+		}else{
 			
-			if(pos != -1){
+			loop2:for(int i = 0 ; i < 6 ; i++){
 				
-				if(_hero.csv.type == 0 || _hero.csv.type == 3){
+				int nowPos = _hero.pos;
+				
+				for(int m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
 					
-					BattleHero targetHero = _heroDic.get(pos);
+					int pos = _neighbourPosMap.get(nowPos)[i];
 					
-					if(targetHero != null){
+					if(pos == -1){
 						
-						if(_type == 0){
-							
-							_resultArr.add(targetHero);
-							
-						}else if(_type == 1){
-							
-							if(targetHero.isHost != _hero.isHost){
-								
-								_resultArr.add(targetHero);
-							}
-							
-						}else{
-							
-							if(targetHero.isHost == _hero.isHost){
-								
-								_resultArr.add(targetHero);
-							}
-						}
-					}
-					
-				}else if(_hero.csv.type == 1){
-					
-					pos = _neighbourPosMap.get(pos)[i];
-					
-					if(pos != -1){
+						continue loop2;
+						
+					}else{
 						
 						BattleHero targetHero = _heroDic.get(pos);
 						
@@ -502,79 +395,43 @@ public class BattlePublic {
 							
 							if(_type == 0){
 								
-								_resultArr.add(targetHero);
+								_heroArr.add(targetHero);
+								
+								if(_directionArr != null){
+								
+									_directionArr.add(i);
+								}
 								
 							}else if(_type == 1){
 								
 								if(targetHero.isHost != _hero.isHost){
 									
-									_resultArr.add(targetHero);
+									_heroArr.add(targetHero);
+									
+									if(_directionArr != null){
+										
+										_directionArr.add(i);
+									}
 								}
 								
 							}else{
 								
 								if(targetHero.isHost == _hero.isHost){
 									
-									_resultArr.add(targetHero);
+									_heroArr.add(targetHero);
+									
+									if(_directionArr != null){
+										
+										_directionArr.add(i);
+									}
 								}
 							}
-						}
-					}
-					
-				}else{
-					
-					BattleHero targetHero = _heroDic.get(pos);
-					
-					if(targetHero != null){
-						
-						if(_type == 0){
 							
-							_resultArr.add(targetHero);
-							
-						}else if(_type == 1){
-							
-							if(targetHero.isHost != _hero.isHost){
-								
-								_resultArr.add(targetHero);
-							}
+							continue loop2;
 							
 						}else{
 							
-							if(targetHero.isHost == _hero.isHost){
-								
-								_resultArr.add(targetHero);
-							}
-						}
-						
-					}else{
-						
-						pos = _neighbourPosMap.get(pos)[i];
-						
-						if(pos != -1){
-							
-							targetHero = _heroDic.get(pos);
-							
-							if(targetHero != null){
-								
-								if(_type == 0){
-									
-									_resultArr.add(targetHero);
-									
-								}else if(_type == 1){
-									
-									if(targetHero.isHost != _hero.isHost){
-										
-										_resultArr.add(targetHero);
-									}
-									
-								}else{
-									
-									if(targetHero.isHost == _hero.isHost){
-										
-										_resultArr.add(targetHero);
-									}
-								}
-							}
+							nowPos = pos;
 						}
 					}
 				}
@@ -664,6 +521,10 @@ public class BattlePublic {
 		
 		int allHp = 0;
 		
+		int[] weightArr = new int[result.length];
+		
+		int allWeight = 0;
+		
 		if(_beAttackHeroArr.size() == 0){
 			
 			result[0] = _beAttackHeroArr.get(0).hp;
@@ -678,6 +539,12 @@ public class BattlePublic {
 				
 				hpArr[index] = hero.hp;
 				
+				int weight = hero.hp * hero.csv.beAttackTargetWeight;
+				
+				allWeight = allWeight + weight;
+				
+				weightArr[index] = weight;
+				
 				index++;
 			}
 			
@@ -685,25 +552,64 @@ public class BattlePublic {
 				
 				while(atk > 0){
 					
-					int tmpInt = (int)(Math.random() * allHp);
+					if(allWeight > 0){
 					
-					for(int i = 0 ; i < hpArr.length ; i++){
+						int tmpInt = (int)(Math.random() * allWeight);
 						
-						if(tmpInt < hpArr[i]){
+						index = 0;
+						
+						for(BattleHero hero : _beAttackHeroArr){
 							
-							result[i] = result[i] + 1;
+							int nowWeight = weightArr[index];
 							
-							hpArr[i] = hpArr[i] - 1;
+							if(tmpInt < nowWeight){
+								
+								result[index] = result[index] + 1;
+								
+								weightArr[index] = weightArr[index] - hero.csv.beAttackTargetWeight;
+								
+								allWeight = allWeight - hero.csv.beAttackTargetWeight;
+								
+								atk = atk - 1;
+								
+								allHp = allHp - 1;//因为考虑到可能出现剩下的英雄权重全部为0的情况  所以血量也进行了计算
+								
+								hpArr[index] = hpArr[index] - 1;
+								
+								break;
+								
+							}else{
+								
+								tmpInt = tmpInt - nowWeight;
+								
+								index++;
+							}
+						}
+						
+					}else{//走到这里只有一种可能性 那就是剩下有血的英雄全部是权重为0的了  那就按血量来取了
+						
+						int tmpInt = (int)(Math.random() * allHp);
+						
+						for(int i = 0 ; i < hpArr.length ; i++){
 							
-							allHp = allHp - 1;
+							int nowHp = hpArr[i];
 							
-							atk = atk - 1;
-							
-							break;
-							
-						}else{
-							
-							tmpInt = tmpInt - hpArr[i];
+							if(tmpInt < nowHp){
+								
+								result[i] = result[i] + 1;
+								
+								atk = atk - 1;
+								
+								allHp = allHp - 1;
+								
+								hpArr[i] = hpArr[i] - 1;
+								
+								break;
+								
+							}else{
+								
+								tmpInt = tmpInt - nowHp;
+							}
 						}
 					}
 				}
@@ -766,19 +672,19 @@ public class BattlePublic {
 				
 			case 1:
 				
-				getHerosInRangeArr(_neighbourPosMap, _heroMap, _hero, 1, _resultArr);
+				getHerosAndDirectionInRange(_neighbourPosMap, _heroMap, _hero, 1, _resultArr, null);
 				
 				break;
 				
 			case 2:
 				
-				getHerosInRangeArr(_neighbourPosMap, _heroMap, _hero, 2, _resultArr);
+				getHerosAndDirectionInRange(_neighbourPosMap, _heroMap, _hero, 2, _resultArr, null);
 				
 				break;
 				
 			default:
 					
-				getHerosInRangeArr(_neighbourPosMap, _heroMap, _hero, 0, _resultArr);
+				getHerosAndDirectionInRange(_neighbourPosMap, _heroMap, _hero, 0, _resultArr, null);
 				
 				break;
 		}
@@ -788,21 +694,74 @@ public class BattlePublic {
 		
 		int[][] resultArr = null;
 		
-		ArrayList<BattleHero> skillTargetHeroArr = new ArrayList<>();
+		boolean result = checkSkillCondition(_hero, _hero.csv.skillCondition[_index], _hero.csv.skillConditionArg[_index]);
 		
-		int skillTarget = _hero.csv.skillTarget[_index];
-		
-		getSkillTargetArr(skillTarget, _neighbourPosMap, _heroMap, _hero, skillTargetHeroArr);
-		
-		if(skillTargetHeroArr.size() > 0){
+		if(result){
 			
-			boolean result = checkSkillCondition(_hero, _hero.csv.skillCondition[_index], _hero.csv.skillConditionArg[_index]);
+			ArrayList<BattleHero> skillTargetHeroArr = new ArrayList<>();
 			
-			if(result){
-				
+			int skillTarget = _hero.csv.skillTarget[_index];
+			
+			getSkillTargetArr(skillTarget, _neighbourPosMap, _heroMap, _hero, skillTargetHeroArr);
+			
+			if(skillTargetHeroArr.size() > 0){
+					
 				if(_hero.csv.skillTargetArg[_index] < skillTargetHeroArr.size()){
 					
-					skillTargetHeroArr = PublicTools.getSomeOfArr(skillTargetHeroArr, _hero.csv.skillTargetArg[_index]);
+					int allWeight = 0;
+					
+					ArrayList<Integer> weightList = new ArrayList<>();
+					
+					ArrayList<BattleHero> tmpHeroList = new ArrayList<>();
+					
+					for(BattleHero hero : skillTargetHeroArr){
+						
+						allWeight = allWeight + hero.csv.beSkillTargetWeight;
+						
+						weightList.add(hero.csv.beSkillTargetWeight);
+					}
+					
+					for(int i = 0 ; i < _hero.csv.skillTargetArg[_index] ; i++){
+						
+						if(allWeight > 0){
+						
+							int rand = (int)(Math.random() * allWeight);
+							
+							for(int m = 0 ; m < skillTargetHeroArr.size() ; m++){
+								
+								int nowWeight = weightList.get(m);
+								
+								if(rand < nowWeight){
+									
+									BattleHero hero = skillTargetHeroArr.remove(m);
+									
+									tmpHeroList.add(hero);
+									
+									weightList.remove(m);
+									
+									allWeight = allWeight - hero.csv.beSkillTargetWeight;
+									
+									break;
+									
+								}else{
+									
+									rand = rand - nowWeight;
+								}
+							}
+							
+						}else{//走到这里只可能剩下的所有英雄权重全部等于0  这样的话就直接随机取英雄了
+							
+							int rand = (int)(Math.random() * skillTargetHeroArr.size());
+							
+							BattleHero hero = skillTargetHeroArr.get(rand);
+							
+							tmpHeroList.add(hero);
+							
+							skillTargetHeroArr.remove(rand);
+						}
+					}
+					
+					skillTargetHeroArr = tmpHeroList;
 				}
 				
 				resultArr = new int[skillTargetHeroArr.size() + 1][];
@@ -819,20 +778,16 @@ public class BattlePublic {
 					
 					ArrayList<Integer> tmpArr = new ArrayList<>();
 					
-					tmpArr.add(targetHero.pos);
-					
-//					resultArr[index] = new int[_hero.csv.skillEffect[_index].length * 2 + 1];
-//					
-//					resultArr[index][0] = targetHero.pos;
-					
 					for(int i = 0 ; i < _hero.csv.skillEffect[_index].length ; i++){
 					
 						castSkillEffect(_hero, targetHero, _hero.csv.skillEffect[_index][i], _hero.csv.skillEffectArg[_index][i],tmpArr);
 					}
 					
-					resultArr[index] = new int[tmpArr.size()];
+					resultArr[index] = new int[tmpArr.size() + 1];
 					
-					int i = 0;
+					resultArr[index][0] = targetHero.pos;
+					
+					int i = 1;
 					
 					for(int data : tmpArr){
 						

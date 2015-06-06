@@ -13,9 +13,9 @@ package data.csv
 	{
 		private static var callBack:Function;
 		private static const path:String = "csv/";
-		private static var loadNum:int = 3;
+		private static var loadNum:int = 4;
 		
-		private static var dic:Dictionary = new Dictionary;
+//		private static var dic:Dictionary = new Dictionary;
 		
 		private static const VECTOR_NAME1:String = "Vector.<";
 		private static const VECTOR_NAME2:String = ">";
@@ -39,19 +39,22 @@ package data.csv
 			
 			loadCsv("connect",Csv_connect,getCsv);
 			loadCsv("map",Csv_map,getCsv);
+			loadCsv("heroType",Csv_heroType,getCsv);
 			loadCsv("hero",Csv_hero,getCsv);
 		}
 		
-		public static function getCsvUnit(_name:String):CsvUnit{
-			
-			return dic[_name];
-		}
+//		public static function getCsvUnit(_name:String):CsvUnit{
+//			
+//			return dic[_name];
+//		}
 		
 		private static function getCsv():void{
 			
 			loadNum--;
 			
 			if(loadNum == 0){
+				
+				Csv_hero.fix();
 				
 				if(callBack != null){
 					
@@ -67,9 +70,7 @@ package data.csv
 			SuperURLLoader.load(Data.path + path + _name + ".csv",URLLoaderDataFormat.TEXT,getCsvData,_name,_class,_callBack);
 		}
 		
-		private static function getCsvData(e:Event,_name:String,_cls:Class,_callBack:Function = null):void{
-			
-			var csvUnit:CsvUnit = new CsvUnit;
+		private static function getCsvData(e:Event,_name:String,_cls:Class,_callBack:Function):void{
 			
 			var nameVec:Array;
 			var typeVec:Array;
@@ -126,15 +127,13 @@ package data.csv
 						o[nameVec[i]] = split(ss,times,type);
 					}
 					
-					csvUnit.dic[o.id] = o;
+					_cls.dic[o.id] = o;
 				}
 				
 				index++;
 			}
 			
-			csvUnit.length = index - 2;
-			
-			dic[_name] = csvUnit;
+			_cls.length = index - 2;
 			
 			if(_callBack != null){
 				

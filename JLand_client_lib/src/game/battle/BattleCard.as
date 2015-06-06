@@ -48,7 +48,7 @@ package game.battle
 				
 				addChild(img);
 				
-				typeTf = new TextField(img.width,img.height,Csv_hero.TYPE_VEC[csv.type],ResourceFont.fontName,fontSize,0xFFFFFF);
+				typeTf = new TextField(img.width,img.height,csv.heroType.name,ResourceFont.fontName,fontSize,0xFFFFFF);
 				
 				typeTf.hAlign = HAlign.LEFT;
 				typeTf.vAlign = VAlign.TOP;

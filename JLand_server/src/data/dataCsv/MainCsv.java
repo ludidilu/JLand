@@ -5,6 +5,7 @@ import userService.UserService;
 import data.dataCsv.ai.Csv_ai;
 import data.dataCsv.battle.Csv_battle;
 import data.dataCsv.hero.Csv_hero;
+import data.dataCsv.hero.Csv_heroType;
 import data.dataCsv.map.Csv_map;
 
 public class MainCsv {
@@ -15,7 +16,9 @@ public class MainCsv {
 		
 		Csv.init(path,UserService.class);
 		
-		Csv.setData(Csv_hero.class, "hero", Csv_hero.class.getDeclaredMethod("setSilentSkillIndex"));
+		Csv.setData(Csv_heroType.class, "heroType", null);
+		
+		Csv.setData(Csv_hero.class, "hero", Csv_hero.class.getDeclaredMethod("fix"));
 		
 		Csv.setData(Csv_map.class, "map", null);
 		

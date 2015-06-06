@@ -17,7 +17,7 @@ package game.battle
 
 	public class BattleMap extends Sprite
 	{
-		private static const FLIP_MAP:Boolean = true;
+		private static const FLIP_MAP:int = 2;//0不翻转 1水平翻转 2中心翻转
 		
 		private var bgContainer:Sprite;
 		private var mapContainer:Sprite;
@@ -158,19 +158,25 @@ package game.battle
 						
 						sp.refresh();
 						
-						if(FLIP_MAP && !Battle.instance.isHost){
+						if(!Battle.instance.isHost && FLIP_MAP == 2){
 							
 							var posI:int = mapUnit.mapHeight - 1 - i;
 							var posM:int = mapUnit.mapWidth - 1 - m;
 							var fix:int = -1;
 							
+						}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+						
+							posI = i;
+							posM = mapUnit.mapWidth - 1 - m;
+							fix = -1;
+						
 						}else{
 							
 							posI = i;
 							posM = m;
 							fix = 1;
 						}
-						
+							
 						sp.x = unitWidth * 1.5 + ((i % 2) == 0 ? 0 : (fix * unitWidth * 0.5 * Math.sqrt(3))) + posM * unitWidth * Math.sqrt(3);
 						
 						sp.y = unitWidth * 1.5 + posI * unitWidth * 1.5;
@@ -329,20 +335,28 @@ package game.battle
 			
 			if(angle >= -Math.PI / 6 && angle < Math.PI / 6){
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
 					
 					var target:int = hero.pos - 1;
+						
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+					
+					target = hero.pos - 1;
 					
 				}else{
 					
 					target = hero.pos + 1;
 				}
-				
+					
 			}else if(angle >= Math.PI / 6 && angle < Math.PI * 0.5){
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
 					
 					target = hero.pos - mapUnit.mapWidth;
+					
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+					
+					target = hero.pos + mapUnit.mapWidth - 1;
 					
 				}else{
 					
@@ -351,9 +365,13 @@ package game.battle
 				
 			}else if(angle >= Math.PI * 0.5 && angle < Math.PI * 5 / 6){
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
 					
 					target = hero.pos - mapUnit.mapWidth + 1;
+					
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+					
+					target = hero.pos + mapUnit.mapWidth;
 					
 				}else{
 					
@@ -362,9 +380,13 @@ package game.battle
 				
 			}else if(angle >= -Math.PI * 0.5 && angle < -Math.PI / 6){
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
 					
 					target = hero.pos + mapUnit.mapWidth - 1;
+					
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+					
+					target = hero.pos - mapUnit.mapWidth;
 					
 				}else{
 					
@@ -373,9 +395,13 @@ package game.battle
 				
 			}else if(angle >= -Math.PI * 5 / 6 && angle < -Math.PI * 0.5){
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
 					
 					target = hero.pos + mapUnit.mapWidth;
+					
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+					
+					target = hero.pos - mapUnit.mapWidth + 1;
 					
 				}else{
 					
@@ -384,7 +410,11 @@ package game.battle
 				
 			}else{
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
+				if(!Battle.instance.isHost && FLIP_MAP == 2){
+					
+					target = hero.pos + 1;
+					
+				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
 					
 					target = hero.pos + 1;
 					
@@ -516,9 +546,16 @@ package game.battle
 				
 				var index:int = b * mapUnit.mapWidth - int(b * 0.5) + a;
 				
-				if(FLIP_MAP && !Battle.instance.isHost){
-					
-					index = mapUnit.size - 1 - index;
+				if(!Battle.instance.isHost){
+				
+					if(FLIP_MAP == 2){
+						
+						index = mapUnit.size - 1 - index;
+						
+					}else if(FLIP_MAP == 1){
+						
+						index = b * mapUnit.mapWidth - int(b * 0.5) + mapUnit.mapWidth - b % 2 - 1 - a;
+					}
 				}
 				
 				point1.x = unitWidth * 1.5 + ((b % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + a * unitWidth * Math.sqrt(3);
@@ -530,8 +567,6 @@ package game.battle
 				var dis:Number = Point.distance(point2,point1);
 				
 				var resultUnit:BattleMapUnit = dic[index];
-				
-//				var vec:Vector.<int> = BattlePublic.getNeighbourPosVec(mapWidth,size,dic,index);
 				
 				var vec:Vector.<int> = mapUnit.neightbourDic[index];
 				
@@ -565,6 +600,8 @@ package game.battle
 						return null;
 					}
 				}
+				
+//				trace("resultUnit:",resultUnit.id);
 				
 				return resultUnit;
 				
@@ -601,67 +638,58 @@ package game.battle
 		
 		private function showTargetFrame(_hero:BattleHero):void{
 			
-			var vec:Vector.<int> = mapUnit.neightbourDic[_hero.pos];
-			
-			switch(_hero.csv.type){
+			if(_hero.csv.heroType.attackType == 1){
 				
-				case 0:
-				case 3:
+				loop1:for(var i:int = 0 ; i < 6 ; i++){
 					
-					for(var i:int = 0 ; i < 6 ; i++){
+					var nowPos:int = _hero.pos;
+					
+					for(var m:int = 0 ; m < _hero.csv.heroType.attackRange ; m++){
 						
-						var pos:int = vec[i];
+						var pos:int = mapUnit.neightbourDic[nowPos][i];
 						
-						if(pos != -1){
+						if(pos == -1){
 							
-							checkAddFrame(_hero,pos);
+							continue loop1;
+							
+						}else{
+							
+							nowPos = pos;
 						}
 					}
 					
-					break;
+					checkAddFrame(_hero,nowPos);
+				}
+					
+			}else{
 				
-				case 1:
+				loop2:for(i = 0 ; i < 6 ; i++){
 					
-					for(i = 0 ; i < 6 ; i++){
-						
-						pos = vec[i];
-						
-						if(pos != -1){
-							
-							pos = mapUnit.neightbourDic[pos][i];
-							
-							if(pos != -1){
-							
-								checkAddFrame(_hero,pos);
-							}
-						}
-					}
+					nowPos = _hero.pos;
 					
-					break;
-				
-				case 2:
-					
-					for(i = 0 ; i < 6 ; i++){
+					for(m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
 						
-						pos = vec[i];
+						pos = mapUnit.neightbourDic[nowPos][i];
 						
-						if(pos != -1){
+						if(pos == -1){
+							
+							continue loop2;
+							
+						}else{
 							
 							var result:Boolean = checkAddFrame(_hero,pos);
 							
-							if(!result){
+							if(result){
 								
-								pos = mapUnit.neightbourDic[pos][i];
+								continue loop2;
 								
-								if(pos != -1){
-									
-									checkAddFrame(_hero,pos);
-								}
+							}else{
+								
+								nowPos = pos;
 							}
 						}
 					}
-					
-					break;
+				}
 			}
 		}
 		

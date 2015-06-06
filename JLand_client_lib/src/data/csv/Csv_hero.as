@@ -1,9 +1,11 @@
 package data.csv
 {
+	import flash.utils.Dictionary;
+
 	public class Csv_hero extends Csv
 	{
-		
-		public static const TYPE_VEC:Vector.<String> = Vector.<String>(["步","弓","枪","骑"]);
+		public static var dic:Dictionary = new Dictionary;
+		public static var length:int;
 		
 		public var name:String;
 		public var picName:String;
@@ -17,5 +19,15 @@ package data.csv
 		public var skillConditionArg:Vector.<int>;
 		
 		public var comment:String;
+		
+		public var heroType:Csv_heroType;
+		
+		public static function fix():void{
+			
+			for each(var unit:Csv_hero in dic){
+				
+				unit.heroType = Csv_heroType.dic[unit.type];
+			}
+		}
 	}
 }

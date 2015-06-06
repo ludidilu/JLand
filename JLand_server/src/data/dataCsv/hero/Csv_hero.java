@@ -21,9 +21,14 @@ public class Csv_hero extends Csv{
 	public int[][] skillEffect;
 	public int[][][] skillEffectArg;
 	
+	public int beSkillTargetWeight;
+	public int beAttackTargetWeight;
+	
 	public ArrayList<Integer> silentSkillIndexArr = null;
 	
-	public void setSilentSkillIndex(){
+	public Csv_heroType heroType;
+	
+	public void fix(){
 		
 		for(int i = 0 ; i < skillTarget.length ; i++){
 			
@@ -40,5 +45,7 @@ public class Csv_hero extends Csv{
 				}
 			}
 		}
+		
+		heroType = Csv_heroType.dic.get(type);
 	}
 }

@@ -8,8 +8,7 @@ package game.battle
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
-	import data.csv.Csv;
-	import data.csv.CsvUnit;
+	import data.csv.Csv_hero;
 	import data.map.Map;
 	import data.map.MapUnit;
 	import data.resource.ResourceFont;
@@ -39,8 +38,6 @@ package game.battle
 		private static const CARD_GAP:int = 5;
 		
 		public var gameContainerScale:Number = 0.9;
-		
-		private var heroCsvUnit:CsvUnit;
 		
 		private var gameContainer:Sprite;
 		private var battleMap:BattleMap;
@@ -111,8 +108,6 @@ package game.battle
 			super();
 			
 			instance = this;
-			
-			heroCsvUnit = Csv.getCsvUnit("hero");
 			
 			gameContainer = new Sprite;
 			
@@ -321,7 +316,7 @@ package game.battle
 					
 					battleCard.uid = _myCards[i][0];
 					
-					battleCard.csv = heroCsvUnit.dic[_myCards[i][1]];
+					battleCard.csv = Csv_hero.dic[_myCards[i][1]];
 					
 					battleCard.refresh();
 					
@@ -351,7 +346,7 @@ package game.battle
 					
 					hero.isMine = (isHost && vec[1] == 1) || (!isHost && vec[1] == 0);
 					
-					hero.csv = heroCsvUnit.dic[vec[2]];
+					hero.csv = Csv_hero.dic[vec[2]];
 					
 					hero.hp = vec[3];
 					
@@ -420,8 +415,6 @@ package game.battle
 		
 		private function refreshCards():void{
 			
-//			cardContainer.unflatten();
-
 			var startX:Number = (Starling.current.backBufferWidth - myCards.length * CARD_WIDTH - (myCards.length - 1) * CARD_GAP) * 0.5;
 			
 			for(var i:int = 0 ; i < myCards.length ; i++){
@@ -432,8 +425,6 @@ package game.battle
 				
 				card.x = startX + i * (CARD_WIDTH + CARD_GAP) + CARD_WIDTH * 0.5;
 			}
-			
-//			cardContainer.flatten();
 		}
 		
 		public function get gameContainerX():Number{
@@ -838,7 +829,7 @@ package game.battle
 					
 					var hero:BattleHero = heroData[target];
 					
-					if(hero != null && (hero.power < POWER_CAN_MOVE || canMoveData == null || canMoveData.indexOf(hero.pos) == -1)){
+					if(hero != null && (canMoveData == null || canMoveData.indexOf(hero.pos) == -1)){
 						
 						moveResultDic[str] = 2;
 						
@@ -1074,7 +1065,7 @@ package game.battle
 			
 			hero.pos = vec[2];
 			
-			hero.csv = heroCsvUnit.dic[vec[1]];
+			hero.csv = Csv_hero.dic[vec[1]];
 			
 			hero.hp = hero.csv.maxHp;
 			
@@ -2039,7 +2030,7 @@ package game.battle
 					var card:BattleCard = new BattleCard;
 					
 					card.uid = _cardUid;
-					card.csv = heroCsvUnit.dic[_cardID];
+					card.csv = Csv_hero.dic[_cardID];
 					
 					card.refresh();
 					
@@ -2055,7 +2046,7 @@ package game.battle
 					
 					card = new BattleCard;
 					
-					card.csv = heroCsvUnit.dic[_cardID];
+					card.csv = Csv_hero.dic[_cardID];
 					
 					card.refresh();
 					
@@ -2086,7 +2077,7 @@ package game.battle
 				
 				card = new BattleCard;
 				
-				card.csv = heroCsvUnit.dic[_oppCardID];
+				card.csv = Csv_hero.dic[_oppCardID];
 				
 				card.refresh();
 				
@@ -2302,7 +2293,11 @@ package game.battle
 			
 			heroContainer.removeChildren();
 			
+			arrowContainer.unflatten();
+			
 			arrowContainer.removeChildren();
+			
+			arrowContainer.flatten();
 			
 			effectContainer.removeChildren();
 			

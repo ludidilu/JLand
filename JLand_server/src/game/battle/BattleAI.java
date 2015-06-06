@@ -98,9 +98,9 @@ public class BattleAI {
 					
 				}else{
 					
-					tmpMap2.put(pos, hero.star * 2);
+					tmpMap2.put(pos, hero.star * 3);
 					
-					allMoveUnitStar = allMoveUnitStar + hero.star * 2;
+					allMoveUnitStar = allMoveUnitStar + hero.star * 3;
 				}
 			}
 			
@@ -164,8 +164,6 @@ public class BattleAI {
 	
 	private static int getSummonPos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, Csv_hero _hero){
 		
-		int[] tmpArrX = new int[12];
-		
 		String str = "";
 		
 		ArrayList<Integer> posArr = new ArrayList<>();
@@ -192,6 +190,13 @@ public class BattleAI {
 				
 				int tmpScore = 0;
 				
+				if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos)){
+					
+					tmpScore = tmpScore + 3;
+					
+					allScore = allScore + 3;
+				}
+				
 				int[] tmpArr = _neighbourPosMap.get(pos);//先找1格外的地图格子
 				
 				for(int pos2 : tmpArr){
@@ -205,111 +210,19 @@ public class BattleAI {
 					
 					if(type2 == 1){//是敌人地盘  加2分
 						
+						tmpScore = tmpScore + 4;
+						
+						allScore = allScore + 4;
+					}
+					
+					if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos2)){
+						
 						tmpScore = tmpScore + 2;
 						
 						allScore = allScore + 2;
-						
-						BattleHero targetHero = _heroMap.get(pos2);
-						
-						if(targetHero != null){//如果有敌人
-
-							if(targetHero.csv.type == 1){//如果敌人是弓兵
-								
-								if(_hero.type == 0 || _hero.type == 2 || _hero.type == 3){//如果自己是步兵、枪兵或者骑兵  加3分
-									
-									tmpScore = tmpScore + 3;
-									
-									allScore = allScore + 3;
-								}
-								
-							}else{//如果敌人不是弓兵  减2分
-								
-								tmpScore = tmpScore - 2;
-								
-								allScore = allScore - 2;
-							}
-						}
 					}
 				}
 						
-				BattlePublic.getPosInNeighbour2(_neighbourPosMap, pos, tmpArrX);//再找2格外的地图格子
-				
-				for(int m = 0 ; m < 12 ; m++){
-					
-					int pos3 = tmpArrX[m];
-					
-					if(pos3 == -1){
-						
-						continue;
-					}
-					
-					int type3 = _map.get(pos3);
-					
-					if(type3 == 1){//如果是敌人地盘  加1分
-						
-						tmpScore = tmpScore + 1;
-						
-						allScore = allScore + 1;
-						
-						BattleHero targetHero = _heroMap.get(pos3);
-						
-						if(targetHero != null){//如果有敌人
-							
-							if(_hero.type == 1 || _hero.type == 2){//如果自己是弓兵或者枪兵
-								
-								if(targetHero.csv.type == 1 || targetHero.csv.type == 2){//如果敌人是弓兵或者枪兵
-									
-									if(m % 2 == 1){//如果不会被攻击到  加3分
-										
-										tmpScore = tmpScore + 3;
-										
-										allScore = allScore + 3;
-										
-									}else{//如果会被攻击到  减2分
-									
-										tmpScore = tmpScore - 2;
-										
-										allScore = allScore - 2;
-									}
-									
-								}else{//如果敌人是步兵或者骑兵
-								
-									if(m % 2 == 0){//如果可以攻击到  加3分
-									
-										tmpScore = tmpScore + 3;
-										
-										allScore = allScore + 3;
-									}
-								}
-								
-							}else{//如果自己是步兵或者骑兵
-								
-								if(targetHero.csv.type == 1 || targetHero.csv.type == 2){//如果敌人是弓兵或者枪兵
-									
-									if(m % 2 == 0){//如果会被攻击到  减2分
-										
-										tmpScore = tmpScore - 2;
-										
-										allScore = allScore - 2;
-										
-									}else{//如果不会被攻击到  加2分
-										
-										tmpScore = tmpScore + 2;
-										
-										allScore = allScore + 2;
-									}
-									
-								}else{//如果敌人是步兵或者骑兵  加1分
-									
-									tmpScore = tmpScore + 1;
-									
-									allScore = allScore + 1;
-								}
-							}
-						}
-					}
-				}
-				
 				str = str + " score:" + tmpScore + "\n";
 				
 				scoreArr.add(tmpScore);
@@ -358,20 +271,7 @@ public class BattleAI {
 			
 			if(pos != -1){
 				
-				if(_summonData.containsKey(pos)){
-					
-					if(_moveMap.containsKey(pos)){
-						
-						posArr.add(pos);
-						
-						int score = getMovePosScore(_neighbourPosMap, _map, _heroMap, _hero, pos);
-						
-						scoreArr.add(score);
-						
-						allScore = allScore + score;
-					}
-					
-				}else{
+				if(!_summonData.containsKey(pos)){
 					
 					BattleHero hero = _heroMap.get(pos);
 					
@@ -441,89 +341,18 @@ public class BattleAI {
 	
 	private static int getMovePosScore(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, Csv_hero _hero, int _pos){
 		
-		int[] tmpArrX = new int[12];
-		
 		int score = 0;
 		
-		int[] tmpArr = _neighbourPosMap.get(_pos);//先找1格外的地图格子
+		int type2 = _map.get(_pos);
 		
-		for(int pos2 : tmpArr){
+		if(type2 == 1){//是敌人地盘  加3分
 			
-			if(pos2 == -1){
-				
-				continue;
-			}
-			
-			int type2 = _map.get(pos2);
-			
-			if(type2 == 1){//是敌人地盘  加2分
-				
-				score = score + 3;
-				
-				BattleHero targetHero = _heroMap.get(pos2);
-				
-				if(targetHero != null){//如果有敌人
-					
-					if(targetHero.csv.type == 1){//如果敌人是弓兵
-						
-						if(_hero.type == 0 || _hero.type == 2){//如果自己是步兵或者枪兵  加3分
-							
-							score = score + 3;
-						}
-						
-					}else{//如果敌人不是弓兵
-						
-						if(_hero.type == 0 || _hero.type == 2 || _hero.type == 3){//如果自己是步兵、枪兵或者枪兵  加2分
-							
-							score = score + 2;
-						}
-					}
-				}
-			}
+			score = score + 3;
 		}
-				
-		BattlePublic.getPosInNeighbour2(_neighbourPosMap, _pos, tmpArrX);//再找2格外的地图格子
 		
-		for(int m = 0 ; m < 12 ; m++){
+		if(canHitEnemy(_neighbourPosMap,_heroMap,_hero,_pos)){
 			
-			int pos3 = tmpArrX[m];
-			
-			if(pos3 == -1){
-				
-				continue;
-			}
-			
-			int type2 = _map.get(pos3);
-			
-			if(type2 == 1){//是敌人地盘  加2分
-				
-				score = score + 2;
-			
-				BattleHero targetHero = _heroMap.get(pos3);
-				
-				if(targetHero != null){//如果有敌人
-					
-					if(_hero.type == 1){//如果自己是弓兵
-						
-						if(m % 2 == 0){//如果可以攻击到  加3分
-								
-							score = score + 3;
-						}
-							
-					}else if(_hero.type == 2){//如果自己是枪兵
-						
-						if(m % 2 == 0){
-							
-							BattleHero targetHero2 = _heroMap.get((_pos + pos3) / 2);
-							
-							if(targetHero2 == null){
-								
-								score = score + 2;
-							}
-						}
-					}
-				}
-			}
+			score = score + 3;
 		}
 		
 		return score;
@@ -531,60 +360,66 @@ public class BattleAI {
 	
 	private static boolean canHitEnemy(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap, Csv_hero _hero, int _pos){
 		
-		int[] tmpArr = _neighbourPosMap.get(_pos);
-		
-		for(int i = 0 ; i < 6 ; i++){
+		if(_hero.heroType.attackType == 1){
 			
-			int pos = tmpArr[i];
-			
-			if(pos != -1){
+			loop1:for(int i = 0 ; i < 6 ; i++){
 				
-				if(_hero.type == 0 || _hero.type == 3){
+				int nowPos = _pos;
 				
-					BattleHero targetHero = _heroMap.get(pos);
+				for(int m = 0 ; m < _hero.heroType.attackRange ; m++){
 					
-					if(targetHero != null && targetHero.isHost){
+					int pos = _neighbourPosMap.get(nowPos)[i];
+					
+					if(pos == -1){
 						
-						return true;
-					}
-					
-				}else if(_hero.type == 1){
-					
-					pos = _neighbourPosMap.get(pos)[i];
-					
-					if(pos != -1){
-						
-						BattleHero targetHero = _heroMap.get(pos);
-						
-						if(targetHero != null && targetHero.isHost){
-							
-							return true;
-						}
-					}
-					
-				}else{
-					
-					BattleHero targetHero = _heroMap.get(pos);
-					
-					if(targetHero != null){
-						
-						if(targetHero.isHost){
-						
-							return true;
-						}
+						continue loop1;
 						
 					}else{
 						
-						pos = _neighbourPosMap.get(pos)[i];
+						nowPos = pos;
+					}
+				}
+				
+				BattleHero targetHero = _heroMap.get(nowPos);
+				
+				if(targetHero != null && targetHero.isHost){
+					
+					return true;
+				}
+			}
+		
+		}else{
+			
+			loop2:for(int i = 0 ; i < 6 ; i++){
+				
+				int nowPos = _pos;
+				
+				for(int m = 0 ; m < _hero.heroType.attackRange ; m++){
+					
+					int pos = _neighbourPosMap.get(nowPos)[i];
+					
+					if(pos == -1){
 						
-						if(pos != -1){
+						continue loop2;
+						
+					}else{
+						
+						BattleHero targetHero = _heroMap.get(nowPos);
+						
+						if(targetHero != null){
 							
-							targetHero = _heroMap.get(pos);
-							
-							if(targetHero != null && targetHero.isHost){
+							if(targetHero.isHost){
 								
 								return true;
+								
+							}else{
+							
+								continue loop2;
 							}
+							
+						}else{
+							
+							nowPos = pos;
 						}
 					}
 				}

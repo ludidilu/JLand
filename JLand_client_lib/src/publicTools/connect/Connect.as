@@ -8,8 +8,6 @@ package publicTools.connect
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
 	
-	import data.csv.Csv;
-	import data.csv.CsvUnit;
 	import data.csv.Csv_connect;
 	
 	import starling.core.Starling;
@@ -36,8 +34,6 @@ package publicTools.connect
 		
 		private static var clsDic:Dictionary;
 		
-		private static var csvUnit:CsvUnit;
-		
 		public function Connect()
 		{
 		}
@@ -56,8 +52,6 @@ package publicTools.connect
 			port = _port;
 			
 			callBack = _callBack;
-			
-			csvUnit = Csv.getCsvUnit("connect");
 			
 			sk = new Socket;
 			
@@ -122,7 +116,7 @@ package publicTools.connect
 			
 			var id:int = _byteArray.readShort();
 			
-			var unit:Csv_connect = csvUnit.dic[id];
+			var unit:Csv_connect = Csv_connect.dic[id];
 			
 			trace("收到服务器的包:",unit.methodName);
 			
@@ -173,7 +167,7 @@ package publicTools.connect
 			
 			Starling.current.touchable = false;
 			
-			var unit:Csv_connect = csvUnit.dic[_id];
+			var unit:Csv_connect = Csv_connect.dic[_id];
 			
 			sendByteArray.writeShort(0);
 			

@@ -1357,7 +1357,7 @@ public class Battle extends SuperService{
 				
 				hero.moved = false;
 				
-				if(hero.csv.type == 3){
+				if(hero.csv.heroType.moveType == 2){
 					
 					if(hero.isHost){
 						
@@ -1371,13 +1371,16 @@ public class Battle extends SuperService{
 				
 			}else{
 				
-				if(hero.isHost){
+				if(hero.csv.heroType.moveType != 0){
 				
-					moveHero1.add(hero);
+					if(hero.isHost){
 					
-				}else{
-					
-					moveHero2.add(hero);
+						moveHero1.add(hero);
+						
+					}else{
+						
+						moveHero2.add(hero);
+					}
 				}
 			}
 			
