@@ -1,6 +1,7 @@
 package game
 {
 	import flash.display.Stage;
+	import flash.events.MouseEvent;
 	
 	import game.battle.Battle;
 	import game.gameQueue.GameQueuePanel;

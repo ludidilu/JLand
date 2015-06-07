@@ -9,7 +9,6 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	
-	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
@@ -102,27 +101,20 @@ package
 					
 					var sp:MapUnit = new MapUnit;
 					
-					sp.id = i * mapWidth - int(i  * 0.5) + m;
+					var id:int = i * mapWidth - int(i  * 0.5) + m;
 					
-					if(dic[sp.id] == null){
+					if(dic[id] == null){
 					
-						var image:Image = new Image(textureWhite);
+						sp.init(id,textureWhite);
 						
-					}else if(dic[sp.id] == 1){
+					}else if(dic[id] == 1){
 						
-						image = new Image(textureRed);
+						sp.init(id,textureGreen);
 						
 					}else{
 						
-						image = new Image(textureGreen);
+						sp.init(id,textureRed);
 					}
-					
-					sp.addChild(image);
-					
-					image.x = - image.width * 0.5;
-					image.y = - image.height * 0.5;
-					
-					sp.flatten();
 					
 					sp.x = unitWidth * 1.5 + ((i % 2) == 0 ? 0 : (unitWidth * 0.5 * Math.sqrt(3))) + m * unitWidth * Math.sqrt(3);
 					
@@ -145,28 +137,24 @@ package
 				
 				trace("id:",unit.id);
 				
-				unit.unflatten();
-				
 				if(dic[unit.id] == null){
 					
 					dic[unit.id] = 1;
 					
-					(unit.getChildAt(0) as Image).texture = textureRed;
+					unit.refresh(textureGreen);
 					
 				}else if(dic[unit.id] == 1){
 					
 					dic[unit.id] = 2;
 					
-					(unit.getChildAt(0) as Image).texture = textureGreen;
+					unit.refresh(textureRed);
 					
 				}else{
 					
 					delete dic[unit.id];
 					
-					(unit.getChildAt(0) as Image).texture = textureWhite;
+					unit.refresh(textureWhite);
 				}
-				
-				unit.flatten();
 			}
 		}
 		

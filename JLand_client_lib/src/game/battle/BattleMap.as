@@ -20,7 +20,7 @@ package game.battle
 		private static const FLIP_MAP:int = 2;//0不翻转 1水平翻转 2中心翻转
 		
 		private var bgContainer:Sprite;
-		private var mapContainer:Sprite;
+		public var mapContainer:Sprite;
 		private var selectedFrameContaienr:Sprite;
 		
 		private var unitWidth:Number;
@@ -661,7 +661,7 @@ package game.battle
 					checkAddFrame(_hero,nowPos);
 				}
 					
-			}else{
+			}else if(_hero.csv.heroType.attackType == 2){
 				
 				loop2:for(i = 0 ; i < 6 ; i++){
 					

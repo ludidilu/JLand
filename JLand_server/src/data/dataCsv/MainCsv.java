@@ -4,6 +4,7 @@ import panel.Panel;
 import userService.UserService;
 import data.dataCsv.ai.Csv_ai;
 import data.dataCsv.battle.Csv_battle;
+import data.dataCsv.battle.Csv_battleAi;
 import data.dataCsv.hero.Csv_hero;
 import data.dataCsv.hero.Csv_heroType;
 import data.dataCsv.map.Csv_map;
@@ -25,6 +26,8 @@ public class MainCsv {
 		Csv.setData(Csv_ai.class, "ai", null);
 		
 		Csv.setData(Csv_battle.class, "battle", null);
+		
+		Csv.setData(Csv_battleAi.class, "battleAi", null);
 		
 		Panel.show("CSV±Ìº”‘ÿÕÍ±œ");
 	}

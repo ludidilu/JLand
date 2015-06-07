@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import publicTools.PublicTools;
-import data.dataCsv.battle.Csv_battle;
 import superService.SuperService;
 import userService.UserService;
+import data.dataCsv.battle.Csv_battleAi;
 
 public class GameAi  extends SuperService{
 
@@ -69,7 +69,11 @@ public class GameAi  extends SuperService{
 			
 			Battle battle = battleList.remove(0);
 			
-			battle.process("init", getBattleID(), _userServie, null, 1);
+			Csv_battleAi battleAi = getBattleAi();
+			
+			int ai = getAi(battleAi);
+			
+			battle.process("init", battleAi.id, _userServie, null, ai);
 			
 		}else{
 			
@@ -111,7 +115,11 @@ public class GameAi  extends SuperService{
 			
 			UserService userService = waittingList.remove(0);
 			
-			_battle.process("init", getBattleID(), userService, null, 1);
+			Csv_battleAi battleAi = getBattleAi();
+			
+			int ai = getAi(battleAi);
+			
+			_battle.process("init", battleAi.id, userService, null, ai);
 			
 		}else{
 			
@@ -119,14 +127,21 @@ public class GameAi  extends SuperService{
 		}
 	}
 	
-	private int getBattleID(){
+	private Csv_battleAi getBattleAi(){
 		
-		HashMap<Integer, Csv_battle> tmpMap = PublicTools.getSomeOfMap(Csv_battle.dic, 1);
+		HashMap<Integer, Csv_battleAi> tmpMap = PublicTools.getSomeOfMap(Csv_battleAi.dic, 1);
 		
-		Iterator<Integer> iter = tmpMap.keySet().iterator();
+		Iterator<Csv_battleAi> iter = tmpMap.values().iterator();
 		
-		int battleID = iter.next();
+		Csv_battleAi battleAi = iter.next();
 		
-		return battleID;
+		return battleAi;
+	}
+	
+	private int getAi(Csv_battleAi _battleAi){
+		
+		int rand = (int)Math.random() * _battleAi.ai.length;
+		
+		return _battleAi.ai[rand];
 	}
 }

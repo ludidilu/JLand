@@ -5,6 +5,8 @@ package game.battle
 	import com.greensock.easing.Linear;
 	import com.greensock.easing.Quad;
 	
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
@@ -233,6 +235,8 @@ package game.battle
 		
 		public function start(_isHost:Boolean,_nowRound:int,_maxRound:int,_mapID:int,_mapData:Vector.<int>,_myCards:Vector.<Vector.<int>>,_oppCardsNum:int,_userAllCardsNum1:int,_userAllCardsNum2:int,_heroData:Vector.<Vector.<int>>,_canMoveData:Vector.<int>,_isActioned:Boolean,_actionHeroData:Vector.<Vector.<int>>,_actionSummonData:Vector.<Vector.<int>>):void{
 			
+			Starling.current.nativeStage.addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+			
 			isHost = _isHost;
 			mapUnit = Map.getMap(_mapID);
 			
@@ -286,6 +290,9 @@ package game.battle
 			}
 			
 			battleMap.start(mapUnit,mapData);
+			
+			gameContainer.x = (Starling.current.backBufferWidth - battleMap.mapContainer.width * gameContainerScale) * 0.5;
+			gameContainer.y = (Starling.current.backBufferHeight - battleMap.mapContainer.height * gameContainerScale - 80) * 0.5;
 			
 			if(_isHost){
 
@@ -344,13 +351,20 @@ package game.battle
 					
 					hero.pos = vec[0];
 					
-					hero.isMine = (isHost && vec[1] == 1) || (!isHost && vec[1] == 0);
+					if(mapData[hero.pos] == 1){
+						
+						hero.isMine = true;
+						
+					}else{
+						
+						hero.isMine = false;
+					}
 					
-					hero.csv = Csv_hero.dic[vec[2]];
+					hero.csv = Csv_hero.dic[vec[1]];
 					
-					hero.hp = vec[3];
+					hero.hp = vec[2];
 					
-					hero.power = vec[4];
+					hero.power = vec[3];
 					
 					hero.refresh(true);
 					
@@ -374,7 +388,7 @@ package game.battle
 					for(i = 0 ; i < _actionHeroData.length ; i++){
 						
 						pos = _actionHeroData[i][0];
-						var target:int = _actionHeroData[i][1];
+						var target:int = BattlePublic.getTargetPos(mapUnit.mapWidth,pos,_actionHeroData[i][1]);
 						
 						moveDic[pos] = target;
 					}
@@ -958,6 +972,8 @@ package game.battle
 		public function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
 			
 			isPlayBattle = true;
+			
+			Starling.current.nativeStage.removeEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
 			
 			battleMap.clearSelectedUnit();
 			
@@ -2120,6 +2136,8 @@ package game.battle
 			
 			isPlayBattle = false;
 			
+			Starling.current.nativeStage.addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+			
 			if(playBattleOverCallBack != null){
 				
 				playBattleOverCallBack.apply(null,playBattleOverCallBackArg);
@@ -2289,6 +2307,8 @@ package game.battle
 		
 		private function disposeBattle():void{
 			
+			Starling.current.nativeStage.removeEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+			
 			battleMap.disposeBattleMap();
 			
 			heroContainer.removeChildren();
@@ -2310,6 +2330,27 @@ package game.battle
 			hideHeroDetail();
 			
 			Game.leaveBattleOK();
+		}
+		
+		private function onMouseWheel(e:MouseEvent):void{
+			
+			var point:Point = new Point(e.stageX,e.stageY);
+			
+			var point2:Point = gameContainer.globalToLocal(point);
+			
+			if(e.delta > 0){
+				
+				gameContainer.scaleX = gameContainer.scaleY = gameContainerScale = gameContainerScale + 0.1;
+				
+			}else{
+				
+				gameContainer.scaleX = gameContainer.scaleY = gameContainerScale = gameContainerScale - 0.1;
+			}
+			
+			var point3:Point = gameContainer.globalToLocal(point);
+			
+			gameContainer.x = gameContainer.x + (point3.x - point2.x) * gameContainerScale;
+			gameContainer.y = gameContainer.y + (point3.y - point2.y) * gameContainerScale;
 		}
 	}
 }

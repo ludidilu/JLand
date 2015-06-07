@@ -25,7 +25,7 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE,addedToStage);
 			
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP;
+			stage.align = StageAlign.TOP_LEFT;
 			stage.quality = StageQuality.LOW;
 			
 			CatchError.init(this);

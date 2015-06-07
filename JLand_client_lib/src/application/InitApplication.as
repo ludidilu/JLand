@@ -1,6 +1,7 @@
 package application
 {
 	import flash.display.Stage;
+	import flash.events.MouseEvent;
 	
 	import data.Data;
 	

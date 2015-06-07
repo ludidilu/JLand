@@ -14,6 +14,7 @@ import superService.SuperService;
 import userService.UserService;
 import data.dataCsv.ai.Csv_ai;
 import data.dataCsv.battle.Csv_battle;
+import data.dataCsv.battle.Csv_battleAi;
 import data.dataCsv.hero.Csv_hero;
 import data.dataMap.Map;
 import data.dataMap.MapUnit;
@@ -108,29 +109,31 @@ public class Battle extends SuperService{
 	
 	private void initBattle(int _battleID,int _aiID){
 		
-		Csv_battle csv_battle = Csv_battle.dic.get(_battleID);
-		
-		mapID = csv_battle.mapID;
-		
-		maxRound = csv_battle.roundNum;
-		
-		nowRound = 1;
-		
-		mapUnit = Map.getMapUnit(mapID);
-		
-		map = (HashMap<Integer, Integer>)mapUnit.dic.clone();
-		
-		score1 = mapUnit.score1;
-		
-		score2 = mapUnit.score2;
-		
-		userAllCards1 = PublicTools.getSomeOfArr(service1.userData.heros,csv_battle.cardsNum);
-		
 		if(service2 != null){
 		
+			Csv_battle csv_battle = Csv_battle.dic.get(_battleID);
+			
+			mapID = csv_battle.mapID;
+			
+			mapUnit = Map.getMapUnit(mapID);
+			
+			maxRound = csv_battle.roundNum;
+			
+			userAllCards1 = PublicTools.getSomeOfArr(service1.userData.heros,csv_battle.cardsNum);
+			
 			userAllCards2 = PublicTools.getSomeOfArr(service2.userData.heros,csv_battle.cardsNum);
 			
 		}else{
+			
+			Csv_battleAi csv_battleAi = Csv_battleAi.dic.get(_battleID);
+			
+			mapID = csv_battleAi.mapID;
+			
+			mapUnit = Map.getMapUnit(mapID);
+			
+			maxRound = csv_battleAi.roundNum;
+			
+			userAllCards1 = PublicTools.getSomeOfArr(service1.userData.heros,csv_battleAi.cardsNum);
 			
 			Csv_ai csv_ai = Csv_ai.dic.get(_aiID);
 			
@@ -143,10 +146,104 @@ public class Battle extends SuperService{
 				userAllCards2.add(heroID);
 			}
 			
-			userAllCards2 = PublicTools.getSomeOfArr(userAllCards2,csv_battle.cardsNum);
+			userAllCards2 = PublicTools.getSomeOfArr(userAllCards2,csv_battleAi.cardsNum);
 			
 			aiMoney = csv_ai.money;
+			
+			if(csv_battleAi.defaultHeros.length > 0){
+			
+				for(int i = 0 ; i < csv_battleAi.defaultHeros.length ; i++){
+					
+					int pos = csv_battleAi.defaultHeros[i][0];
+					int heroID = csv_battleAi.defaultHeros[i][1];
+					
+					BattleHero hero = new BattleHero();
+					
+					hero.csv = Csv_hero.dic.get(heroID);
+					
+					if(mapUnit.dic.get(pos) == 1){
+					
+						hero.isHost = true;
+						
+					}else{
+						
+						hero.isHost = false;
+					}
+					
+					hero.pos = pos;
+					
+					hero.hp = hero.csv.maxHp;
+					
+					hero.power = hero.csv.maxPower;
+					
+					heroMap.put(pos, hero);
+				}
+				
+				ArrayList<Integer> moveHero1 = new ArrayList<>();
+				ArrayList<Integer> moveHero2 = new ArrayList<>();
+				
+				Iterator<BattleHero> iter = heroMap.values().iterator();
+				
+				while(iter.hasNext()){
+					
+					BattleHero hero = iter.next();
+					
+					if(hero.csv.heroType.moveType != 0){
+						
+						if(hero.isHost){
+							
+							moveHero1.add(hero.pos);
+							
+						}else{
+							
+							moveHero2.add(hero.pos);
+						}
+					}
+				}
+				
+				if(moveHero1.size() > 0){
+					
+					if(moveHero1.size() > MAX_MOVE_HERO_NUM){
+						
+						moveHero1 = PublicTools.getSomeOfArr(moveHero1, MAX_MOVE_HERO_NUM);
+					}
+				
+					Iterator<Integer> iter2 = moveHero1.iterator();
+					
+					while(iter2.hasNext()){
+						
+						int pos = iter2.next();
+						
+						canMoveHeroUidArr.add(pos);
+					}
+				}
+				
+				if(moveHero2.size() > 0){
+					
+					if(moveHero2.size() > MAX_MOVE_HERO_NUM){
+						
+						moveHero2 = PublicTools.getSomeOfArr(moveHero2, MAX_MOVE_HERO_NUM);
+					}
+				
+					Iterator<Integer> iter2 = moveHero2.iterator();
+					
+					while(iter2.hasNext()){
+						
+						int pos = iter2.next();
+						
+						canMoveHeroUidArr.add(pos);
+					}
+				}
+			}
 		}
+		
+		nowRound = 1;
+		
+		map = (HashMap<Integer, Integer>)mapUnit.dic.clone();
+		
+		score1 = mapUnit.score1;
+		
+		score2 = mapUnit.score2;
 		
 		for(int i = 0 ; i < START_CARDS_NUM ; i++){
 			
@@ -164,8 +261,6 @@ public class Battle extends SuperService{
 				userCards2.put(uid,userAllCards2.remove(0));
 			}
 		}
-		
-//		userMoney1 = userMoney2 = START_MONEY_NUM;
 	}
 	
 	private int getUid(){
@@ -252,7 +347,7 @@ public class Battle extends SuperService{
 				int key = entry.getKey();
 				BattleHero hero = entry.getValue();
 				
-				int[] oneHeroData = new int[]{key,hero.isHost ? 1 : 0,hero.csv.id,hero.hp,hero.power};
+				int[] oneHeroData = new int[]{key,hero.csv.id,hero.hp,hero.power};
 				
 				heroData[index] = oneHeroData;
 				

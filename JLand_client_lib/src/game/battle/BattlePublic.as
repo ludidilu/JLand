@@ -36,6 +36,36 @@ package game.battle
 			}
 		}
 		
+		public static function getTargetPos(_mapWidth:int,_pos:int,_target:int):int{
+			
+			switch(_target){
+				
+				case 0:
+					
+					return _pos - _mapWidth + 1;
+					
+				case 1:
+					
+					return _pos + 1;
+					
+				case 2:
+					
+					return _pos + _mapWidth;
+					
+				case 3:
+					
+					return _pos + _mapWidth - 1;
+					
+				case 4:
+					
+					return _pos - 1;
+					
+				default:
+					
+					return _pos - _mapWidth;
+			}
+		}
+		
 		public static function getAttackerPos(_mapWidth:int,_pos:int,_num:int,_attackerVec:Vector.<int>):Vector.<int>{
 			
 			var vec:Vector.<int> = new Vector.<int>(_num,true);

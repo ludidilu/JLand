@@ -373,7 +373,7 @@ public class BattlePublic {
 				}
 			}
 		
-		}else{
+		}else if(_hero.csv.heroType.attackType == 2){
 			
 			loop2:for(int i = 0 ; i < 6 ; i++){
 				
