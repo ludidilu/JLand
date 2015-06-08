@@ -1231,7 +1231,7 @@ public class Battle extends SuperService{
 
 			BattleHero hero = iter.next();
 			
-			if(hero.isJustSummon || hero.power == 0 || hero.getAtk() < 1){
+			if(!hero.csv.heroType.canAttack || hero.isJustSummon || hero.power == 0 || hero.getAtk() < 1){
 				
 				continue;
 			}

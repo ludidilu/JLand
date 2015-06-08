@@ -451,25 +451,29 @@ public class BattlePublic {
 			
 			int r = Math.abs(_data.get(0) - _data.get(1));
 			
-			if(r != 1 && r != 5){
+			if(r == 3){
 				
-				return 2;
+				return 3;
+				
+			}else if(r == 1 || r == 5){
+				
+				return 0;
 				
 			}else{
 				
-				return 0;
+				return 2;
 			}
 			
 		}else if(length == 3){
 			
-			int r = (int)(Math.pow(2, _data.get(0)) + Math.pow(2, _data.get(1)) + Math.pow(2, _data.get(2)));
+			int r = ((2 << _data.get(0)) >> 1) + ((2 << _data.get(1)) >> 1) + ((2 << _data.get(2)) >> 1);
 			
 			switch(r){
 			
 				case 21:
 				case 42:
 					
-					return 3;
+					return 4;
 					
 				case 7:
 				case 14:
@@ -478,16 +482,16 @@ public class BattlePublic {
 				case 49:
 				case 35:
 					
-					return 0;
+					return 2;
 					
 				default:
 					
-					return 2;	
+					return 3;	
 			}
 			
 		}else if(length == 4){
 			
-			int r = (int)(Math.pow(2, _data.get(0)) + Math.pow(2, _data.get(1)) + Math.pow(2, _data.get(2)) + Math.pow(2, _data.get(3)));
+			int r = ((2 << _data.get(0)) >> 1) + ((2 << _data.get(1)) >> 1) + ((2 << _data.get(2)) >> 1) + ((2 << _data.get(3)) >> 1);
 			
 			switch(r){
 			
@@ -498,16 +502,16 @@ public class BattlePublic {
 				case 23:
 				case 46:
 				
-					return 3;
+					return 4;
 					
 				default:
 					
-					return 2;	
+					return 3;	
 			}
 			
 		}else{
 			
-			return 3;
+			return 4;
 		}
 	}
 	

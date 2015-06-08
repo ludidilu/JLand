@@ -97,6 +97,33 @@ package game.battle
 					}
 				}
 				
+			}else if(_num == 3){
+			
+				for(i = 0 ; i < _attackerVec.length ; i++){
+					
+					dir1 = getDirection(_mapWidth,_pos,_attackerVec[i]);
+					
+					for(m = 0 ; m < _attackerVec.length ; m++){
+						
+						if(i == m){
+							
+							continue;
+						}
+						
+						dir2 = getDirection(_mapWidth,_pos,_attackerVec[m]);
+						
+						result = Math.abs(dir1 - dir2);
+						
+						if(result == 3){
+							
+							vec[0] = _attackerVec[i];
+							vec[1] = _attackerVec[m];
+							
+							return vec;
+						}
+					}
+				}
+			
 			}else{
 				
 				for(i = 0 ; i < _attackerVec.length ; i++){

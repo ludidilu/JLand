@@ -92,7 +92,7 @@ package game.battle
 				
 				ui.addChild(typeTf);
 				
-				starTf = new TextField(60,30,String(csv.star),ResourceFont.fontName,24);
+				starTf = new TextField(60,30,"Star:" + csv.star,ResourceFont.fontName,24);
 				
 				starTf.hAlign = HAlign.LEFT;
 				starTf.vAlign = VAlign.TOP;
@@ -102,7 +102,7 @@ package game.battle
 				
 				ui.addChild(starTf);
 				
-				hpTf = new TextField(100,30,"hp:" + csv.maxHp,ResourceFont.fontName,24);
+				hpTf = new TextField(100,30,"HP:" + csv.maxHp,ResourceFont.fontName,24);
 				
 				hpTf.hAlign = HAlign.LEFT;
 				hpTf.vAlign = VAlign.TOP;
@@ -112,7 +112,7 @@ package game.battle
 				
 				ui.addChild(hpTf);
 				
-				powerTf = new TextField(100,30,"power:" + csv.maxPower,ResourceFont.fontName,24);
+				powerTf = new TextField(100,30,"Morale:" + csv.maxPower,ResourceFont.fontName,24);
 				
 				powerTf.hAlign = HAlign.LEFT;
 				powerTf.vAlign = VAlign.TOP;
@@ -122,7 +122,7 @@ package game.battle
 				
 				ui.addChild(powerTf);
 				
-				atkTf = new TextField(70,30,"atk:" + csv.atk,ResourceFont.fontName,24);
+				atkTf = new TextField(70,30,"Atk:" + csv.atk,ResourceFont.fontName,24);
 				
 				atkTf.hAlign = HAlign.LEFT;
 				atkTf.vAlign = VAlign.TOP;
@@ -152,13 +152,13 @@ package game.battle
 				
 				typeTf.text = csv.heroType.name;
 				
-				starTf.text = String(csv.star);
+				starTf.text = "Star:" + csv.star;
 				
-				hpTf.text = "hp:" + csv.maxHp;
+				hpTf.text = "HP:" + csv.maxHp;
 				
-				powerTf.text = "power:" + csv.maxPower;
+				powerTf.text = "Morale:" + csv.maxPower;
 				
-				atkTf.text = "atk:" + csv.atk;
+				atkTf.text = "Atk:" + csv.atk;
 
 				commentTf.text = csv.comment;
 			}

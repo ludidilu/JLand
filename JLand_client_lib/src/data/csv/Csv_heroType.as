@@ -10,5 +10,6 @@ package data.csv
 		public var name:String;
 		public var attackType:int;
 		public var attackRange:int;
+		public var moveType:int;
 	}
 }

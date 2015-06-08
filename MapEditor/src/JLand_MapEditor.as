@@ -13,6 +13,7 @@ package
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
+	import flash.text.TextFormatAlign;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	
@@ -184,7 +185,27 @@ package
 			
 			sp.graphics.beginFill(0x00FF00);
 			
-			sp.graphics.drawRect(80,200,80,40);
+			sp.graphics.drawRect(0,0,80,40);
+			
+			var ttf:TextFormat = new TextFormat;
+			
+			ttf.align = TextFormatAlign.CENTER;
+			
+			var tf:TextField = new TextField;
+			
+			tf.width = 80;
+			tf.height = 40;
+			
+			tf.defaultTextFormat = ttf;
+			
+			tf.selectable = false;
+			
+			tf.text = "OK";
+			
+			sp.addChild(tf);
+			
+			sp.x = 80;
+			sp.y = 200;
 			
 			sp.addEventListener(MouseEvent.CLICK,inputOKClick);
 			
@@ -192,9 +213,25 @@ package
 			
 			sp = new flash.display.Sprite;
 			
-			sp.graphics.beginFill(0x0000FF);
+			sp.graphics.beginFill(0xFFFF00);
 			
-			sp.graphics.drawRect(240,200,80,40);
+			sp.graphics.drawRect(0,0,80,40);
+			
+			tf = new TextField;
+			
+			tf.width = 80;
+			tf.height = 40;
+			
+			tf.defaultTextFormat = ttf;
+			
+			tf.selectable = false;
+			
+			tf.text = "Cancel";
+			
+			sp.addChild(tf);
+			
+			sp.x = 240;
+			sp.y = 200;
 			
 			sp.addEventListener(MouseEvent.CLICK,inputCancelClick);
 			

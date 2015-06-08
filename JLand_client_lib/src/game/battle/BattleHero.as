@@ -255,7 +255,7 @@ package game.battle
 				
 				var powerColor:uint = 0xFFFF0000;
 				
-			}else if(power < Battle.POWER_CAN_MOVE){
+			}else if(power < Battle.POWER_CAN_MOVE || csv.heroType.moveType == 0){
 				
 				powerColor = 0xFFFFFF00;
 				

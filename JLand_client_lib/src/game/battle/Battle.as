@@ -319,13 +319,9 @@ package game.battle
 				
 				for(var i:int = 0 ; i < _myCards.length ; i++){
 					
-					var battleCard:BattleCard = new BattleCard;
+					var battleCard:BattleCard = new BattleCard(_myCards[i][1]);
 					
 					battleCard.uid = _myCards[i][0];
-					
-					battleCard.csv = Csv_hero.dic[_myCards[i][1]];
-					
-					battleCard.refresh();
 					
 					cardContainer.addChild(battleCard);
 					
@@ -434,6 +430,8 @@ package game.battle
 			for(var i:int = 0 ; i < myCards.length ; i++){
 			
 				var card:BattleCard = myCards[i];
+				
+				card.setIsSummoned(false);
 				
 				card.y = Starling.current.backBufferHeight - CARD_HEIGHT * 0.5;
 				
@@ -671,6 +669,8 @@ package game.battle
 			summonDic[_pos] = nowChooseCard;
 
 			heroContainer.addChild(nowChooseCard);
+			
+			nowChooseCard.setIsSummoned(true);
 			
 			var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_pos];
 			
@@ -1822,7 +1822,7 @@ package game.battle
 			
 			effectContainer.addChild(sp);
 			
-			var tf:TextField = new TextField(100,24,"兵数-" + _damage,ResourceFont.fontName,24,0xFF0000);
+			var tf:TextField = new TextField(100,24,"HP-" + _damage,ResourceFont.fontName,24,0xFF0000);
 			tf.hAlign = HAlign.CENTER;
 			
 			tf.x = -0.5 * tf.width;
@@ -1846,7 +1846,7 @@ package game.battle
 					hero.power = 0;
 				}
 				
-				tf = new TextField(100,24,"士气-" + _hitNum,ResourceFont.fontName,24,0xFF0000);
+				tf = new TextField(100,24,"M-" + _hitNum,ResourceFont.fontName,24,0xFF0000);
 				tf.hAlign = HAlign.CENTER;
 				
 				tf.x = -0.5 * tf.width;
@@ -2041,14 +2041,11 @@ package game.battle
 				
 				myAllCardsNum--;
 				
+				var card:BattleCard = new BattleCard(_cardID);
+				
 				if(_cardUid != -1){
 				
-					var card:BattleCard = new BattleCard;
-					
 					card.uid = _cardUid;
-					card.csv = Csv_hero.dic[_cardID];
-					
-					card.refresh();
 					
 					myCards.push(card);
 					
@@ -2059,12 +2056,6 @@ package game.battle
 				}else{
 					
 					isTween = true;
-					
-					card = new BattleCard;
-					
-					card.csv = Csv_hero.dic[_cardID];
-					
-					card.refresh();
 					
 					card.x = Starling.current.backBufferWidth * 0.5;
 					
@@ -2091,11 +2082,7 @@ package game.battle
 				
 				isTween = true;
 				
-				card = new BattleCard;
-				
-				card.csv = Csv_hero.dic[_oppCardID];
-				
-				card.refresh();
+				card = new BattleCard(_oppCardID);
 				
 				card.x = Starling.current.backBufferWidth * 0.5;
 				

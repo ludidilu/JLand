@@ -28,72 +28,78 @@ package game.battle
 		private var hpTf:TextField;
 		private var atkTf:TextField;
 		
-		public function BattleCard()
+		private var isSummoned:Boolean = false;
+		
+		public function BattleCard(_csvID:int)
 		{
 			super();
 			
+			csv = Csv_hero.dic[_csvID];
+			
 			addEventListener(TouchEvent.TOUCH,beTouch);
+		
+			img = new Image(ResourceHero.getTexture(csv.picName));
+			
+			img.x = -0.5 * img.width;
+			img.y = -0.5 * img.height;
+			
+			addChild(img);
+			
+			typeTf = new TextField(img.width,img.height,csv.heroType.name,ResourceFont.fontName,fontSize,0xFFFFFF);
+			
+			typeTf.hAlign = HAlign.LEFT;
+			typeTf.vAlign = VAlign.TOP;
+			
+			typeTf.x = img.x;
+			typeTf.y = img.y;
+			
+			addChild(typeTf);
+			
+			starTf = new TextField(img.width,img.height,String(csv.star),ResourceFont.fontName,fontSize,0xFFFFFF);
+			
+			starTf.hAlign = HAlign.RIGHT;
+			starTf.vAlign = VAlign.TOP;
+			
+			starTf.x = img.x;
+			starTf.y = img.y;
+			
+			addChild(starTf);
+			
+			hpTf = new TextField(img.width,img.height,String(csv.maxHp),ResourceFont.fontName,fontSize,0xFFFFFF);
+			
+			hpTf.hAlign = HAlign.RIGHT;
+			hpTf.vAlign = VAlign.BOTTOM;
+			
+			hpTf.x = img.x;
+			hpTf.y = img.y;
+			
+			addChild(hpTf);
+			
+			atkTf = new TextField(img.width,img.height,String(csv.atk),ResourceFont.fontName,fontSize,0xFFFFFF);
+			
+			atkTf.hAlign = HAlign.LEFT;
+			atkTf.vAlign = VAlign.BOTTOM;
+			
+			atkTf.x = img.x;
+			atkTf.y = img.y;
+			
+			addChild(atkTf);
+				
+			flatten();
 		}
 		
-		public function refresh():void{
+		public function setIsSummoned(_b:Boolean):void{
 			
-			unflatten();
-			
-			if(img == null){
+			if(isSummoned != _b){
 				
-				img = new Image(ResourceHero.getTexture(csv.picName));
+				isSummoned = _b;
 				
-				img.x = -0.5 * img.width;
-				img.y = -0.5 * img.height;
+				unflatten();
 				
-				addChild(img);
+				starTf.color = isSummoned ? 0xFF00FF : 0xFFFFFF;
 				
-				typeTf = new TextField(img.width,img.height,csv.heroType.name,ResourceFont.fontName,fontSize,0xFFFFFF);
-				
-				typeTf.hAlign = HAlign.LEFT;
-				typeTf.vAlign = VAlign.TOP;
-				
-				typeTf.x = img.x;
-				typeTf.y = img.y;
-				
-				addChild(typeTf);
-				
-				starTf = new TextField(img.width,img.height,String(csv.star),ResourceFont.fontName,fontSize,0xFFFFFF);
-				
-				starTf.hAlign = HAlign.RIGHT;
-				starTf.vAlign = VAlign.TOP;
-				
-				starTf.x = img.x;
-				starTf.y = img.y;
-				
-				addChild(starTf);
-				
-				hpTf = new TextField(img.width,img.height,String(csv.maxHp),ResourceFont.fontName,fontSize,0xFFFFFF);
-				
-				hpTf.hAlign = HAlign.RIGHT;
-				hpTf.vAlign = VAlign.BOTTOM;
-				
-				hpTf.x = img.x;
-				hpTf.y = img.y;
-				
-				addChild(hpTf);
-				
-				atkTf = new TextField(img.width,img.height,String(csv.atk),ResourceFont.fontName,fontSize,0xFFFFFF);
-				
-				atkTf.hAlign = HAlign.LEFT;
-				atkTf.vAlign = VAlign.BOTTOM;
-				
-				atkTf.x = img.x;
-				atkTf.y = img.y;
-				
-				addChild(atkTf);
-				
-			}else{
-				
-				img.texture = ResourceHero.getTexture(csv.picName);
+				flatten();
 			}
-			
-			flatten();
 		}
 		
 		private function beTouch(e:TouchEvent):void{
