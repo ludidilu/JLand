@@ -1,14 +1,14 @@
 package data.map
 {
-	import flash.events.Event;
-	import flash.net.URLLoaderDataFormat;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
+	
+	import csv.Csv;
 	
 	import data.Data;
 	import data.csv.Csv_map;
 	
-	import loader.SuperURLLoader;
+	import loader.SuperFileLoader;
 
 	public class Map
 	{
@@ -24,33 +24,33 @@ package data.map
 			
 			callBack = _callBack;
 			
-			loadNum = Csv_map.length;
+			loadNum = Csv.getLength(Csv_map.NAME);
 			
 			dic = new Dictionary;
 			
-			for each(var unit:Csv_map in Csv_map.dic){
+			var tmpDic:Dictionary = Csv.getDic(Csv_map.NAME);
+			
+			for each(var unit:Csv_map in tmpDic){
 				
-				SuperURLLoader.load(Data.path + path + unit.name,URLLoaderDataFormat.BINARY,loadMapOK,unit.id);
+				SuperFileLoader.load(Data.path + path + unit.name,SuperFileLoader.TYPE_BYTEARRAY,loadMapOK,unit.id);
 			}
 		}
 		
-		private static function loadMapOK(e:Event,_id:int):void{
-			
-			var byteArray:ByteArray = e.target.data;
+		private static function loadMapOK(_byteArray:ByteArray,_id:int):void{
 			
 			var unit:MapUnit = new MapUnit;
 			
-			unit.mapWidth = byteArray.readInt();
+			unit.mapWidth = _byteArray.readInt();
 			
-			unit.mapHeight = byteArray.readInt();
+			unit.mapHeight = _byteArray.readInt();
 			
-			var length:int = byteArray.readInt();
+			var length:int = _byteArray.readInt();
 			
 			for(var i:int = 0 ; i < length ; i++){
 				
-				var pos:int = byteArray.readInt();
+				var pos:int = _byteArray.readInt();
 				
-				var state:int = byteArray.readInt();
+				var state:int = _byteArray.readInt();
 				
 				unit.dic[pos] = state;
 			}

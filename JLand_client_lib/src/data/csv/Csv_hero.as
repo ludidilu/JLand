@@ -1,11 +1,12 @@
 package data.csv
 {
 	import flash.utils.Dictionary;
+	
+	import csv.Csv;
 
 	public class Csv_hero extends Csv
 	{
-		public static var dic:Dictionary = new Dictionary;
-		public static var length:int;
+		public static const NAME:String = "hero";
 		
 		public var name:String;
 		public var picName:String;
@@ -22,11 +23,11 @@ package data.csv
 		
 		public var heroType:Csv_heroType;
 		
-		public static function fix():void{
+		public static function fix(_dic:Dictionary):void{
 			
-			for each(var unit:Csv_hero in dic){
+			for each(var unit:Csv_hero in _dic){
 				
-				unit.heroType = Csv_heroType.dic[unit.type];
+				unit.heroType = Csv.getData(Csv_heroType.NAME,unit.type) as Csv_heroType;
 			}
 		}
 	}

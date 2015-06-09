@@ -1,7 +1,8 @@
 package application
 {
 	import flash.display.Stage;
-	import flash.events.MouseEvent;
+	
+	import connect.Connect;
 	
 	import data.Data;
 	
@@ -10,7 +11,7 @@ package application
 	import loader.SuperLoader;
 	import loader.SuperURLLoader;
 	
-	import publicTools.connect.Connect;
+	import publicTools.connect.Connect_handle;
 	import publicTools.tools.UpdateFrameUtil;
 	
 	import starling.core.Starling;
@@ -20,15 +21,12 @@ package application
 	public class InitApplication
 	{
 		private static var initNum:int = 2;
-		private static var port:int;
 		
 		public function InitApplication()
 		{
 		}
 		
-		public static function start(_stage:Stage,_port:int):void{
-			
-			port = _port;
+		public static function start(_stage:Stage):void{
 			
 			SuperLoader.init(5);
 			SuperURLLoader.init(5);
@@ -59,7 +57,7 @@ package application
 			
 			if(initNum == 0){
 				
-				Connect.init(port,Game.start);
+				Connect_handle.init(Game.start);
 			}
 		}
 	}

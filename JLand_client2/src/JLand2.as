@@ -13,8 +13,6 @@ package
 	[SWF(width="960",height="640",frameRate="60")]
 	public class JLand2 extends Sprite
 	{
-		private static const port:int = 1983;
-		
 		public function JLand2()
 		{
 			addEventListener(Event.ADDED_TO_STAGE,addedToStage);
@@ -30,8 +28,7 @@ package
 			
 			CatchError.init(this);
 			
-			InitApplication.start(stage,port);
-			
+			InitApplication.start(stage);
 		}
 		
 	}

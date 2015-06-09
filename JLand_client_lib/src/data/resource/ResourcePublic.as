@@ -1,14 +1,11 @@
 package data.resource
 {
-	import flash.display.Bitmap;
-	import flash.events.Event;
-	import flash.net.URLLoaderDataFormat;
+	import flash.display.BitmapData;
 	import flash.utils.Dictionary;
 	
 	import data.Data;
 	
-	import loader.SuperLoader;
-	import loader.SuperURLLoader;
+	import loader.SuperFileLoader;
 	
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
@@ -36,18 +33,20 @@ package data.resource
 			
 			callBack = _callBack;
 			
-			SuperLoader.load(Data.path + Resource.path + fileName + ".png",getPic);
+			SuperFileLoader.load(Data.path + Resource.path + fileName + ".png",SuperFileLoader.TYPE_PICTURE,getPic);
 			
-			SuperURLLoader.load(Data.path + Resource.path + fileName + ".xml",URLLoaderDataFormat.TEXT,getXML);
+//			SuperLoader.load(Data.path + Resource.path + fileName + ".png",getPic);
+			
+			SuperFileLoader.load(Data.path + Resource.path + fileName + ".xml",SuperFileLoader.TYPE_TEXT,getXML);
+			
+//			SuperURLLoader.load(Data.path + Resource.path + fileName + ".xml",URLLoaderDataFormat.TEXT,getXML);
 		}
 		
-		private static function getPic(e:Event):void{
+		private static function getPic(_bitmapData:BitmapData):void{
 			
-			var bitmap:Bitmap = e.target.loader.content;
+			publicTexture = Texture.fromBitmapData(_bitmapData,false);
 			
-			publicTexture = Texture.fromBitmap(bitmap,false);
-			
-			bitmap.bitmapData.dispose();
+			_bitmapData.dispose();
 			
 			if(xmlLoaded){
 				
@@ -59,9 +58,9 @@ package data.resource
 			}
 		}
 		
-		private static function getXML(e:Event):void{
+		private static function getXML(_str:String):void{
 			
-			publicXML = new XML(e.target.data); 
+			publicXML = new XML(_str); 
 			
 			if(textureLoaded){
 				

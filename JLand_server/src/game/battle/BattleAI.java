@@ -164,7 +164,7 @@ public class BattleAI {
 	
 	private static int getSummonPos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, Csv_hero _hero){
 		
-		String str = "";
+//		String str = "";
 		
 		ArrayList<Integer> posArr = new ArrayList<>();
 		
@@ -182,19 +182,19 @@ public class BattleAI {
 			
 			int type = entry.getValue();
 			
-			if(type == 2 && _heroMap.get(pos) == null && !_summonData.containsKey(pos)){
+			if(type == 2 && !_heroMap.containsKey(pos) && !_summonData.containsKey(pos)){
 				
 				posArr.add(pos);
 				
-				str = str + "pos:" + pos;
+//				str = str + "pos:" + pos;
 				
 				int tmpScore = 0;
 				
 				if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos)){
 					
-					tmpScore = tmpScore + 3;
+					tmpScore = tmpScore + 4;
 					
-					allScore = allScore + 3;
+					allScore = allScore + 4;
 				}
 				
 				int[] tmpArr = _neighbourPosMap.get(pos);//先找1格外的地图格子
@@ -208,7 +208,7 @@ public class BattleAI {
 					
 					int type2 = _map.get(pos2);
 					
-					if(type2 == 1){//是敌人地盘  加2分
+					if(type2 == 1){//是敌人地盘  加4分
 						
 						tmpScore = tmpScore + 4;
 						
@@ -217,19 +217,19 @@ public class BattleAI {
 					
 					if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos2)){
 						
-						tmpScore = tmpScore + 2;
+						tmpScore = tmpScore + 3;
 						
-						allScore = allScore + 2;
+						allScore = allScore + 3;
 					}
 				}
 						
-				str = str + " score:" + tmpScore + "\n";
+//				str = str + " score:" + tmpScore + "\n";
 				
 				scoreArr.add(tmpScore);
 			}
 		}
 		
-		service.process("sendMsg", str);
+//		service.process("sendMsg", str);
 		
 		if(allScore > 0){
 			
@@ -275,32 +275,15 @@ public class BattleAI {
 					
 					BattleHero hero = _heroMap.get(pos);
 					
-					if(hero != null){
+					if(hero != null && !hero.isHost && !_moveMap.containsKey(pos)){
 						
-						if(!hero.isHost){
-							
-							if(_moveMap.containsKey(pos)){
-								
-								posArr.add(pos);
-								
-								int score = getMovePosScore(_neighbourPosMap, _map, _heroMap, _hero, pos);
-								
-								scoreArr.add(score);
-								
-								allScore = allScore + score;
-							}
-						}
+						continue;
 						
 					}else{
 						
 						posArr.add(pos);
 						
 						int score = getMovePosScore(_neighbourPosMap, _map, _heroMap, _hero, pos);
-						
-						if(_map.get(pos) == 1){
-							
-							score = score + 3;
-						}
 						
 						scoreArr.add(score);
 						
@@ -341,18 +324,18 @@ public class BattleAI {
 	
 	private static int getMovePosScore(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, Csv_hero _hero, int _pos){
 		
-		int score = 0;
+		int score = 1;
 		
 		int type2 = _map.get(_pos);
 		
 		if(type2 == 1){//是敌人地盘  加3分
 			
-			score = score + 3;
+			score = score + 5;
 		}
 		
 		if(canHitEnemy(_neighbourPosMap,_heroMap,_hero,_pos)){
 			
-			score = score + 3;
+			score = score + 5;
 		}
 		
 		return score;

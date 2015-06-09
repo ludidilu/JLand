@@ -1,11 +1,8 @@
 package data.resource
 {
-	import flash.events.Event;
-	import flash.net.URLLoaderDataFormat;
-	
 	import data.Data;
 	
-	import loader.SuperURLLoader;
+	import loader.SuperFileLoader;
 	
 	import starling.text.BitmapFont;
 	import starling.text.TextField;
@@ -23,12 +20,14 @@ package data.resource
 			
 			callBack = _callBack;
 			
-			SuperURLLoader.load(Data.path + Resource.path + fileName,URLLoaderDataFormat.TEXT,getXML);
+			SuperFileLoader.load(Data.path + Resource.path + fileName,SuperFileLoader.TYPE_TEXT,getXML);
+			
+//			SuperURLLoader.load(Data.path + Resource.path + fileName,URLLoaderDataFormat.TEXT,getXML);
 		}
 		
-		private static function getXML(e:Event):void{
+		private static function getXML(_str:String):void{
 			
-			fontXML = new XML(e.target.data);
+			fontXML = new XML(_str);
 			
 			createFont();
 		}

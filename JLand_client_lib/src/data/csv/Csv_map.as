@@ -1,11 +1,10 @@
 package data.csv
 {
-	import flash.utils.Dictionary;
+	import csv.Csv;
 
 	public class Csv_map extends Csv
 	{
-		public static var dic:Dictionary = new Dictionary;
-		public static var length:int;
+		public static const NAME:String = "map";
 		
 		public var name:String;
 	}

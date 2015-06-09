@@ -1,5 +1,7 @@
 package game.battle
 {
+	import csv.Csv;
+	
 	import data.csv.Csv_hero;
 	import data.resource.ResourceFont;
 	import data.resource.ResourceHero;
@@ -17,7 +19,7 @@ package game.battle
 	{
 		private static const fontSize:int = 20;
 		
-		public var csv:Csv_hero;
+		public var heroCsv:Csv_hero;
 		
 		private var img:Image;
 		
@@ -34,18 +36,18 @@ package game.battle
 		{
 			super();
 			
-			csv = Csv_hero.dic[_csvID];
+			heroCsv = Csv.getData(Csv_hero.NAME,_csvID) as Csv_hero;
 			
 			addEventListener(TouchEvent.TOUCH,beTouch);
 		
-			img = new Image(ResourceHero.getTexture(csv.picName));
+			img = new Image(ResourceHero.getTexture(heroCsv.picName));
 			
 			img.x = -0.5 * img.width;
 			img.y = -0.5 * img.height;
 			
 			addChild(img);
 			
-			typeTf = new TextField(img.width,img.height,csv.heroType.name,ResourceFont.fontName,fontSize,0xFFFFFF);
+			typeTf = new TextField(img.width,img.height,heroCsv.heroType.name,ResourceFont.fontName,fontSize,0xFFFFFF);
 			
 			typeTf.hAlign = HAlign.LEFT;
 			typeTf.vAlign = VAlign.TOP;
@@ -55,7 +57,7 @@ package game.battle
 			
 			addChild(typeTf);
 			
-			starTf = new TextField(img.width,img.height,String(csv.star),ResourceFont.fontName,fontSize,0xFFFFFF);
+			starTf = new TextField(img.width,img.height,String(heroCsv.star),ResourceFont.fontName,fontSize,0xFFFFFF);
 			
 			starTf.hAlign = HAlign.RIGHT;
 			starTf.vAlign = VAlign.TOP;
@@ -65,7 +67,7 @@ package game.battle
 			
 			addChild(starTf);
 			
-			hpTf = new TextField(img.width,img.height,String(csv.maxHp),ResourceFont.fontName,fontSize,0xFFFFFF);
+			hpTf = new TextField(img.width,img.height,String(heroCsv.maxHp),ResourceFont.fontName,fontSize,0xFFFFFF);
 			
 			hpTf.hAlign = HAlign.RIGHT;
 			hpTf.vAlign = VAlign.BOTTOM;
@@ -75,7 +77,7 @@ package game.battle
 			
 			addChild(hpTf);
 			
-			atkTf = new TextField(img.width,img.height,String(csv.atk),ResourceFont.fontName,fontSize,0xFFFFFF);
+			atkTf = new TextField(img.width,img.height,String(heroCsv.atk),ResourceFont.fontName,fontSize,0xFFFFFF);
 			
 			atkTf.hAlign = HAlign.LEFT;
 			atkTf.vAlign = VAlign.BOTTOM;

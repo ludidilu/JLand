@@ -10,6 +10,8 @@ package game.battle
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
+	import csv.Csv;
+	
 	import data.csv.Csv_hero;
 	import data.map.Map;
 	import data.map.MapUnit;
@@ -356,7 +358,7 @@ package game.battle
 						hero.isMine = false;
 					}
 					
-					hero.csv = Csv_hero.dic[vec[1]];
+					hero.csv = Csv.getData(Csv_hero.NAME,vec[1]) as Csv_hero;
 					
 					hero.hp = vec[2];
 					
@@ -461,7 +463,7 @@ package game.battle
 		
 		public function cardTouchBegin(_card:BattleCard,_globalX:Number,_globalY:Number):void{
 			
-			showHeroDetail(_globalX,_globalY,_card.csv.id);
+			showHeroDetail(_globalX,_globalY,_card.heroCsv.id);
 			
 			clearNowChooseCard();
 			
@@ -569,7 +571,7 @@ package game.battle
 				
 				if(cardTouchMoveFun == cardMove0){//从手里拉出来的
 					
-					if(money >= nowChooseCard.csv.star){
+					if(money >= nowChooseCard.heroCsv.star){
 						
 						myCards.splice(myCards.indexOf(nowChooseCard),1);
 						
@@ -605,7 +607,7 @@ package game.battle
 					
 					cardContainer.addChild(nowChooseCard);
 					
-					money = money + nowChooseCard.csv.star;
+					money = money + nowChooseCard.heroCsv.star;
 					
 					refreshMoneyTf();
 					
@@ -651,7 +653,7 @@ package game.battle
 		
 		public function summon(_pos:int):void{
 			
-			money = money - nowChooseCard.csv.star;
+			money = money - nowChooseCard.heroCsv.star;
 			
 			refreshMoneyTf();
 			
@@ -1081,7 +1083,7 @@ package game.battle
 			
 			hero.pos = vec[2];
 			
-			hero.csv = Csv_hero.dic[vec[1]];
+			hero.csv = Csv.getData(Csv_hero.NAME,vec[1]) as Csv_hero;
 			
 			hero.hp = hero.csv.maxHp;
 			
