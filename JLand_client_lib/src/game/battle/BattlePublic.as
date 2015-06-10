@@ -68,8 +68,6 @@ package game.battle
 		
 		public static function getAttackerPos(_mapWidth:int,_pos:int,_num:int,_attackerVec:Vector.<int>):Vector.<int>{
 			
-			var vec:Vector.<int> = new Vector.<int>(_num,true);
-			
 			if(_num == 2){
 				
 				for(var i:int = 0 ; i < _attackerVec.length ; i++){
@@ -88,6 +86,8 @@ package game.battle
 						var result:int = Math.abs(dir1 - dir2);
 						
 						if(result != 1 && result != 5){
+							
+							var vec:Vector.<int> = new Vector.<int>(2,true);
 							
 							vec[0] = _attackerVec[i];
 							vec[1] = _attackerVec[m];
@@ -115,6 +115,8 @@ package game.battle
 						result = Math.abs(dir1 - dir2);
 						
 						if(result == 3){
+							
+							vec = new Vector.<int>(2,true);
 							
 							vec[0] = _attackerVec[i];
 							vec[1] = _attackerVec[m];
@@ -151,6 +153,8 @@ package game.battle
 							result = Math.pow(2,dir1) + Math.pow(2,dir2) + Math.pow(2,dir3);
 							
 							if(result == 21 || result == 42){
+								
+								vec = new Vector.<int>(3,true);
 								
 								vec[0] = _attackerVec[i];
 								vec[1] = _attackerVec[m];

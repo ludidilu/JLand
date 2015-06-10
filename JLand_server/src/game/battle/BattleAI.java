@@ -217,9 +217,9 @@ public class BattleAI {
 					
 					if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos2)){
 						
-						tmpScore = tmpScore + 3;
+						tmpScore = tmpScore + 2;
 						
-						allScore = allScore + 3;
+						allScore = allScore + 2;
 					}
 				}
 						
@@ -259,6 +259,8 @@ public class BattleAI {
 	
 	private static int getMovePos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, HashMap<Integer, Csv_hero> _moveMap, Csv_hero _hero, int _pos){
 		
+		String str = "";
+		
 		ArrayList<Integer> posArr = new ArrayList<>();
 		
 		ArrayList<Integer> scoreArr = new ArrayList<>();
@@ -288,12 +290,14 @@ public class BattleAI {
 						scoreArr.add(score);
 						
 						allScore = allScore + score;
+						
+						str = str + "pos:" + pos + " score:" + score + "\n";
 					}
 				}
 			}
 		}
 		
-		
+		service.process("sendMsg", str);
 		
 		
 		if(allScore > 0){

@@ -9,16 +9,14 @@ package
 		public var star:int;
 		public var power:int;
 		public var attNum:int;
-		public var atkNum:int;
-		public var hpNum:int;
-		public var bu:int;
-		public var gong:int;
-		public var qiang:int;
-		public var qi:int;
-		public var wall:int;
-		public var bao:int;
-		public var pao:int;
-		public var sai:int;
+		public var type0:int;
+		public var type1:int;
+		public var type2:int;
+		public var type3:int;
+		public var type4:int;
+		public var type5:int;
+		public var type6:int;
+		public var type7:int;
 		
 		public function Csv_heroData()
 		{
