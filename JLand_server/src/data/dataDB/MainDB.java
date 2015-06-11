@@ -29,11 +29,14 @@ public class MainDB {
         	
         	service.userData.heros = new ArrayList<>();
         	
-        	String[] tmpStrVec = herosStr.split("\\$");
+        	if(!herosStr.equals("")){
         	
-        	for(int i = 0 ; i < tmpStrVec.length ; i++){
-        		
-        		service.userData.heros.add(Integer.parseInt(tmpStrVec[i]));
+	        	String[] tmpStrVec = herosStr.split("\\$");
+	        	
+	        	for(int i = 0 ; i < tmpStrVec.length ; i++){
+	        		
+	        		service.userData.heros.add(Integer.parseInt(tmpStrVec[i]));
+	        	}
         	}
         }
 	}

@@ -18,7 +18,10 @@ public class Csv_hero extends Csv{
 	public int[] skillTargetArg;
 	public int[] skillCondition;
 	public int[] skillConditionArg;
-	public int[][] skillEffect;
+	public int[][] targetCondition;
+	public int[][] targetConditionArg;
+	public boolean[][][] effectTarget;
+	public int[][][] skillEffect;
 	public int[][][] skillEffectArg;
 	
 	public int beSkillTargetWeight;
@@ -34,14 +37,17 @@ public class Csv_hero extends Csv{
 			
 			for(int m = 0 ; m < skillEffect[i].length ; m++){
 				
-				if(skillEffect[i][m] == 1){
-					
-					if(silentSkillIndexArr == null){
+				for(int n = 0 ; n < skillEffect[i][m].length ; n++){
+				
+					if(skillEffect[i][m][n] == 1){
 						
-						silentSkillIndexArr = new ArrayList<>();
+						if(silentSkillIndexArr == null){
+							
+							silentSkillIndexArr = new ArrayList<>();
+						}
+						
+						silentSkillIndexArr.add(i);
 					}
-					
-					silentSkillIndexArr.add(i);
 				}
 			}
 		}

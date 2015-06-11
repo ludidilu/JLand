@@ -70,26 +70,22 @@ package game.battle
 				hpColor = 0xFF00FF00;
 			}
 			
-			if(atkFix > 0){
+			var tmpAtk:int = csv.atk + atkFix;
+			
+			if(tmpAtk < 0){
 				
-				var tmpAtk:int = csv.atk + atkFix;
+				tmpAtk = 0;
+			}
+			
+			if(tmpAtk > csv.atk){
 				
 				var atkColor:uint = 0xFF00FF00;
 				
-			}else if(atkFix < 0){
-				
-				tmpAtk = csv.atk + atkFix;
-				
-				if(tmpAtk < 0){
-					
-					tmpAtk = 0;
-				}
+			}else if(tmpAtk < csv.atk){
 				
 				atkColor = 0xFFFF0000;
 				
 			}else{
-				
-				tmpAtk = csv.atk;
 				
 				atkColor = 0xFFFFFFFF;
 			}

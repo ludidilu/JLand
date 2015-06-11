@@ -1126,6 +1126,11 @@ public class Battle extends SuperService{
 
 			BattleHero hero = iter.next();
 			
+			if(hero.isStopMove){//在上个回合结束时再遍历一次数组重置定身属性不太合算  所以在这里重置定身属性
+				
+				hero.isStopMove = false;
+			}
+			
 			if(hero.isJustSummon || hero.power == 0 || hero.csv.silentSkillIndexArr == null){
 				
 				continue;
@@ -1502,7 +1507,7 @@ public class Battle extends SuperService{
 				
 				BattleHero hero = iter.next();
 				
-				if(hero.power < POWER_CAN_MOVE){
+				if(hero.power < POWER_CAN_MOVE || hero.isStopMove){
 					
 					iter.remove();
 					
@@ -1526,7 +1531,7 @@ public class Battle extends SuperService{
 				
 				BattleHero hero = iter.next();
 				
-				if(hero.power < POWER_CAN_MOVE){
+				if(hero.power < POWER_CAN_MOVE || hero.isStopMove){
 					
 					iter.remove();
 					
@@ -1595,6 +1600,8 @@ public class Battle extends SuperService{
 	public void battleOver(){
 		
 		canMoveHeroUidArr.clear();
+		
+		isActioned1 = isActioned2 = false;
 		
 		service1 = null;
 		

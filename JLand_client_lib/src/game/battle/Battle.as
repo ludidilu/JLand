@@ -30,6 +30,7 @@ package game.battle
 	import starling.text.TextField;
 	import starling.textures.Texture;
 	import starling.utils.HAlign;
+	import starling.utils.VAlign;
 
 	public class Battle extends Sprite
 	{
@@ -1323,31 +1324,37 @@ package game.battle
 			}
 		}
 		
+		private static const tfVerticalGap:Number = 24;
+		private static const tfSize:int = 30;
+		private static const tfWidth:int = 100;
+		private static const tfHeight:int = 30;
+		
 		private function skillShootTarget(_index:int,_pos:int,_targetPos:int,_vec:Vector.<int>,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_oppCardID:int = 0,_canMoveData:Vector.<int> = null):void{
 			
 			var sp:Sprite = new Sprite;
 			
 			effectContainer.addChild(sp);
 			
-			for(var i:int = 0 ; i < _vec.length ; i = i + 2){
+			for(var i:int = 0 ; i < _vec.length / 2 ; i++){
 				
-				var type:int = _vec[i];
-				var data:int = _vec[i + 1];
+				var type:int = _vec[i * 2];
+				var data:int = _vec[i * 2 + 1];
 				
 				switch(type){
 					
 					case 1:
 						
-						var str:String = "沉默";
+						var str:String = "Silent";
 						var color:uint = 0xFF0000;
 						
-						var tf:TextField = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						var tf:TextField = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
 						
 						break;
 						
@@ -1365,6 +1372,8 @@ package game.battle
 							
 							color = 0xFF0000;
 							
+							hero.tremble();
+							
 						}else if(data == 0){
 							
 							str = "HP-" + data;
@@ -1378,13 +1387,14 @@ package game.battle
 							color = 0x00FF00;
 						}
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
 						
 						break;
 					
@@ -1409,13 +1419,14 @@ package game.battle
 							color = 0x00FF00;
 						}
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
 						
 						break;
 					
@@ -1433,17 +1444,50 @@ package game.battle
 							
 						color = 0x00FF00;
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
 						
 						break;
 					
 					case 5:
+						
+						str = "Root";
+						color = 0xFF0000;
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						
+						break;
+					
+					case 101:
+						
+						str = "Silent";
+						color = 0xFF0000;
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						
+						break;
+					
+					case 102:
 						
 						hero = heroData[_pos];
 						
@@ -1456,6 +1500,8 @@ package game.battle
 							str = "HP" + data;
 							
 							color = 0xFF0000;
+							
+							hero.tremble();
 							
 						}else if(data == 0){
 							
@@ -1470,17 +1516,18 @@ package game.battle
 							color = 0x00FF00;
 						}
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
 						
 						break;
 					
-					case 6:
+					case 103:
 						
 						hero = heroData[_pos];
 						
@@ -1501,17 +1548,18 @@ package game.battle
 							color = 0x00FF00;
 						}
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
 						
 						break;
 					
-					case 7:
+					case 104:
 						
 						hero = heroData[_pos];
 						
@@ -1525,13 +1573,30 @@ package game.battle
 						
 						color = 0x00FF00;
 						
-						tf = new TextField(100,24,str,ResourceFont.fontName,24,color);
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
 						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
 						
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - 24 * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						
+						break;
+					
+					case 105:
+						
+						str = "Root";
+						color = 0xFF0000;
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
 						
 						break;
 				}
