@@ -1313,11 +1313,11 @@ package game.battle
 				
 				if(index == 0){
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[index,pos,targetPos,vec2,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[sp,index,pos,targetPos,vec2,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]});
 					
 				}else{
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[index,pos,targetPos,vec2]});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:skillShootTarget,onCompleteParams:[sp,index,pos,targetPos,vec2]});
 				}
 				
 				index++;
@@ -1325,11 +1325,14 @@ package game.battle
 		}
 		
 		private static const tfVerticalGap:Number = 24;
+		private static const tfFix:Number = 16;
 		private static const tfSize:int = 30;
 		private static const tfWidth:int = 100;
 		private static const tfHeight:int = 30;
 		
-		private function skillShootTarget(_index:int,_pos:int,_targetPos:int,_vec:Vector.<int>,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_oppCardID:int = 0,_canMoveData:Vector.<int> = null):void{
+		private function skillShootTarget(_arrow:Sprite,_index:int,_pos:int,_targetPos:int,_vec:Vector.<int>,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_oppCardID:int = 0,_canMoveData:Vector.<int> = null):void{
+			
+			TweenLite.to(_arrow,0.5,{alpha:0,onComplete:arrowAlphaOutOver,onCompleteParams:[_arrow]});
 			
 			var sp:Sprite = new Sprite;
 			
@@ -1354,7 +1357,7 @@ package game.battle
 						var tmpBattleMapUnit:BattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
 						
 						break;
 						
@@ -1394,7 +1397,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
 						
 						break;
 					
@@ -1426,7 +1429,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
 						
 						break;
 					
@@ -1451,7 +1454,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
 						
 						break;
 					
@@ -1467,7 +1470,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_targetPos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * i;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
 						
 						break;
 					
@@ -1483,7 +1486,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
 					
@@ -1523,7 +1526,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
 					
@@ -1555,7 +1558,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
 					
@@ -1580,7 +1583,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
 					
@@ -1596,7 +1599,7 @@ package game.battle
 						tmpBattleMapUnit = battleMap.dic[_pos];
 						
 						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
-						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - 16 - tfVerticalGap * _index;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
 				}
@@ -1608,11 +1611,28 @@ package game.battle
 			
 			if(_skillData != null){
 				
-				TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone,onComplete:delayCall,onCompleteParams:[0.5,startSkill,[_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]]});
+				TweenLite.to(sp,2,{y:sp.y - 30,ease:Linear.easeNone,onComplete:skillTfTweenOver1,onCompleteParams:[sp,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]});
 				
 			}else{
 			
-				TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone});
+				TweenLite.to(sp,2,{y:sp.y - 30,ease:Linear.easeNone,onComplete:skillTfTweenOver1,onCompleteParams:[sp]});
+			}
+		}
+		
+		private function arrowAlphaOutOver(_arrow:Sprite):void{
+			
+			effectContainer.removeChild(_arrow);
+		}
+		
+		private function skillTfTweenOver1(_sp:Sprite,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_oppCardID:int = 0,_canMoveData:Vector.<int> = null):void{
+			
+			if(_skillData != null){
+			
+				TweenLite.to(_sp,0.5,{alpha:0,ease:Linear.easeNone,onComplete:startSkill,onCompleteParams:[_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]});
+			
+			}else{
+				
+				TweenLite.to(_sp,0.5,{alpha:0,ease:Linear.easeNone});
 			}
 		}
 		
@@ -1675,7 +1695,6 @@ package game.battle
 				TweenLite.delayedCall(0.5,startAttack,[_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]);
 			}
 			
-//			startAttack(_attackData,_cardUid,_cardID,_canMoveData);
 		}
 		
 		private function spriteAlphaOutOver(_sp:Sprite):void{
@@ -1684,21 +1703,6 @@ package game.battle
 		}
 		
 		private function startAttack(_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
-			
-//			for each(var sss:Vector.<Vector.<int>> in _attackData){
-//				
-//				var gg:String = " ";
-//				
-//				for(var ss:int = 1 ; ss < sss.length ; ss++){
-//					
-//					for(var s:int = 0 ; s < sss[ss].length ; s++){
-//						
-//						gg = gg + sss[ss][s] + ",";
-//					}
-//				}
-//				
-//				trace("---:",sss[0][0],sss[0][1],gg);
-//			}
 			
 			var attackDic:Dictionary = new Dictionary;
 			
@@ -1771,6 +1775,8 @@ package game.battle
 		}
 		
 		private function startAttack1(_attackDic:Dictionary,_beAttackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
+			
+			effectContainer.removeChildren();
 			
 			var hasBeAttack:Boolean = false;
 			
@@ -1868,32 +1874,37 @@ package game.battle
 				
 				if(i == vec.length - 1){
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[_pos,damage,hitNum,startAttack1,_attackDic,_beAttackDic,_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[sp,_pos,damage,hitNum,startAttack1,_attackDic,_beAttackDic,_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]});
 					
 				}else{
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:arrowAlphaOut,onCompleteParams:[sp]});
 				}
 			}
 		}
 		
-		private function shoowTarget(_pos:int,_damage:int,_hitNum:int,_callBack:Function = null,...arg):void{
+		private function arrowAlphaOut(_arrow:Sprite):void{
+			
+			TweenLite.to(_arrow,0.5,{alpha:0,onComplete:arrowAlphaOutOver,onCompleteParams:[_arrow]});
+		}
+
+		private function shoowTarget(_arrow:Sprite,_pos:int,_damage:int,_hitNum:int,_callBack:Function = null,...arg):void{
+			
+			arrowAlphaOut(_arrow);
 			
 			var hero:BattleHero = heroData[_pos];
 			
 			hero.hpChange = hero.hpChange - _damage;
 			
-//			hero.hp = hero.hp - _damage;
-			
 			var sp:Sprite = new Sprite;
 			
 			effectContainer.addChild(sp);
 			
-			var tf:TextField = new TextField(100,24,"HP-" + _damage,ResourceFont.fontName,24,0xFF0000);
+			var tf:TextField = new TextField(tfWidth,tfHeight,"HP-" + _damage,ResourceFont.fontName,tfSize,0xFF0000);
 			tf.hAlign = HAlign.CENTER;
 			
 			tf.x = -0.5 * tf.width;
-			tf.y = -0.5 * tf.height - 40;
+			tf.y = -0.5 * tf.height - tfFix;
 			
 			sp.addChild(tf);
 			
@@ -1901,8 +1912,6 @@ package game.battle
 			
 			sp.x = tmpBattleMapUnit.x;
 			sp.y = tmpBattleMapUnit.y;
-			
-			TweenLite.to(sp,2,{y:sp.y - 30,alpha:0,ease:Linear.easeNone});
 			
 			if(_hitNum > 0){
 			
@@ -1913,33 +1922,32 @@ package game.battle
 					hero.power = 0;
 				}
 				
-				tf = new TextField(100,24,"M-" + _hitNum,ResourceFont.fontName,24,0xFF0000);
+				tf = new TextField(tfWidth,tfHeight,"M-" + _hitNum,ResourceFont.fontName,tfSize,0xFF0000);
 				tf.hAlign = HAlign.CENTER;
 				
 				tf.x = -0.5 * tf.width;
-				tf.y = -0.5 * tf.height - 16;
+				tf.y = -0.5 * tf.height - tfFix - tfVerticalGap;
 				
 				sp.addChild(tf);
 			}
 			
 			sp.flatten();
 			
+			TweenLite.to(sp,2,{y:sp.y - 30,ease:Linear.easeNone,onComplete:shoowTargetOver,onCompleteParams:[sp,_callBack,arg]});
+			
 			hero.refresh(false);
 			
-			hero.tremble(trembleOver,_callBack,arg);
+			hero.tremble();
 		}
 		
-		private function trembleOver(_callBack:Function,_arg:Array):void{
+		private function shoowTargetOver(_sp:Sprite,_callBack:Function,_arg:Array):void{
 			
-			effectContainer.removeChildren();
-			
-			if(_callBack != null){
-			
-				TweenLite.delayedCall(1.5,_callBack,_arg);
-			}
+			TweenLite.to(_sp,0.5,{alpha:0,onComplete:_callBack,onCompleteParams:_arg});
 		}
 		
 		private function startAttack2(_attackDic:Dictionary,_beHitDic:Dictionary,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
+			
+			effectContainer.removeChildren();
 			
 			var hasAttack:Boolean = false;
 			
@@ -2002,11 +2010,11 @@ package game.battle
 					
 					hasAddCallBack = true;
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[targetPos,damage,0,startAttack2,_attackDic,_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[sp,targetPos,damage,0,startAttack2,_attackDic,_beHitDic,_cardUid,_cardID,_oppCardID,_canMoveData]});
 					
 				}else{
 					
-					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[targetPos,damage,0]});
+					TweenLite.to(sp,0.8,{x:targetBattleMapUnit.x - Math.cos(sp.rotation) * sp.width * 0.5,y:targetBattleMapUnit.y - Math.sin(sp.rotation) * sp.width * 0.5,ease:ElasticIn.ease,onComplete:shoowTarget,onCompleteParams:[sp,targetPos,damage,0]});
 				}
 			}
 		}
