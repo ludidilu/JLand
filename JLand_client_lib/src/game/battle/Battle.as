@@ -25,8 +25,12 @@ package game.battle
 	import starling.core.Starling;
 	import starling.display.Button;
 	import starling.display.Image;
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import starling.events.Touch;
+	import starling.events.TouchEvent;
+	import starling.events.TouchPhase;
 	import starling.text.TextField;
 	import starling.textures.Texture;
 	import starling.utils.HAlign;
@@ -54,6 +58,7 @@ package game.battle
 		private var moneyContainer:Sprite;
 		private var heroDetailContainer:Sprite;
 		private var btContainer:Sprite;
+		private var alertContainer:Sprite;
 		
 		internal var isHost:Boolean;
 		private var mapUnit:MapUnit;
@@ -97,6 +102,7 @@ package game.battle
 		private var oppCardsNumTf:TextField;
 		private var myAllCardsNumTf:TextField;
 		private var oppAllCardsNumTf:TextField;
+		private var alertTf:TextField;
 		
 		private var heroDetailPanel:BattleHeroDetailPanel;
 		
@@ -107,6 +113,8 @@ package game.battle
 		public static var instance:Battle;
 		
 		private var tmpRect:Rectangle = new Rectangle;
+		private var tmpPoint:Point = new Point;
+		private var tmpPoint2:Point = new Point;
 		
 		public function Battle()
 		{
@@ -234,6 +242,40 @@ package game.battle
 			quitBt.addEventListener(Event.TRIGGERED,quitBattle);
 			
 			btContainer.addChild(quitBt);
+			
+			alertContainer = new Sprite;
+			
+			addChild(alertContainer);
+			
+			var sp:Sprite = new Sprite;
+			
+			var quad:starling.display.Quad = new starling.display.Quad(Starling.current.backBufferWidth,Starling.current.backBufferHeight,0x0);
+			
+			quad.alpha = 0.3;
+			
+			sp.addChild(quad);
+			
+			quad = new starling.display.Quad(400,300,0xFFFF0000);
+			
+			quad.x = (Starling.current.backBufferWidth - quad.width) * 0.5;
+			quad.y = (Starling.current.backBufferHeight - quad.height) * 0.5;
+			
+			sp.addChild(quad);
+			
+			sp.flatten();
+			
+			alertContainer.addChild(sp);
+			
+			alertTf = new TextField(400,300,"",ResourceFont.fontName,24);
+			
+			alertTf.x = (Starling.current.backBufferWidth - alertTf.width) * 0.5;
+			alertTf.y = (Starling.current.backBufferHeight - alertTf.height) * 0.5;
+			
+			alertContainer.addChild(alertTf);
+			
+			alertContainer.visible = false;
+			
+			alertContainer.addEventListener(TouchEvent.TOUCH,alertContainerBeTouch);
 		}
 		
 		public function start(_isHost:Boolean,_nowRound:int,_maxRound:int,_mapID:int,_mapData:Vector.<int>,_myCards:Vector.<Vector.<int>>,_oppCardsNum:int,_userAllCardsNum1:int,_userAllCardsNum2:int,_heroData:Vector.<Vector.<int>>,_canMoveData:Vector.<int>,_isActioned:Boolean,_actionHeroData:Vector.<Vector.<int>>,_actionSummonData:Vector.<Vector.<int>>):void{
@@ -462,9 +504,14 @@ package game.battle
 			gameContainer.y = value;
 		}
 		
-		public function cardTouchBegin(_card:BattleCard,_globalX:Number,_globalY:Number):void{
+		public function cardTouchBegin(_card:BattleCard):void{
 			
-			showHeroDetail(_globalX,_globalY,_card.heroCsv.id);
+			tmpPoint.x = _card.x;
+			tmpPoint.y = _card.y;
+			
+			_card.parent.localToGlobal(tmpPoint,tmpPoint2);
+			
+			showHeroDetail(tmpPoint2.x,tmpPoint2.y,_card.heroCsv.id);
 			
 			clearNowChooseCard();
 			
@@ -1105,7 +1152,7 @@ package game.battle
 			
 //			TweenLite.to(hero,0.5,{scaleX:1,scaleY:1,ease:Quad.easeIn,onComplete:startSummon,onCompleteParams:[_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_canMoveData]});
 			
-			TweenLite.to(hero,0.5,{scaleX:1,scaleY:1,ease:Quad.easeIn,onComplete:delayCall,onCompleteParams:[0.5,startSummon,[_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]]});
+			TweenLite.to(hero,0.5,{scaleX:1,scaleY:1,ease:com.greensock.easing.Quad.easeIn,onComplete:delayCall,onCompleteParams:[0.5,startSummon,[_summonData1,_summonData2,_moveData,_skillData,_attackData,_cardUid,_cardID,_oppCardID,_canMoveData]]});
 		}
 		
 		private function startMove(_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{
@@ -2303,7 +2350,7 @@ package game.battle
 		
 		private function moveGameContainerToCenter(_x:Number,_y:Number,_callBack:Function = null,...arg):void{
 			
-			TweenLite.to(gameContainer,0.5,{x:Starling.current.backBufferWidth * 0.5 - _x * gameContainerScale,y:Starling.current.backBufferHeight * 0.5 - _y * gameContainerScale,ease:Quad.easeOut,onComplete:delayCall,onCompleteParams:[0.3,_callBack,arg]});
+			TweenLite.to(gameContainer,0.5,{x:Starling.current.backBufferWidth * 0.5 - _x * gameContainerScale,y:Starling.current.backBufferHeight * 0.5 - _y * gameContainerScale,ease:com.greensock.easing.Quad.easeOut,onComplete:delayCall,onCompleteParams:[0.3,_callBack,arg]});
 		}
 		
 		private function delayCall(_time:Number,_callBack:Function,_arg:Array):void{
@@ -2331,9 +2378,13 @@ package game.battle
 		
 		private function leaveBattleReal(_result:int):void{
 			
+			alertContainer.visible = true;
+			
 			switch(_result){
 				
 				case -1:
+					
+					alertTf.text = "You have left the game!";
 					
 					trace("你主动退出了游戏!!");
 					
@@ -2341,11 +2392,15 @@ package game.battle
 				
 				case 0:
 					
+					alertTf.text = "Your opponent has left the game!";
+					
 					trace("对手主动退出了游戏！！");
 					
 					break;
 				
 				case 1:
+					
+					alertTf.text = "You win the game!";
 					
 					trace("你赢了！！");
 					
@@ -2353,18 +2408,20 @@ package game.battle
 				
 				case 2:
 					
+					alertTf.text = "You lose the game!";
+					
 					trace("你输了！！");
 					
 					break;
 				
 				case 3:
 					
+					alertTf.text = "It is a draw game!";
+					
 					trace("平局！！");
 					
 					break;
 			}
-			
-			disposeBattle();
 		}
 		
 		private function disposeBattle():void{
@@ -2413,6 +2470,18 @@ package game.battle
 			
 			gameContainer.x = gameContainer.x + (point3.x - point2.x) * gameContainerScale;
 			gameContainer.y = gameContainer.y + (point3.y - point2.y) * gameContainerScale;
+		}
+		
+		private function alertContainerBeTouch(e:TouchEvent):void{
+			
+			var touch:Touch = e.getTouch(alertContainer,TouchPhase.ENDED);
+			
+			if(touch != null){
+				
+				alertContainer.visible = false;
+				
+				disposeBattle();
+			}
 		}
 	}
 }

@@ -53,7 +53,7 @@ public class Battle extends SuperService{
 	private boolean isActioned1;
 	private boolean isActioned2;
 	
-	private ArrayList<Integer> canMoveHeroUidArr = new ArrayList<>();
+	private ArrayList<Integer> canMoveHeroArr = new ArrayList<>();
 	
 	private HashMap<Integer, Integer> moveData1 = new HashMap<>();
 	private HashMap<Integer, Integer> moveData2 = new HashMap<>();
@@ -214,7 +214,7 @@ public class Battle extends SuperService{
 						
 						int pos = iter2.next();
 						
-						canMoveHeroUidArr.add(pos);
+						canMoveHeroArr.add(pos);
 					}
 				}
 				
@@ -231,7 +231,7 @@ public class Battle extends SuperService{
 						
 						int pos = iter2.next();
 						
-						canMoveHeroUidArr.add(pos);
+						canMoveHeroArr.add(pos);
 					}
 				}
 			}
@@ -418,13 +418,13 @@ public class Battle extends SuperService{
 		
 		int[] canMoveData = null;
 		
-		if(canMoveHeroUidArr.size() > 0){
+		if(canMoveHeroArr.size() > 0){
 			
-			canMoveData = new int[canMoveHeroUidArr.size()];
+			canMoveData = new int[canMoveHeroArr.size()];
 			
 			index = 0;
 			
-			for(int uid : canMoveHeroUidArr){
+			for(int uid : canMoveHeroArr){
 				
 				canMoveData[index] = uid;
 				
@@ -499,7 +499,7 @@ public class Battle extends SuperService{
 		
 		if(service2 == null){
 
-			BattleAI.start(service1,mapUnit,map,heroMap,userCards2,canMoveHeroUidArr,aiMoney,summonData2,moveData2);
+			BattleAI.start(service1,mapUnit,map,heroMap,userCards2,canMoveHeroArr,aiMoney,summonData2,moveData2);
 			
 			isActioned2 = true;
 		}
@@ -816,7 +816,7 @@ public class Battle extends SuperService{
 					continue;
 				}
 				
-				if(!canMoveHeroUidArr.contains(hero.pos)){
+				if(!canMoveHeroArr.contains(hero.pos)){
 					
 					service1.process("sendMsg", "BattleError 8");
 					
@@ -882,7 +882,7 @@ public class Battle extends SuperService{
 					continue;
 				}
 				
-				if(service2 != null && !canMoveHeroUidArr.contains(hero.pos)){
+				if(service2 != null && !canMoveHeroArr.contains(hero.pos)){
 					
 					service2.process("sendMsg", "BattleError 8");
 					
@@ -906,7 +906,7 @@ public class Battle extends SuperService{
 			}
 		}
 		
-		canMoveHeroUidArr.clear();
+		canMoveHeroArr.clear();
 		//--------
 		
 		//----检测2边对撞单位以及敌我互换位置单位----
@@ -943,7 +943,7 @@ public class Battle extends SuperService{
 			
 			Iterator<Integer> iter2 = moveData2.values().iterator();
 			
-			while(iter.hasNext()){
+			while(iter2.hasNext()){
 				
 				int target = iter2.next();
 				
@@ -1513,7 +1513,7 @@ public class Battle extends SuperService{
 					
 				}else{
 					
-					canMoveHeroUidArr.add(hero.pos);
+					canMoveHeroArr.add(hero.pos);
 				}
 			}
 		}
@@ -1537,20 +1537,20 @@ public class Battle extends SuperService{
 					
 				}else{
 					
-					canMoveHeroUidArr.add(hero.pos);
+					canMoveHeroArr.add(hero.pos);
 				}
 			}
 		}
 		
 		int[] canMoveData = null;
 		
-		if(canMoveHeroUidArr.size() > 0){
+		if(canMoveHeroArr.size() > 0){
 			
-			canMoveData = new int[canMoveHeroUidArr.size()];
+			canMoveData = new int[canMoveHeroArr.size()];
 			
 			int index = 0;
 			
-			for(int uid : canMoveHeroUidArr){
+			for(int uid : canMoveHeroArr){
 				
 				canMoveData[index] = uid;
 				
@@ -1599,7 +1599,7 @@ public class Battle extends SuperService{
 	
 	public void battleOver(){
 		
-		canMoveHeroUidArr.clear();
+		canMoveHeroArr.clear();
 		
 		isActioned1 = isActioned2 = false;
 		

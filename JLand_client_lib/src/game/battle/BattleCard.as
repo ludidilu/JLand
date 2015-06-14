@@ -112,7 +112,7 @@ package game.battle
 				
 				if(touch.phase == TouchPhase.BEGAN){
 				
-					Battle.instance.cardTouchBegin(this,touch.globalX,touch.globalY);
+					Battle.instance.cardTouchBegin(this);
 					
 				}else if(touch.phase == TouchPhase.MOVED){
 					

@@ -56,6 +56,8 @@ package
 			
 			var dic:Dictionary = Csv.getDic(Csv_heroData.NAME);
 			
+			var traceStr:String = "";
+			
 			for each(var unit:Csv_heroData in dic){
 				
 //				var tmpList:Vector.<int> = Vector.<int>([0,0,1,1,2,2,3,3,4,5,6,7]);
@@ -65,6 +67,8 @@ package
 				for(var i:int = 0 ; i < 10 ; i++){
 				
 					str = str + id + "," + "player" + id + "," + id + ",";
+					
+					traceStr = traceStr + id + "$";
 					
 					var rand:int = int(Math.random() * tmpList.length);
 					
@@ -101,6 +105,10 @@ package
 			fs.close();
 			
 			trace("over!!!");
+			
+			traceStr = traceStr.substr(0,traceStr.length - 1);
+			
+			trace(traceStr);
 		}
 		
 		private function getBalanceRandomData(_max:int):int{

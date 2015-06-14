@@ -215,8 +215,13 @@ package game.battle
 			var hero:BattleHero = Battle.instance.heroData[_unit.id];
 			
 			if(hero != null){
+				
+				tmpPoint.x = _unit.x;
+				tmpPoint.y = _unit.y;
+				
+				mapContainer.localToGlobal(tmpPoint,tmpPoint2);
 			
-				Battle.instance.showHeroDetail(_globalX,_globalY,hero.csv.id);
+				Battle.instance.showHeroDetail(tmpPoint2.x,tmpPoint2.y,hero.csv.id);
 				
 				if(hero.power > 0){
 					
@@ -241,7 +246,7 @@ package game.battle
 			
 			if(card != null){
 				
-				Battle.instance.cardTouchBegin(card,_globalX,_globalY);
+				Battle.instance.cardTouchBegin(card);
 				
 				return;
 			}
