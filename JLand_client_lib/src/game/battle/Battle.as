@@ -1374,7 +1374,7 @@ package game.battle
 		private static const tfVerticalGap:Number = 24;
 		private static const tfFix:Number = 16;
 		private static const tfSize:int = 30;
-		private static const tfWidth:int = 100;
+		private static const tfWidth:int = 200;
 		private static const tfHeight:int = 30;
 		
 		private function skillShootTarget(_arrow:Sprite,_index:int,_pos:int,_targetPos:int,_vec:Vector.<int>,_skillData:Vector.<Vector.<Vector.<int>>> = null,_attackData:Vector.<Vector.<Vector.<int>>> = null,_cardUid:int = 0,_cardID:int = 0,_oppCardID:int = 0,_canMoveData:Vector.<int> = null):void{

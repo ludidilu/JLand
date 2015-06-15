@@ -41,9 +41,6 @@ public class Battle extends SuperService{
 	private static int START_CARDS_NUM = 4;
 	private static int MAX_CARDS_NUM = 5;
 	private static int MONEY = 5;
-//	private static int START_MONEY_NUM = 3;
-//	private static int ADD_MONEY_NUM = 3;
-//	private static int MAX_MONEY_NUM = 6;
 	public static int POWER_CAN_MOVE = 1;
 	public static int MAX_MOVE_HERO_NUM = 3;
 	

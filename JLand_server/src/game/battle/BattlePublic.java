@@ -858,7 +858,7 @@ public class BattlePublic {
 		return resultArr;
 	}
 		
-	private static void castSkillEffect(BattleHero _hero, BattleHero _targetHero,boolean _effectTarget, int _effect, int _effectArg, ArrayList<Integer> _resultArr){
+	private static void castSkillEffect(BattleHero _hero, BattleHero _targetHero,boolean _effectTarget, int _effect, int[] _effectArg, ArrayList<Integer> _resultArr){
 		
 		switch(_effect){
 		
@@ -885,17 +885,21 @@ public class BattlePublic {
 			
 			if(_effectTarget){
 				
-				_targetHero.hpChange = _targetHero.hpChange + _effectArg;
+				int data = _effectArg[0];
+				
+				_targetHero.hpChange = _targetHero.hpChange + data;
 				
 				_resultArr.add(2);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 				
 			}else{
 				
-				_hero.hpChange = _hero.hpChange + _effectArg;
+				int data = _effectArg[0];
+				
+				_hero.hpChange = _hero.hpChange + data;
 				
 				_resultArr.add(102);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 			}
 			
 			break;
@@ -904,17 +908,21 @@ public class BattlePublic {
 			
 			if(_effectTarget){
 				
-				_targetHero.atkFix = _targetHero.atkFix + _effectArg;
+				int data = _effectArg[0];
+				
+				_targetHero.atkFix = _targetHero.atkFix + data;
 				
 				_resultArr.add(3);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 				
 			}else{
 				
-				_hero.atkFix = _hero.atkFix + _effectArg;
+				int data = _effectArg[0];
+				
+				_hero.atkFix = _hero.atkFix + data;
 				
 				_resultArr.add(103);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 			}
 			
 			break;
@@ -923,19 +931,23 @@ public class BattlePublic {
 			
 			if(_effectTarget){
 				
-				_targetHero.maxHpFix = _targetHero.maxHpFix + _effectArg;
-				_targetHero.hpChange = _targetHero.hpChange + _effectArg;
+				int data = _effectArg[0];
+				
+				_targetHero.maxHpFix = _targetHero.maxHpFix + data;
+				_targetHero.hpChange = _targetHero.hpChange + data;
 				
 				_resultArr.add(4);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 				
 			}else{
 				
-				_hero.maxHpFix = _hero.maxHpFix + _effectArg;
-				_hero.hpChange = _hero.hpChange + _effectArg;
+				int data = _effectArg[0];
+				
+				_hero.maxHpFix = _hero.maxHpFix + data;
+				_hero.hpChange = _hero.hpChange + data;
 				
 				_resultArr.add(104);
-				_resultArr.add(_effectArg);
+				_resultArr.add(data);
 			}
 			
 			break;
@@ -944,7 +956,7 @@ public class BattlePublic {
 			
 			if(_effectTarget){
 				
-				int damage = _targetHero.csv.atk + _effectArg;
+				int damage = _targetHero.csv.atk * _effectArg[1] + _effectArg[0];
 				
 				damage = damage > 0 ? 0 : damage;
 				
@@ -955,7 +967,7 @@ public class BattlePublic {
 				
 			}else{
 				
-				int damage = _hero.csv.atk + _effectArg;
+				int damage = _hero.csv.atk * _effectArg[1] + _effectArg[0];
 				
 				damage = damage > 0 ? 0 : damage;
 				

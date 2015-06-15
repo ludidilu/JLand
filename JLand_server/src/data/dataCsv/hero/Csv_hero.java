@@ -22,7 +22,7 @@ public class Csv_hero extends Csv{
 	public int[][] targetConditionArg;
 	public boolean[][][] effectTarget;
 	public int[][][] skillEffect;
-	public int[][][] skillEffectArg;
+	public int[][][][] skillEffectArg;
 	
 	public int beSkillTargetWeight;
 	public int beAttackTargetWeight;
