@@ -526,7 +526,7 @@ public class Battle extends SuperService{
 					
 					if(service2 != null){
 					
-						service1.process("leaveBattle", 1);
+						service2.process("leaveBattle", 1);
 					}
 					
 				}else{
@@ -535,7 +535,7 @@ public class Battle extends SuperService{
 					
 					if(service2 != null){
 					
-						service1.process("leaveBattle", 3);
+						service2.process("leaveBattle", 3);
 					}
 				}
 				
@@ -549,7 +549,7 @@ public class Battle extends SuperService{
 					
 					if(service2 != null){
 					
-						service1.process("leaveBattle", 1);
+						service2.process("leaveBattle", 1);
 					}
 					
 					battleOver();
@@ -560,7 +560,7 @@ public class Battle extends SuperService{
 					
 					if(service2 != null){
 					
-						service1.process("leaveBattle", 2);
+						service2.process("leaveBattle", 2);
 					}
 					
 					battleOver();
