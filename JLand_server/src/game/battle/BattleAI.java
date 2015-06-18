@@ -146,6 +146,8 @@ public class BattleAI {
 		
 		Iterator<Entry<Integer, Csv_hero>> iter2 = canMoveHeroMap.entrySet().iterator();
 		
+		ArrayList<Integer> moveTargetPosArr = new ArrayList<>();
+		
 		while(iter2.hasNext()){
 			
 			Entry<Integer, Csv_hero> entry = iter2.next();
@@ -153,9 +155,11 @@ public class BattleAI {
 			int pos = entry.getKey();
 			Csv_hero hero = entry.getValue();
 			
-			int targetPos = getMovePos(_mapUnit.neighbourPosMap,_map,_heroMap,summonData,canMoveHeroMap,hero,pos);
+			int targetPos = getMovePos(_mapUnit.neighbourPosMap,_map,_heroMap,summonData,canMoveHeroMap,hero,pos,moveTargetPosArr);
 			
 			if(targetPos != -1){
+				
+				moveTargetPosArr.add(targetPos);
 				
 				_moveData.put(pos, BattlePublic.getDirection(_mapUnit.mapWidth, pos, targetPos));
 			}
@@ -257,7 +261,7 @@ public class BattleAI {
 		}
 	}
 	
-	private static int getMovePos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, HashMap<Integer, Csv_hero> _moveMap, Csv_hero _hero, int _pos){
+	private static int getMovePos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, HashMap<Integer, Csv_hero> _moveMap, Csv_hero _hero, int _pos, ArrayList<Integer> _moveTargetPosArr){
 		
 		String str = "";
 		
@@ -273,7 +277,7 @@ public class BattleAI {
 			
 			if(pos != -1){
 				
-				if(!_summonData.containsKey(pos)){
+				if(!_summonData.containsKey(pos) && !_moveTargetPosArr.contains(pos)){
 					
 					BattleHero hero = _heroMap.get(pos);
 					
