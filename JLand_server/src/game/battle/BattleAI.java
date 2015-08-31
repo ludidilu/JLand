@@ -5,37 +5,40 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import userService.UserService;
 import data.dataCsv.hero.Csv_hero;
 import data.dataMap.MapUnit;
 
 public class BattleAI {
 	
-	private static UserService service;
+	private static int MAX_CHECK_RANGE = 3;
 	
-	public static void start(UserService _service, MapUnit _mapUnit, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Integer> _userCards, ArrayList<Integer> _canMoveHeroUidArr, int _userMoney, HashMap<Integer, Integer> _summonData, HashMap<Integer, Integer> _moveData){
+	public static void start(MapUnit _mapUnit, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Integer> _userCards, int _userMoney, HashMap<Integer, Integer> _summonData, HashMap<Integer, Integer> _moveData){
 		
-		service = _service;
+		HashMap<Integer, BattleHero> canMoveHeroMap = new HashMap<>();
 		
-		HashMap<Integer, Csv_hero> canMoveHeroMap = new HashMap<>();
+		Iterator<Entry<Integer, BattleHero>> iter = _heroMap.entrySet().iterator();
 		
-		for(int pos : _canMoveHeroUidArr){
+		while(iter.hasNext()){
 			
-			BattleHero hero = _heroMap.get(pos);
+			Entry<Integer, BattleHero> entry = iter.next();
+		
+			BattleHero hero = entry.getValue();
 			
-			if(!hero.isHost){
+			if(!hero.isHost && hero.power >= Battle.POWER_CAN_MOVE && hero.csv.heroType.moveType != 0){
 				
-				canMoveHeroMap.put(pos, hero.csv);
+				int pos = entry.getKey();
+				
+				canMoveHeroMap.put(pos, hero);
 			}
 		}
 		
 		HashMap<Integer, Csv_hero> summonData = new HashMap<>();
 		
-		Iterator<Entry<Integer, Integer>> iter = _userCards.entrySet().iterator();
+		Iterator<Entry<Integer, Integer>> iter2 = _userCards.entrySet().iterator();
 			
-		while(iter.hasNext() && _userMoney > 0){
+		while(iter2.hasNext() && _userMoney > 0){
 			
-			Entry<Integer, Integer> entry = iter.next();
+			Entry<Integer, Integer> entry = iter2.next();
 			
 			int uid = entry.getKey();
 			
@@ -65,8 +68,6 @@ public class BattleAI {
 		
 		
 		
-		
-		
 		if(_userMoney == 0 || canMoveHeroMap.size() == 0){
 			
 			return;
@@ -76,31 +77,33 @@ public class BattleAI {
 			
 			int allMoveUnitStar = 0;
 			
-			HashMap<Integer, Csv_hero> tmpMap = new HashMap<>();
+			HashMap<Integer, BattleHero> tmpMap = new HashMap<>();
 			
 			HashMap<Integer, Integer> tmpMap2 = new HashMap<>();
 			
-			Iterator<Entry<Integer, Csv_hero>> iter2 = canMoveHeroMap.entrySet().iterator();
+			Iterator<Entry<Integer, BattleHero>> iter3 = canMoveHeroMap.entrySet().iterator();
 			
-			while(iter2.hasNext()){
+			while(iter3.hasNext()){
 				
-				Entry<Integer, Csv_hero> entry = iter2.next();
+				Entry<Integer, BattleHero> entry = iter3.next();
 				
 				int pos = entry.getKey();
 				
-				Csv_hero hero = entry.getValue();
+				BattleHero hero = entry.getValue();
 				
-				if(canHitEnemy(_mapUnit.neighbourPosMap,_heroMap,hero,pos)){
+				int damage = canHitEnemy(_mapUnit.neighbourPosMap,_heroMap,summonData,hero.csv,pos);
+				
+				if(damage > 0){
 					
-					tmpMap2.put(pos, hero.star);
+					tmpMap2.put(pos, hero.csv.star);
 					
-					allMoveUnitStar = allMoveUnitStar + hero.star;
+					allMoveUnitStar = allMoveUnitStar + hero.csv.star;
 					
 				}else{
 					
-					tmpMap2.put(pos, hero.star * 3);
+					tmpMap2.put(pos, hero.csv.star * 3);
 					
-					allMoveUnitStar = allMoveUnitStar + hero.star * 3;
+					allMoveUnitStar = allMoveUnitStar + hero.csv.star * 3;
 				}
 			}
 			
@@ -110,23 +113,23 @@ public class BattleAI {
 				
 				int randomStar = (int)(Math.random() * allMoveUnitStar);
 				
-				iter2 = canMoveHeroMap.entrySet().iterator();
+				iter3 = canMoveHeroMap.entrySet().iterator();
 				
-				while(iter2.hasNext()){
+				while(iter3.hasNext()){
 					
-					Entry<Integer, Csv_hero> entry = iter2.next();
+					Entry<Integer, BattleHero> entry = iter3.next();
 					
 					int pos = entry.getKey();
 					
-					Csv_hero hero = entry.getValue();
+					BattleHero hero = entry.getValue();
 					
-					int star = hero.star;
+					int star = hero.csv.star;
 					
 					if(randomStar < star){
 						
 						tmpMap.put(pos, hero);
 						
-						iter2.remove();
+						iter3.remove();
 						
 						tmpMoney = tmpMoney - 1;
 						
@@ -144,16 +147,16 @@ public class BattleAI {
 			canMoveHeroMap = tmpMap;
 		}
 		
-		Iterator<Entry<Integer, Csv_hero>> iter2 = canMoveHeroMap.entrySet().iterator();
+		Iterator<Entry<Integer, BattleHero>> iter3 = canMoveHeroMap.entrySet().iterator();
 		
 		ArrayList<Integer> moveTargetPosArr = new ArrayList<>();
 		
-		while(iter2.hasNext()){
+		while(iter3.hasNext()){
 			
-			Entry<Integer, Csv_hero> entry = iter2.next();
+			Entry<Integer, BattleHero> entry = iter3.next();
 			
 			int pos = entry.getKey();
-			Csv_hero hero = entry.getValue();
+			BattleHero hero = entry.getValue();
 			
 			int targetPos = getMovePos(_mapUnit.neighbourPosMap,_map,_heroMap,summonData,canMoveHeroMap,hero,pos,moveTargetPosArr);
 			
@@ -164,11 +167,73 @@ public class BattleAI {
 				_moveData.put(pos, BattlePublic.getDirection(_mapUnit.mapWidth, pos, targetPos));
 			}
 		}
+		
+		checkMoveData(_heroMap,_moveData);
+	}
+	
+	private static void checkMoveData(HashMap<Integer,BattleHero> _heroMap,HashMap<Integer, Integer> _moveData){
+		
+		Iterator<Entry<Integer, Integer>> iter = _moveData.entrySet().iterator();
+		
+		while(iter.hasNext()){
+			
+			Entry<Integer, Integer> entry = iter.next();
+			
+			int pos = entry.getKey();
+			int target = entry.getValue();
+			
+			ArrayList<Integer> checkedArr = new ArrayList<>();
+			
+			checkedArr.add(pos);
+			
+			boolean result = checkNeedMove(pos, target, checkedArr, _heroMap, _moveData);
+			
+			if(result){
+				
+				iter.remove();
+			}
+		}
+	}
+	
+	private static boolean checkNeedMove(int _pos,int _target,ArrayList<Integer> _checkedArr,HashMap<Integer,BattleHero> _heroMap,HashMap<Integer, Integer> _moveData){
+		
+		if(_heroMap.containsKey(_target)){
+			
+			if(!_moveData.containsKey(_target)){
+				
+				return true;
+				
+			}else{
+				
+				int target = _moveData.get(_target);
+				
+				int result = _checkedArr.indexOf(target);
+				
+				if(result == 0){
+					
+					return false;
+					
+				}else if(result == -1){
+					
+					_checkedArr.add(_target);
+					
+					return checkNeedMove(_target,target,_checkedArr,_heroMap,_moveData);
+					
+				}else{
+					
+					return true;
+				}
+			}
+			
+		}else{
+		
+			return false;
+		}
 	}
 	
 	private static int getSummonPos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, Csv_hero _hero){
 		
-//		String str = "";
+		String str = "Summon result:" + _hero.id + "\n";
 		
 		ArrayList<Integer> posArr = new ArrayList<>();
 		
@@ -188,52 +253,22 @@ public class BattleAI {
 			
 			if(type == 2 && !_heroMap.containsKey(pos) && !_summonData.containsKey(pos)){
 				
-				posArr.add(pos);
+				int tmpScore = getSummonPosScore(_neighbourPosMap,_map,_heroMap,_summonData,_hero,pos);
 				
-//				str = str + "pos:" + pos;
+				str = str + "pos:" + pos + "  score:" + tmpScore + "\n";
 				
-				int tmpScore = 0;
-				
-				if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos)){
+				if(tmpScore > 0){
 					
-					tmpScore = tmpScore + 4;
+					allScore = allScore + tmpScore;
+
+					posArr.add(pos);
 					
-					allScore = allScore + 4;
+					scoreArr.add(tmpScore);
 				}
-				
-				int[] tmpArr = _neighbourPosMap.get(pos);//先找1格外的地图格子
-				
-				for(int pos2 : tmpArr){
-					
-					if(pos2 == -1){
-						
-						continue;
-					}
-					
-					int type2 = _map.get(pos2);
-					
-					if(type2 == 1){//是敌人地盘  加4分
-						
-						tmpScore = tmpScore + 4;
-						
-						allScore = allScore + 4;
-					}
-					
-					if(canHitEnemy(_neighbourPosMap, _heroMap, _hero, pos2)){
-						
-						tmpScore = tmpScore + 2;
-						
-						allScore = allScore + 2;
-					}
-				}
-						
-//				str = str + " score:" + tmpScore + "\n";
-				
-				scoreArr.add(tmpScore);
 			}
 		}
 		
-//		service.process("sendMsg", str);
+		System.out.println(str);
 		
 		if(allScore > 0){
 			
@@ -261,9 +296,9 @@ public class BattleAI {
 		}
 	}
 	
-	private static int getMovePos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, HashMap<Integer, Csv_hero> _moveMap, Csv_hero _hero, int _pos, ArrayList<Integer> _moveTargetPosArr){
+	private static int getMovePos(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, HashMap<Integer, BattleHero> _canMoveHeroMap, BattleHero _hero, int _pos, ArrayList<Integer> _moveTargetPosArr){
 		
-		String str = "";
+		String str = "move result:" + _pos + "\n";
 		
 		ArrayList<Integer> posArr = new ArrayList<>();
 		
@@ -281,28 +316,42 @@ public class BattleAI {
 					
 					BattleHero hero = _heroMap.get(pos);
 					
-					if(hero != null && !hero.isHost && !_moveMap.containsKey(pos)){
+					if(hero != null){
 						
-						continue;
-						
-					}else{
+						if(hero.isHost){
+							
+							continue;
+							
+						}else{
+							
+							if(!_canMoveHeroMap.containsKey(pos)){
+								
+								continue;
+								
+							}else{
+								
+								
+							}
+						}
+					}
+					
+					int score = getMovePosScore(_neighbourPosMap, _map, _heroMap, _summonData, _hero, pos);
+					
+					str = str + "pos:" + pos + " score:" + score + "\n";
+					
+					if(score > 0){
+					
+						scoreArr.add(score);
 						
 						posArr.add(pos);
 						
-						int score = getMovePosScore(_neighbourPosMap, _map, _heroMap, _hero, pos);
-						
-						scoreArr.add(score);
-						
 						allScore = allScore + score;
-						
-						str = str + "pos:" + pos + " score:" + score + "\n";
 					}
 				}
 			}
 		}
 		
-		service.process("sendMsg", str);
-		
+		System.out.println(str);
 		
 		if(allScore > 0){
 			
@@ -330,93 +379,222 @@ public class BattleAI {
 		}
 	}
 	
-	private static int getMovePosScore(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, Csv_hero _hero, int _pos){
+	private static int getSummonPosScore(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, Csv_hero _hero, int _pos){
 		
-		int score = 1;
+		int tmpScore = 0;
+		
+		int damage = willBeHit(_neighbourPosMap, _heroMap, _summonData, _pos, _hero.maxHp, _hero.star);
+			
+		System.out.println("getSummonPosScore  pos:" + _pos + "  damage:" + damage);
+		
+		tmpScore = tmpScore - damage;
+		
+		int damageWithoutMove = canHitEnemy(_neighbourPosMap, _heroMap, _summonData, _hero, _pos);
+		
+		if(damageWithoutMove > 0){
+			
+			if(_hero.heroType.moveType == 2){
+			
+				tmpScore = tmpScore + damageWithoutMove;
+				
+			}else{
+				
+				tmpScore = tmpScore + damageWithoutMove / 2;
+			}
+		}
+		
+		if(_hero.heroType.moveType != 0){
+		
+			int[] tmpArr = _neighbourPosMap.get(_pos);//先找1格外的地图格子
+			
+			boolean hasEnemyPos = false;
+			int hasHitEnemy = 0;
+			
+			for(int pos2 : tmpArr){
+				
+				if(pos2 == -1){
+					
+					continue;
+				}
+				
+				int type2 = _map.get(pos2);
+				
+				if(type2 == 1){//是敌人地盘  加4分
+					
+					if(!hasEnemyPos){
+						
+						hasEnemyPos = true;
+					}
+				}
+				
+				damage = canHitEnemy(_neighbourPosMap, _heroMap, _summonData, _hero, pos2);
+					
+				if(damage > hasHitEnemy){
+					
+					hasHitEnemy = damage;
+				}
+			}
+			
+			if(hasEnemyPos){
+				
+				tmpScore = tmpScore + 5;
+			}
+			
+			if(damageWithoutMove == 0 && hasHitEnemy > 0){
+				
+				tmpScore = tmpScore + hasHitEnemy / 4;
+			}
+		}
+		
+		return tmpScore;
+	}
+	
+	private static int getMovePosScore(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, Integer> _map, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, BattleHero _hero, int _pos){
+		
+		int score = 0;
 		
 		int type2 = _map.get(_pos);
 		
 		if(type2 == 1){//是敌人地盘  加3分
 			
-			score = score + 5;
+			score = score + 10;
 		}
 		
-		if(canHitEnemy(_neighbourPosMap,_heroMap,_hero,_pos)){
+		int damage = canHitEnemy(_neighbourPosMap,_heroMap,_summonData,_hero.csv,_pos);
 			
-			score = score + 5;
-		}
+		score = score + damage;
+		
+		damage = willBeHit(_neighbourPosMap,_heroMap,_summonData, _pos,_hero.hp,_hero.csv.star);
+			
+		score = score - damage;
 		
 		return score;
 	}
 	
-	private static boolean canHitEnemy(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap, Csv_hero _hero, int _pos){
+	private static int canHitEnemy(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap,HashMap<Integer, Csv_hero> _summonData, Csv_hero _hero, int _pos){
 		
-		if(_hero.heroType.attackType == 1){
+		int damage = 0;
+		
+		int atk = _hero.atk;
+		
+		loop:for(int i = 0 ; i < 6 ; i++){
 			
-			loop1:for(int i = 0 ; i < 6 ; i++){
+			int nowPos = _pos;
+			
+			for(int m = 1 ; m <= _hero.heroType.maxAttackRange ; m++){
 				
-				int nowPos = _pos;
+				int pos = _neighbourPosMap.get(nowPos)[i];
 				
-				for(int m = 0 ; m < _hero.heroType.attackRange ; m++){
+				if(pos == -1){
 					
-					int pos = _neighbourPosMap.get(nowPos)[i];
+					continue loop;
 					
-					if(pos == -1){
-						
-						continue loop1;
-						
-					}else{
+				}else{
+					
+					if(m < _hero.heroType.minAttackRange){
 						
 						nowPos = pos;
-					}
-				}
-				
-				BattleHero targetHero = _heroMap.get(nowPos);
-				
-				if(targetHero != null && targetHero.isHost){
-					
-					return true;
-				}
-			}
-		
-		}else{
-			
-			loop2:for(int i = 0 ; i < 6 ; i++){
-				
-				int nowPos = _pos;
-				
-				for(int m = 0 ; m < _hero.heroType.attackRange ; m++){
-					
-					int pos = _neighbourPosMap.get(nowPos)[i];
-					
-					if(pos == -1){
-						
-						continue loop2;
 						
 					}else{
-						
+					
 						BattleHero targetHero = _heroMap.get(nowPos);
 						
 						if(targetHero != null){
 							
 							if(targetHero.isHost){
 								
-								return true;
-								
-							}else{
-							
-								continue loop2;
+								if(targetHero.hp > atk){
+									
+									damage = damage + atk * targetHero.csv.star;
+									
+									return damage;
+									
+								}else{
+									
+									damage = damage + targetHero.hp * targetHero.csv.star;
+									
+									atk = atk - targetHero.hp;
+								}
 							}
+							
+							continue loop;
 							
 						}else{
 							
-							nowPos = pos;
+							if(_summonData.containsKey(nowPos)){
+								
+								continue loop;
+								
+							}else{
+							
+								nowPos = pos;
+							}
 						}
 					}
 				}
 			}
 		}
 		
-		return false;
+		return damage * 3;
+	}
+	
+	private static int willBeHit(HashMap<Integer, int[]> _neighbourPosMap, HashMap<Integer, BattleHero> _heroMap, HashMap<Integer, Csv_hero> _summonData, int _pos ,int _hp, int _star){
+		
+		int damage = 0;
+		
+		for(int i = 0 ; i < 6 ; i++){
+			
+			int nowPos = _pos;
+			
+			ArrayList<Integer> posList = new ArrayList<>();
+			
+			loop:for(int m = 1 ; m <= MAX_CHECK_RANGE ; m++){
+				
+				nowPos = _neighbourPosMap.get(nowPos)[i];
+				
+				if(nowPos == -1){
+					
+					break;
+				}
+				
+				BattleHero hero = _heroMap.get(nowPos);
+				
+				if(hero != null){
+					
+					posList.add(m);
+					
+					if(hero.isHost && hero.power > 0 && hero.csv.heroType.canAttack){
+						
+						if(m <= hero.csv.heroType.maxAttackRange && m >= hero.csv.heroType.minAttackRange){
+							
+							for(int n = hero.csv.heroType.minAttackRange ; n < m ; n++){
+								
+								if(posList.contains(m - n)){
+									
+									continue loop;
+								}
+							}
+							
+							damage = damage + hero.csv.atk;
+						}
+					}
+					
+				}else if(_summonData.containsKey(nowPos)){
+					
+					posList.add(m);
+				}
+			}
+		}
+		
+		if(damage >= _hp){
+			
+			damage = _hp * _star * 3;
+			
+		}else{
+			
+			damage = damage * _star;
+		}
+		
+		return damage;
 	}
 }

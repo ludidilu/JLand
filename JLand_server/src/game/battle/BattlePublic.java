@@ -313,82 +313,26 @@ public class BattlePublic {
 	//type 0所有 1敌方 2友方
 	public static void getHerosAndDirectionInRange(HashMap<Integer, int[]> _neighbourPosMap,HashMap<Integer, BattleHero> _heroDic,BattleHero _hero,int _type,ArrayList<BattleHero> _heroArr, ArrayList<Integer> _directionArr){
 		
-		if(_hero.csv.heroType.attackType == 1){
+		loop:for(int i = 0 ; i < 6 ; i++){
 			
-			loop1:for(int i = 0 ; i < 6 ; i++){
+			int nowPos = _hero.pos;
+			
+			for(int m = 1 ; m <= _hero.csv.heroType.maxAttackRange ; m++){
 				
-				int nowPos = _hero.pos;
+				int pos = _neighbourPosMap.get(nowPos)[i];
 				
-				for(int m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
+				if(pos == -1){
 					
-					int pos = _neighbourPosMap.get(nowPos)[i];
+					continue loop;
 					
-					if(pos == -1){
-						
-						continue loop1;
-						
-					}else{
+				}else{
+					
+					if(m < _hero.csv.heroType.minAttackRange){
 						
 						nowPos = pos;
-					}
-				}
-				
-				BattleHero targetHero = _heroDic.get(nowPos);
-				
-				if(targetHero != null){
-					
-					if(_type == 0){
-						
-						_heroArr.add(targetHero);
-						
-						if(_directionArr != null){
-						
-							_directionArr.add(i);
-						}
-						
-					}else if(_type == 1){
-						
-						if(targetHero.isHost != _hero.isHost){
-							
-							_heroArr.add(targetHero);
-							
-							if(_directionArr != null){
-								
-								_directionArr.add(i);
-							}
-						}
 						
 					}else{
-						
-						if(targetHero.isHost == _hero.isHost){
-							
-							_heroArr.add(targetHero);
-							
-							if(_directionArr != null){
-								
-								_directionArr.add(i);
-							}
-						}
-					}
-				}
-			}
-		
-		}else if(_hero.csv.heroType.attackType == 2){
-			
-			loop2:for(int i = 0 ; i < 6 ; i++){
-				
-				int nowPos = _hero.pos;
-				
-				for(int m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
 					
-					int pos = _neighbourPosMap.get(nowPos)[i];
-					
-					if(pos == -1){
-						
-						continue loop2;
-						
-					}else{
-						
 						BattleHero targetHero = _heroDic.get(pos);
 						
 						if(targetHero != null){
@@ -427,7 +371,7 @@ public class BattlePublic {
 								}
 							}
 							
-							continue loop2;
+							continue loop;
 							
 						}else{
 							
@@ -543,7 +487,7 @@ public class BattlePublic {
 				
 				hpArr[index] = hero.hp;
 				
-				int weight = hero.hp * hero.csv.beAttackTargetWeight;
+				int weight = hero.hp * hero.getHpWeight();
 				
 				allWeight = allWeight + weight;
 				
@@ -570,9 +514,9 @@ public class BattlePublic {
 								
 								result[index] = result[index] + 1;
 								
-								weightArr[index] = weightArr[index] - hero.csv.beAttackTargetWeight;
+								weightArr[index] = weightArr[index] - hero.getHpWeight();
 								
-								allWeight = allWeight - hero.csv.beAttackTargetWeight;
+								allWeight = allWeight - hero.getHpWeight();
 								
 								atk = atk - 1;
 								
@@ -703,6 +647,22 @@ public class BattlePublic {
 			case 8:
 				
 				return _hero.csv.heroType.moveType == 0;
+				
+			case 9:
+				
+				return _hero.csv.atk > _arg;
+				
+			case 10:
+				
+				return _hero.csv.atk < _arg;
+				
+			case 11:
+				
+				return _hero.csv.star > _arg;
+				
+			case 12:
+				
+				return _hero.csv.star < _arg;
 		}
 		
 		return false;
@@ -1025,6 +985,44 @@ public class BattlePublic {
 			
 			if(_effectTarget){
 				
+				_targetHero.beAtkWeightFix = _targetHero.beAtkWeightFix * _effectArg[0] * 0.01f;
+				
+				_resultArr.add(6);
+				_resultArr.add(_effectArg[0]);
+				
+			}else{
+				
+				_hero.beAtkWeightFix = _hero.beAtkWeightFix * _effectArg[0] * 0.01f;
+				
+				_resultArr.add(106);
+				_resultArr.add(_effectArg[0]);
+			}
+			
+			break;
+			
+		case 9:
+			
+			if(_effectTarget){
+				
+				_targetHero.die = true;
+				
+				_resultArr.add(7);
+				_resultArr.add(0);
+				
+			}else{
+				
+				_hero.die = true;
+				
+				_resultArr.add(107);
+				_resultArr.add(0);
+			}
+
+			break;
+			
+		case 10:
+			
+			if(_effectTarget){
+				
 				_targetHero.isStopMove = true;
 				
 				_resultArr.add(5);
@@ -1041,118 +1039,6 @@ public class BattlePublic {
 			break;
 		}
 		
-//		switch(_effect){
-//		
-//			case 1:
-//				
-//				_targetHero.isSilent = true;
-//				
-//				_resultArr.add(1);
-//				_resultArr.add(0);
-//					
-//				return;
-//				
-//			case 2:
-//
-//				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
-//				
-//				_resultArr.add(2);
-//				_resultArr.add(_effectArg[0]);
-//				
-//				return;
-//				
-//			case 3:
-//
-//				_targetHero.atkFix = _targetHero.atkFix + _effectArg[0];
-//				
-//				_resultArr.add(3);
-//				_resultArr.add(_effectArg[0]);
-//				
-//				return;
-//				
-//			case 4:
-//				
-//				_targetHero.maxHpFix = _targetHero.maxHpFix + _effectArg[0];
-//				
-//				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
-//				
-//				_resultArr.add(4);
-//				_resultArr.add(_effectArg[0]);
-//				
-//				return;
-//				
-//			case 5:
-//				
-//				int damage = _targetHero.csv.atk + _effectArg[0];
-//				
-//				damage = damage > 0 ? 0 : damage;
-//				
-//				_targetHero.hpChange = _targetHero.hpChange + damage;
-//				
-//				_resultArr.add(2);
-//				_resultArr.add(damage);
-//				
-//				return;
-//				
-//			case 6:
-//				
-//				if(_targetHero.hp == _targetHero.csv.maxHp){
-//					
-//					_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
-//					
-//					_resultArr.add(2);
-//					_resultArr.add(_effectArg[0]);
-//					
-//					return ;
-//					
-//				}else{
-//					
-//					_targetHero.hpChange = _targetHero.hpChange + _effectArg[1];
-//					
-//					_resultArr.add(2);
-//					_resultArr.add(_effectArg[1]);
-//					
-//					return;
-//				}
-//				
-//			case 7:
-//				
-//				_hero.atkFix = _hero.atkFix + _targetHero.csv.atk;
-//				
-//				_resultArr.add(6);
-//				_resultArr.add(_targetHero.csv.atk);
-//				
-//				return;
-//				
-//			case 8:
-//				
-//				int data = _targetHero.csv.atk - _hero.csv.atk;
-//				
-//				_hero.atkFix = _hero.atkFix + data;
-//				
-//				_resultArr.add(6);
-//				_resultArr.add(data);
-//				
-//				return;
-//				
-//			case 9:
-//				
-//				_targetHero.hpChange = _targetHero.hpChange + _effectArg[0];
-//				
-//				_resultArr.add(2);
-//				_resultArr.add(_effectArg[0]);
-//				
-//				_hero.hpChange = _hero.hpChange + _effectArg[1];
-//				
-//				_resultArr.add(5);
-//				_resultArr.add(_effectArg[1]);
-//				
-//				return;
-//				
-//			default:
-//				
-//				return;
-//		}
 	}
 }
 

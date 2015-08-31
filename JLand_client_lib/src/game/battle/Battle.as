@@ -10,17 +10,18 @@ package game.battle
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
+	import connect.Connect;
+	
 	import csv.Csv;
 	
 	import data.csv.Csv_hero;
+	import data.csv.Csv_map;
 	import data.map.Map;
 	import data.map.MapUnit;
 	import data.resource.ResourceFont;
 	import data.resource.ResourcePublic;
 	
 	import game.Game;
-	
-	import publicTools.connect.Connect_handle;
 	
 	import starling.core.Starling;
 	import starling.display.Button;
@@ -334,7 +335,9 @@ package game.battle
 				}
 			}
 			
-			battleMap.start(mapUnit,mapData);
+			var csvMap:Csv_map = Csv.getData(Csv_map.NAME,_mapID) as Csv_map;
+			
+			battleMap.start(mapUnit,mapData,csvMap.flipType);
 			
 			gameContainer.x = (Starling.current.backBufferWidth - battleMap.mapContainer.width * gameContainerScale) * 0.5;
 			gameContainer.y = (Starling.current.backBufferHeight - battleMap.mapContainer.height * gameContainerScale - 80) * 0.5;
@@ -1008,7 +1011,7 @@ package game.battle
 				summonData.push(Vector.<int>([card.uid, pos]));
 			}
 			
-			Connect_handle.sendData(11,moveData,summonData);
+			Connect.sendData(11,sendBattleActionOK,moveData,summonData);
 		}
 		
 		public function sendBattleActionOK(_result:Boolean):void{
@@ -1521,6 +1524,52 @@ package game.battle
 						
 						break;
 					
+					case 6:
+						
+						if(data < 100){
+							
+							str = "W-" + (100 - data) + "%";
+							
+							color = 0x00FF00;
+							
+						}else{
+							
+							str = "W+" + (data - 100) + "%";
+							
+							color = 0xFF0000;
+						}
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
+						
+						break;
+					
+					case 7:
+						
+						hero = heroData[_targetPos];
+						
+						hero.die = true;
+						
+						str = "Die";
+						color = 0xFF0000;
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_targetPos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * i;
+						
+						break;
+					
 					case 101:
 						
 						str = "Silent";
@@ -1649,6 +1698,52 @@ package game.battle
 						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
 						
 						break;
+					
+					case 106:
+						
+						if(data < 100){
+							
+							str = "W-" + (100 - data) + "%";
+							
+							color = 0x00FF00;
+							
+						}else{
+							
+							str = "W+" + (data - 100) + "%";
+							
+							color = 0xFF0000;
+						}
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
+						
+						break;
+					
+					case 107:
+						
+						hero = heroData[_pos];
+						
+						hero.die = true;
+						
+						str = "Die";
+						color = 0xFF0000;
+						
+						tf = new TextField(tfWidth,tfHeight,str,ResourceFont.fontName,tfSize,color);
+						tf.hAlign = HAlign.CENTER;
+						tf.vAlign = VAlign.CENTER;
+						
+						tmpBattleMapUnit = battleMap.dic[_pos];
+						
+						tf.x = tmpBattleMapUnit.x - 0.5 * tf.width;
+						tf.y = tmpBattleMapUnit.y - 0.5 * tf.height - tfFix - tfVerticalGap * _index;
+						
+						break;
 				}
 				
 				sp.addChild(tf);
@@ -1690,6 +1785,35 @@ package game.battle
 			for(var str:String in heroData){
 				
 				var hero:BattleHero = heroData[str];
+				
+				if(hero.die){
+					
+					if(!hasAddCallBack){
+						
+						hasAddCallBack = true;
+						
+						TweenLite.delayedCall(1,startAttack,[_attackData,_cardUid,_cardID]);
+					}
+					
+					TweenLite.to(hero,0.5,{alpha:0,ease:Linear.easeNone,onComplete:spriteAlphaOutOver,onCompleteParams:[hero]});
+					
+					delete heroData[str];
+					
+//					if(hero.isMine){
+//						
+//						oppScore++;
+//						
+//						myScore--;
+//						
+//					}else{
+//						
+//						myScore++;
+//						
+//						oppScore--;
+//					}
+					
+					continue;
+				}
 				
 				if(hero.hpChange != 0){
 				
@@ -2360,7 +2484,15 @@ package game.battle
 		
 		private function quitBattle(e:Event):void{
 			
-			Connect_handle.sendData(18);
+			Connect.sendData(18,quitBattleOK);
+		}
+		
+		private function quitBattleOK(_result:Boolean):void{
+			
+			if(_result){
+				
+				leaveBattle(-1);
+			}
 		}
 		
 		public function leaveBattle(_result:int):void{

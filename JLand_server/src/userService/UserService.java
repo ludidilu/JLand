@@ -29,8 +29,6 @@ public class UserService extends Server_thread_service{
 		Server_thread_service.methodMap.put("leaveBattle", UserService.class.getDeclaredMethod("leaveBattle",int.class));
 	}
 	
-	public UserData userData;
-	
 	private Battle battle;
 	
 	private boolean isInGameQueue;
@@ -40,8 +38,6 @@ public class UserService extends Server_thread_service{
 	public UserService(DB_user_unit _user){
 		
 		super(_user);
-		
-		userData = new UserData();
 	}
 	
 	public void kick(Server_thread _thread) throws Exception{
@@ -83,14 +79,7 @@ public class UserService extends Server_thread_service{
 	
 	public void getUserData() throws Exception{
 		
-		int[] heros = new int[userData.heros.size()];
-		
-		for(int i = 0 ; i < userData.heros.size() ; i++){
-			
-			heros[i] = userData.heros.get(i);
-		}
-		
-		sendData(3, battle != null, (Object)heros);
+		sendData(3, battle != null, user.userData.getAllData());
 	}
 	
 	public void enterQueue() throws Exception{

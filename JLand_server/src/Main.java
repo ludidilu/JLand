@@ -16,11 +16,11 @@ public class Main {
 		
 		Server.init();
 		
-		MainCsv.init();
+		MainCsv.init("K:/inetpub/wwwroot/JLand/data/csv/");
 		
-		Map.init("C:/inetpub/wwwroot/JLand/data/map/");
+		Map.init("K:/inetpub/wwwroot/JLand/data/map/");
 		
-		MainDB.init();
+		MainDB.init("localhost",6379);
 		
 		UserService.init();
 		

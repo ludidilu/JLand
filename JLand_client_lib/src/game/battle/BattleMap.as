@@ -17,7 +17,7 @@ package game.battle
 
 	public class BattleMap extends Sprite
 	{
-		private static const FLIP_MAP:int = 2;//0不翻转 1水平翻转 2中心翻转
+		private var flipType:int;//0不翻转 1水平翻转 2中心翻转
 		
 		private var bgContainer:Sprite;
 		public var mapContainer:Sprite;
@@ -131,13 +131,15 @@ package game.battle
 			}
 		}
 		
-		public function start(_mapUnit:MapUnit,_dic:Dictionary):void{
+		public function start(_mapUnit:MapUnit,_dic:Dictionary,_flipType:int):void{
 			
 			mapContainer.unflatten();
 			
 			dic = new Dictionary;
 			
 			mapUnit = _mapUnit;
+			
+			flipType = _flipType;
 			
 			for(var i:int = 0 ; i < mapUnit.mapHeight ; i++){
 				
@@ -158,13 +160,13 @@ package game.battle
 						
 						sp.refresh();
 						
-						if(!Battle.instance.isHost && FLIP_MAP == 2){
+						if(!Battle.instance.isHost && flipType == 2){
 							
 							var posI:int = mapUnit.mapHeight - 1 - i;
 							var posM:int = mapUnit.mapWidth - 1 - m;
 							var fix:int = -1;
 							
-						}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+						}else if(!Battle.instance.isHost && flipType == 1){
 						
 							posI = i;
 							posM = mapUnit.mapWidth - 1 - m;
@@ -340,11 +342,11 @@ package game.battle
 			
 			if(angle >= -Math.PI / 6 && angle < Math.PI / 6){
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					var target:int = hero.pos - 1;
 						
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos - 1;
 					
@@ -355,11 +357,11 @@ package game.battle
 					
 			}else if(angle >= Math.PI / 6 && angle < Math.PI * 0.5){
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					target = hero.pos - mapUnit.mapWidth;
 					
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos + mapUnit.mapWidth - 1;
 					
@@ -370,11 +372,11 @@ package game.battle
 				
 			}else if(angle >= Math.PI * 0.5 && angle < Math.PI * 5 / 6){
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					target = hero.pos - mapUnit.mapWidth + 1;
 					
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos + mapUnit.mapWidth;
 					
@@ -385,11 +387,11 @@ package game.battle
 				
 			}else if(angle >= -Math.PI * 0.5 && angle < -Math.PI / 6){
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					target = hero.pos + mapUnit.mapWidth - 1;
 					
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos - mapUnit.mapWidth;
 					
@@ -400,11 +402,11 @@ package game.battle
 				
 			}else if(angle >= -Math.PI * 5 / 6 && angle < -Math.PI * 0.5){
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					target = hero.pos + mapUnit.mapWidth;
 					
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos - mapUnit.mapWidth + 1;
 					
@@ -415,11 +417,11 @@ package game.battle
 				
 			}else{
 				
-				if(!Battle.instance.isHost && FLIP_MAP == 2){
+				if(!Battle.instance.isHost && flipType == 2){
 					
 					target = hero.pos + 1;
 					
-				}else if(!Battle.instance.isHost && FLIP_MAP == 1){
+				}else if(!Battle.instance.isHost && flipType == 1){
 					
 					target = hero.pos + 1;
 					
@@ -553,11 +555,11 @@ package game.battle
 				
 				if(!Battle.instance.isHost){
 				
-					if(FLIP_MAP == 2){
+					if(flipType == 2){
 						
 						index = mapUnit.size - 1 - index;
 						
-					}else if(FLIP_MAP == 1){
+					}else if(flipType == 1){
 						
 						index = b * mapUnit.mapWidth - int(b * 0.5) + mapUnit.mapWidth - b % 2 - 1 - a;
 					}
@@ -643,50 +645,31 @@ package game.battle
 		
 		private function showTargetFrame(_hero:BattleHero):void{
 			
-			if(_hero.csv.heroType.attackType == 1){
+			loop:for(var i:int = 0 ; i < 6 ; i++){
 				
-				loop1:for(var i:int = 0 ; i < 6 ; i++){
+				var nowPos:int = _hero.pos;
+				
+				for(var m:int = 1 ; m <= _hero.csv.heroType.maxAttackRange ; m++){
 					
-					var nowPos:int = _hero.pos;
+					var pos:int = mapUnit.neightbourDic[nowPos][i];
 					
-					for(var m:int = 0 ; m < _hero.csv.heroType.attackRange ; m++){
+					if(pos == -1){
 						
-						var pos:int = mapUnit.neightbourDic[nowPos][i];
+						continue loop;
 						
-						if(pos == -1){
-							
-							continue loop1;
-							
-						}else{
+					}else{
+						
+						if(m < _hero.csv.heroType.minAttackRange){
 							
 							nowPos = pos;
-						}
-					}
-					
-					checkAddFrame(_hero,nowPos);
-				}
-					
-			}else if(_hero.csv.heroType.attackType == 2){
-				
-				loop2:for(i = 0 ; i < 6 ; i++){
-					
-					nowPos = _hero.pos;
-					
-					for(m = 0 ; m < _hero.csv.heroType.attackRange ; m++){
-						
-						pos = mapUnit.neightbourDic[nowPos][i];
-						
-						if(pos == -1){
-							
-							continue loop2;
 							
 						}else{
 							
-							var result:Boolean = checkAddFrame(_hero,pos);
+							var result:Boolean = checkAddFrame(_hero,nowPos);
 							
 							if(result){
 								
-								continue loop2;
+								continue loop;
 								
 							}else{
 								

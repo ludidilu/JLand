@@ -11,11 +11,9 @@ import data.dataCsv.map.Csv_map;
 
 public class MainCsv {
 
-	private static String path = "C:/inetpub/wwwroot/JLand/data/csv/";
-	
-	public static void init() throws Exception{
+	public static void init(String _path) throws Exception{
 		
-		Csv.init(path,UserService.class);
+		Csv.init(_path,UserService.class);
 		
 		Csv.setData(Csv_heroType.class, "heroType", null);
 		

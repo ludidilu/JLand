@@ -1,16 +1,17 @@
 package game
 {
 	import flash.display.Stage;
-	import flash.events.MouseEvent;
+	
+	import connect.Connect;
 	
 	import game.battle.Battle;
 	import game.gameQueue.GameQueuePanel;
 	import game.login.LoginPanel;
 	
-	import publicTools.connect.Connect_handle;
+	import playerData.PlayerData;
 	
 	import starling.core.Starling;
-
+	
 	public class Game
 	{
 		private static var stage:Stage;
@@ -23,6 +24,8 @@ package game
 		}
 		
 		public static function init(_stage:Stage):void{
+			
+			new PlayerData;
 			
 			stage = _stage;
 		}
@@ -40,7 +43,7 @@ package game
 			
 			if(_boolean){
 				
-				Connect_handle.sendData(2);
+				Connect.sendData(2,getUserData);
 				
 			}else{
 				
@@ -48,38 +51,33 @@ package game
 			}
 		}
 		
-		public static function getUserData(_isInBattle:Boolean,_heros:Vector.<int>):void{
+		public static function syncData(_str:String):void{
+			
+			var data:Object = JSON.parse(_str);
+			
+			PlayerData.instance.sync(data);
+			
+			var ss:PlayerData = PlayerData.instance;
+		}
+		
+		public static function getUserData(_isInBattle:Boolean,_playerData:String):void{
 			
 			stage.removeChild(loginPanel);
 			
-			if(!_isInBattle){
+			var data:Object = JSON.parse(_playerData);
 			
+			PlayerData.instance.sync(data);
+			
+			var ss:PlayerData = PlayerData.instance;
+			
+			if(!_isInBattle){
+				
 				stage.addChild(gameQueuePanel);
 				
 			}else{
 				
 				enterBattle();
 			}
-		}
-		
-		public static function enterQueueOK(_b:Boolean):void{
-			
-			gameQueuePanel.enterQueueOK(_b);
-		}
-		
-		public static function quitQueueOK(_b:Boolean):void{
-			
-			gameQueuePanel.quitQueueOK(_b);
-		}
-		
-		public static function fightAiOK(_b:Boolean):void{
-			
-			gameQueuePanel.fightAiOK(_b);
-		}
-		
-		public static function quitAiOK(_b:Boolean):void{
-			
-			gameQueuePanel.quitAiOK(_b);
 		}
 		
 		public static function enterBattle():void{
@@ -91,7 +89,7 @@ package game
 				stage.removeChild(gameQueuePanel);
 			}
 			
-			Connect_handle.sendData(9);
+			Connect.sendData(9,getBattleData);
 		}
 		
 		public static function getBattleData(_isHost:Boolean,_nowRound:int,_maxRound:int,_mapID:int,_mapData:Vector.<int>,_myCards:Vector.<Vector.<int>>,_oppCardsNum:int,_userAllCardsNum1:int,_userAllCardsNum2:int,_heroData:Vector.<Vector.<int>>,_canMoveData:Vector.<int>,_isActioned:Boolean,_actionHeroData:Vector.<Vector.<int>>,_actionSummonData:Vector.<Vector.<int>>):void{
@@ -99,11 +97,6 @@ package game
 			battle.start(_isHost,_nowRound,_maxRound,_mapID,_mapData,_myCards,_oppCardsNum,_userAllCardsNum1,_userAllCardsNum2,_heroData,_canMoveData,_isActioned,_actionHeroData,_actionSummonData);
 			
 			Starling.current.stage.addChild(battle);
-		}
-		
-		public static function sendBattleActionOK(_result:Boolean):void{
-			
-			battle.sendBattleActionOK(_result);
 		}
 		
 		public static function playBattle(_summonData1:Vector.<Vector.<int>>,_summonData2:Vector.<Vector.<int>>,_moveData:Vector.<Vector.<int>>,_skillData:Vector.<Vector.<Vector.<int>>>,_attackData:Vector.<Vector.<Vector.<int>>>,_cardUid:int,_cardID:int,_oppCardID:int,_canMoveData:Vector.<int>):void{

@@ -12,7 +12,7 @@ package game.battle
 	import starling.text.TextField;
 	import starling.utils.HAlign;
 	import starling.utils.VAlign;
-
+	
 	public class BattleHero extends Sprite
 	{
 		private static const fontSize:int = 20;
@@ -26,6 +26,7 @@ package game.battle
 		public var hpChange:int;
 		public var atkFix:int;
 		public var maxHpFix:int;
+		public var die:Boolean;
 		
 		private var frameImg:Image;
 		private var img:Image;
@@ -251,17 +252,13 @@ package game.battle
 				
 				var powerColor:uint = 0xFFFF0000;
 				
-			}else if(power < Battle.POWER_CAN_MOVE || csv.heroType.moveType == 0){
+			}else if(Battle.instance.canMoveData != null && Battle.instance.canMoveData.indexOf(pos) == -1){
 				
 				powerColor = 0xFFFFFF00;
 				
-			}else if(_refreshSkillAndMove && Battle.instance.canMoveData != null && Battle.instance.canMoveData.indexOf(pos) != -1){
-			
-				powerColor = 0xFF00FF00;
-				
 			}else{
 				
-				powerColor = 0xFFFFFFFF;
+				powerColor = 0xFF00FF00;
 			}
 			
 			
