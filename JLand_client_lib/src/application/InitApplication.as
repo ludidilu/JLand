@@ -2,8 +2,6 @@ package application
 {
 	import flash.display.Stage;
 	
-	import connect.Connect;
-	
 	import data.Data;
 	
 	import game.Game;

@@ -252,7 +252,7 @@ package game.battle
 				
 				var powerColor:uint = 0xFFFF0000;
 				
-			}else if(Battle.instance.canMoveData != null && Battle.instance.canMoveData.indexOf(pos) == -1){
+			}else if(Battle.instance.canMoveData == null || Battle.instance.canMoveData.indexOf(pos) == -1){
 				
 				powerColor = 0xFFFFFF00;
 				

@@ -665,7 +665,7 @@ package game.battle
 							
 						}else{
 							
-							var result:Boolean = checkAddFrame(_hero,nowPos);
+							var result:Boolean = checkAddFrame(_hero,pos);
 							
 							if(result){
 								

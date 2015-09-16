@@ -310,6 +310,25 @@ public class BattlePublic {
 		}
 	}
 	
+	public static ArrayList<BattleHero> getOppHerosInNeighbour(HashMap<Integer, int[]> _neighbourPosMap,HashMap<Integer, BattleHero> _heroDic,BattleHero _hero){
+		
+		ArrayList<BattleHero> result = new ArrayList<>();
+		
+		int[] tmpPosArr = _neighbourPosMap.get(_hero.pos);
+		
+		for(int pos : tmpPosArr){
+			
+			BattleHero hero = _heroDic.get(pos);
+			
+			if(hero != null && hero.isHost != _hero.isHost){
+				
+				result.add(hero);
+			}
+		}
+		
+		return result;
+	}
+	
 	//type 0所有 1敌方 2友方
 	public static void getHerosAndDirectionInRange(HashMap<Integer, int[]> _neighbourPosMap,HashMap<Integer, BattleHero> _heroDic,BattleHero _hero,int _type,ArrayList<BattleHero> _heroArr, ArrayList<Integer> _directionArr){
 		
